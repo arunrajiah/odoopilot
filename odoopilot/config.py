@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     groq_api_key: SecretStr | None = Field(default=None)
     groq_model: str = Field(default="llama-3.1-70b-versatile")
 
-    # Storage
+    # Storage — on Fly.io set to sqlite+aiosqlite:////app/data/odoopilot.db
     database_url: str = Field(
         default="sqlite+aiosqlite:///./odoopilot.db",
         description="SQLAlchemy async database URL",

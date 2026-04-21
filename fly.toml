@@ -1,0 +1,26 @@
+app = "odoopilot"
+primary_region = "sin" # Singapore — closest to most Odoo Community deployments in Asia
+
+[build]
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1        # keep 1 alive so webhooks never miss
+  processes = ["app"]
+
+[[vm]]
+  size = "shared-cpu-1x"          # free tier — 256 MB RAM
+  memory = "256mb"
+
+[mounts]
+  source = "odoopilot_data"
+  destination = "/app/data"       # SQLite lives here, survives redeploys
+
+[[statics]]
+  # No static files needed — pure API
