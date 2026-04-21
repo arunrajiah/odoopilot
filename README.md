@@ -10,8 +10,6 @@ Employee: "Confirm sale order SO/2024/0198"
 OdooPilot: "⚠️ Confirm SO/2024/0198 for Acme Corp — €4,320.00?  [Yes ✓] [No ✗]"
 ```
 
-> Think **Atomicwork for Odoo**: an AI agent that meets employees in the messaging app they already use.
-
 ---
 
 ## Why OdooPilot?
