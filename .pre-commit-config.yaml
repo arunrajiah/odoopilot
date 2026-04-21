@@ -1,0 +1,37 @@
+repos:
+  # Ruff — lint + format (replaces flake8, isort, black)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: debug-statements
+
+  # Mypy — type checking on the odoopilot package only
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0
+    hooks:
+      - id: mypy
+        files: ^odoopilot/
+        additional_dependencies:
+          - pydantic>=2.7.0
+          - pydantic-settings>=2.3.0
+          - sqlalchemy[asyncio]>=2.0.30
+          - openai>=1.30.0
+          - anthropic>=0.28.0
+
+  # OCA-specific: addon README generation (run manually before OCA submission)
+  # pip install oca-maintainer-tools then: oca-gen-addon-readme --addons-dir odoo_addon/

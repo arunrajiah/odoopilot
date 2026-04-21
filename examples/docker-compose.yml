@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: odoo
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  odoo:
+    image: odoo:17.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      HOST: postgres
+      USER: odoo
+      PASSWORD: odoo
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo_data:/var/lib/odoo
+      - ./odoo_config:/etc/odoo
+    # Mount the companion addon if you want it installed
+    # - ../odoo_addon:/mnt/extra-addons
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8069/web/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+
+  odoopilot:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    depends_on:
+      odoo:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:///./data/odoopilot.db
+      ODOO_URL: http://odoo:8069
+    ports:
+      - "8000:8000"
+    volumes:
+      - odoopilot_data:/app/data
+
+volumes:
+  postgres_data:
+  odoo_data:
+  odoopilot_data:
