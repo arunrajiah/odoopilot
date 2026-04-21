@@ -1,4 +1,4 @@
-**AI Mail Gateway** bridges Odoo Community with external messaging apps (Telegram first, WhatsApp in v0.3) via an AI agent. It is the companion Odoo addon for the [OdooPilot](https://github.com/your-org/odoopilot) standalone service.
+**AI Mail Gateway** bridges Odoo Community with external messaging apps (Telegram first, WhatsApp in v0.3) via an AI agent. It is the companion Odoo addon for the [OdooPilot](https://github.com/arunrajiah/odoopilot) standalone service.
 
 ## Features
 
@@ -15,4 +15,4 @@ This addon does **not** contain the AI logic. That lives in the standalone `odoo
 2. The user-linking flow (token generation + Odoo-side identity storage).
 3. An audit log model and viewer.
 
-See the [OdooPilot documentation](https://github.com/your-org/odoopilot/blob/main/docs/architecture.md) for the full architecture.
+See the [OdooPilot documentation](https://github.com/arunrajiah/odoopilot/blob/main/docs/architecture.md) for the full architecture.

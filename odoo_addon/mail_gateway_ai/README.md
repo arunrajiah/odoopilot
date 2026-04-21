@@ -3,7 +3,7 @@
 [![License: LGPL-3](https://img.shields.io/badge/License-LGPL--3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![OCA/social](https://img.shields.io/badge/GitHub-OCA%2Fsocial-lightgrey.svg?logo=github)](https://github.com/OCA/social)
 
-**Companion Odoo addon for [OdooPilot](https://github.com/your-org/odoopilot)** — the open-source AI messaging bridge for Odoo Community.
+**Companion Odoo addon for [OdooPilot](https://github.com/arunrajiah/odoopilot)** — the open-source AI messaging bridge for Odoo Community.
 
 This module provides the Odoo-side UI for bot configuration, user account linking, and audit log viewing. The AI logic lives in the standalone OdooPilot Python service.
 
@@ -33,7 +33,7 @@ Go to **Settings → Technical → OdooPilot**. See [CONFIGURE.md](readme/CONFIG
 
 ## Bug Tracker
 
-Bugs are reported at <https://github.com/your-org/odoopilot/issues>.
+Bugs are reported at <https://github.com/arunrajiah/odoopilot/issues>.
 
 ## Credits
 

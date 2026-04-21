@@ -5,7 +5,7 @@
 The fastest way to run OdooPilot alongside Odoo:
 
 ```bash
-git clone https://github.com/your-org/odoopilot.git
+git clone https://github.com/arunrajiah/odoopilot.git
 cd odoopilot/examples
 cp .env.example .env
 # Edit .env

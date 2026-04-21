@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List view -->
+    <record id="mail_gateway_ai_identity_view_list" model="ir.ui.view">
+        <field name="name">mail.gateway.ai.identity.view.list</field>
+        <field name="model">mail.gateway.ai.identity</field>
+        <field name="arch" type="xml">
+            <list string="OdooPilot Identities">
+                <field name="user_id"/>
+                <field name="channel"/>
+                <field name="chat_id"/>
+                <field name="display_name_channel"/>
+                <field name="linked_at"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="mail_gateway_ai_identity_view_form" model="ir.ui.view">
+        <field name="name">mail.gateway.ai.identity.view.form</field>
+        <field name="model">mail.gateway.ai.identity</field>
+        <field name="arch" type="xml">
+            <form string="OdooPilot Identity">
+                <sheet>
+                    <group>
+                        <group string="User">
+                            <field name="user_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Channel">
+                            <field name="channel"/>
+                            <field name="chat_id"/>
+                            <field name="display_name_channel"/>
+                            <field name="linked_at"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_mail_gateway_ai_identity" model="ir.actions.act_window">
+        <field name="name">OdooPilot Identities</field>
+        <field name="res_model">mail.gateway.ai.identity</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{"active_test": False}</field>
+    </record>
+
+    <!-- Menu items -->
+    <menuitem id="menu_mail_gateway_ai_root"
+              name="OdooPilot"
+              sequence="90"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_mail_gateway_ai_identity"
+              name="User Identities"
+              parent="menu_mail_gateway_ai_root"
+              action="action_mail_gateway_ai_identity"
+              sequence="10"
+              groups="base.group_system"/>
+</odoo>

@@ -13,7 +13,7 @@ Open [README.md](README.md) and find a tool marked as unimplemented in the domai
 ### 2. Set up your environment
 
 ```bash
-git clone https://github.com/your-org/odoopilot.git
+git clone https://github.com/arunrajiah/odoopilot.git
 cd odoopilot
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
@@ -85,4 +85,4 @@ All contributions are licensed under LGPL-3.0-or-later. By submitting a PR you c
 
 ## Getting help
 
-Open a [GitHub Discussion](https://github.com/your-org/odoopilot/discussions) — we're friendly.
+Open a [GitHub Discussion](https://github.com/arunrajiah/odoopilot/discussions) — we're friendly.

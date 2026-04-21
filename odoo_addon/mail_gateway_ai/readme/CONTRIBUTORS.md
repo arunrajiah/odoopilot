@@ -1,3 +1,3 @@
 ## Contributors
 
-- OdooPilot Contributors (<https://github.com/your-org/odoopilot>)
+- OdooPilot Contributors (<https://github.com/arunrajiah/odoopilot>)

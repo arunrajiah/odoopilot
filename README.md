@@ -66,7 +66,7 @@ OdooPilot: "⚠️ Confirm SO/2024/0198 for Acme Corp — €4,320.00?  [Yes ✓
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-org/odoopilot.git
+git clone https://github.com/arunrajiah/odoopilot.git
 cd odoopilot
 pip install -e ".[dev]"
 ```
@@ -149,7 +149,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 
 OdooPilot is free, open-source, and community-maintained. If it saves your team time, consider sponsoring:
 
-**[Sponsor on GitHub →](https://github.com/sponsors/your-org)**
+**[Sponsor on GitHub →](https://github.com/sponsors/arunrajiah)**
 
 Sponsors get:
 - Priority issue responses

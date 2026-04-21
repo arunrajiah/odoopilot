@@ -7,7 +7,7 @@
     "license": "LGPL-3",
     # When submitting to OCA, append ", Odoo Community Association (OCA)" to author
     "author": "OdooPilot Contributors",
-    "website": "https://github.com/your-org/odoopilot",
+    "website": "https://github.com/arunrajiah/odoopilot",
     "depends": ["mail", "base_setup"],
     "data": [
         "security/ir.model.access.csv",

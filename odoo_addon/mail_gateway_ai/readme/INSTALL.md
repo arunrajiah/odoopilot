@@ -2,7 +2,7 @@
 
 ### Prerequisites
 
-- A running [OdooPilot](https://github.com/your-org/odoopilot) service (see its README for setup).
+- A running [OdooPilot](https://github.com/arunrajiah/odoopilot) service (see its README for setup).
 - Odoo 17.0 or 18.0 Community edition.
 
 ### Steps

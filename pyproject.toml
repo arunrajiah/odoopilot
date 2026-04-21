@@ -53,10 +53,10 @@ postgres = [
 odoopilot = "odoopilot.main:app"
 
 [project.urls]
-Homepage = "https://github.com/your-org/odoopilot"
-Repository = "https://github.com/your-org/odoopilot"
-"Bug Tracker" = "https://github.com/your-org/odoopilot/issues"
-"GitHub Sponsors" = "https://github.com/sponsors/your-org"
+Homepage = "https://github.com/arunrajiah/odoopilot"
+Repository = "https://github.com/arunrajiah/odoopilot"
+"Bug Tracker" = "https://github.com/arunrajiah/odoopilot/issues"
+"GitHub Sponsors" = "https://github.com/sponsors/arunrajiah"
 
 # ---------------------------------------------------------------------------
 # Hatchling
