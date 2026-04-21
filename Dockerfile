@@ -2,12 +2,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install deps first (layer cache)
-COPY pyproject.toml .
-RUN pip install --no-cache-dir -e . 2>/dev/null || true
-
+# Copy everything needed for the package build
+COPY pyproject.toml README.md ./
 COPY odoopilot/ odoopilot/
-RUN pip install --no-cache-dir -e .
+
+RUN pip install --no-cache-dir .
 
 # Non-root user for security
 RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /app
