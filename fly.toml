@@ -22,5 +22,3 @@ primary_region = "sin" # Singapore — closest to most Odoo Community deployment
   source = "odoopilot_data"
   destination = "/app/data"       # SQLite lives here, survives redeploys
 
-[[statics]]
-  # No static files needed — pure API
