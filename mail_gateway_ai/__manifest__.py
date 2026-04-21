@@ -1,5 +1,5 @@
 {
-    "name": "AI Mail Gateway",
+    "name": "OdooPilot",
     "summary": "AI messaging bridge for Odoo Community — Telegram & WhatsApp via any LLM",
     "version": "17.0.1.0.0",
     "development_status": "Alpha",
