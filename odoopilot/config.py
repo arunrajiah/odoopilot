@@ -10,17 +10,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    # Odoo connection
-    odoo_url: str = Field(
-        ..., description="Base URL of Odoo instance, e.g. https://odoo.example.com"
-    )
-    odoo_db: str = Field(..., description="Odoo database name")
-    odoo_admin_user: str = Field(..., description="Odoo admin username")
-    odoo_admin_password: SecretStr = Field(..., description="Odoo admin password")
+    # Odoo connection (optional — service starts without them, configure via Odoo addon settings)
+    odoo_url: str = Field(default="", description="Base URL of Odoo instance")
+    odoo_db: str = Field(default="", description="Odoo database name")
+    odoo_admin_user: str = Field(default="", description="Odoo admin username")
+    odoo_admin_password: SecretStr = Field(default=SecretStr(""), description="Odoo admin password")
 
-    # Telegram
-    telegram_bot_token: SecretStr = Field(..., description="Telegram Bot API token from @BotFather")
-    telegram_webhook_url: str = Field(..., description="Public HTTPS URL for Telegram webhook")
+    # Telegram (optional — service starts without it)
+    telegram_bot_token: SecretStr = Field(default=SecretStr(""), description="Telegram Bot token")
+    telegram_webhook_url: str = Field(default="", description="Public HTTPS URL for webhook")
     telegram_webhook_secret: SecretStr | None = Field(
         default=None, description="Optional secret token for webhook validation"
     )
@@ -63,4 +61,4 @@ class Settings(BaseSettings):
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    return Settings()  # type: ignore[call-arg]
+    return Settings()

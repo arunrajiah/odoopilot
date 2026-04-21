@@ -45,40 +45,39 @@ async def startup() -> None:
     await create_tables()
     session_factory = get_session_factory()
 
-    # Odoo client
-    _odoo = OdooClient(url=settings.odoo_url, db=settings.odoo_db)
-
-    # Audit + identity
+    # Audit + identity (always initialised)
     audit = AuditLogger(session_factory)
     _identity_store = IdentityStore(
         session_factory=session_factory,
         secret_key=settings.secret_key.get_secret_value(),
     )
 
-    # LLM provider
-    llm = build_llm_provider(settings)
+    # Odoo + LLM + Agent — only when credentials are configured
+    if settings.odoo_url and settings.telegram_bot_token.get_secret_value():
+        _odoo = OdooClient(url=settings.odoo_url, db=settings.odoo_db)
+        llm = build_llm_provider(settings)
+        _agent = AgentCore(llm=llm, odoo=_odoo, audit=audit)
 
-    # Agent core
-    _agent = AgentCore(llm=llm, odoo=_odoo, audit=audit)
+        _telegram = TelegramChannel(token=settings.telegram_bot_token.get_secret_value())
+        _telegram.set_message_handler(_handle_message)
+        _telegram.set_confirmation_handler(_handle_confirmation)
+        await _telegram.get_ptb_application().initialize()
 
-    # Telegram channel
-    _telegram = TelegramChannel(token=settings.telegram_bot_token.get_secret_value())
-    _telegram.set_message_handler(_handle_message)
-    _telegram.set_confirmation_handler(_handle_confirmation)
-
-    await _telegram.get_ptb_application().initialize()
-
-    # Register webhook with Telegram
-    bot = _telegram.get_ptb_application().bot
-    webhook_url = f"{settings.telegram_webhook_url.rstrip('/')}/webhook/telegram"
-    await bot.set_webhook(
-        url=webhook_url,
-        secret_token=settings.telegram_webhook_secret.get_secret_value()
-        if settings.telegram_webhook_secret
-        else None,
-        allowed_updates=["message", "callback_query"],
-    )
-    logger.info("Telegram webhook registered at %s", webhook_url)
+        webhook_url = f"{settings.telegram_webhook_url.rstrip('/')}/webhook/telegram"
+        await _telegram.get_ptb_application().bot.set_webhook(
+            url=webhook_url,
+            secret_token=settings.telegram_webhook_secret.get_secret_value()
+            if settings.telegram_webhook_secret
+            else None,
+            allowed_updates=["message", "callback_query"],
+        )
+        logger.info("Telegram webhook registered at %s", webhook_url)
+    else:
+        logger.warning(
+            "ODOO_URL or TELEGRAM_BOT_TOKEN not set — "
+            "running in unconfigured mode. Health endpoint active. "
+            "Set secrets via 'fly secrets set' to activate the bot."
+        )
 
 
 @app.on_event("shutdown")
@@ -118,7 +117,12 @@ async def telegram_webhook(request: Request) -> Response:
 
 @app.get("/health")
 async def health() -> dict[str, Any]:
-    return {"status": "ok", "service": "odoopilot"}
+    return {
+        "status": "ok",
+        "service": "odoopilot",
+        "version": "0.1.0",
+        "configured": _telegram is not None,
+    }
 
 
 # ---------------------------------------------------------------------------
