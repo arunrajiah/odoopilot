@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Any
 
 from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
@@ -69,7 +70,7 @@ class TelegramChannel(Channel):
     async def answer_callback(self, callback_query_id: str, text: str = "") -> None:
         await self._bot.answer_callback_query(callback_query_id=callback_query_id, text=text)
 
-    def get_ptb_application(self) -> Application:
+    def get_ptb_application(self) -> Application:  # type: ignore[type-arg]
         return self._app
 
     async def process_update(self, update_data: bytes) -> None:

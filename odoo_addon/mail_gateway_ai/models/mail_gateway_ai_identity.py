@@ -23,7 +23,11 @@ class MailGatewayAIIdentity(models.Model):
     linked_at = fields.Datetime(string="Linked At", readonly=True)
 
     _sql_constraints = [
-        ("unique_channel_chat", "UNIQUE(channel, chat_id)", "This chat is already linked to a user."),
+        (
+            "unique_channel_chat",
+            "UNIQUE(channel, chat_id)",
+            "This chat is already linked to a user.",
+        ),
     ]
 
     @api.model

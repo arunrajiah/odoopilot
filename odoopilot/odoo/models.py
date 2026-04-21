@@ -13,7 +13,7 @@ class Many2oneField(BaseModel):
 
     @classmethod
     def from_tuple(cls, value: list[Any] | bool) -> Many2oneField | None:
-        if not value or value is False:
+        if not isinstance(value, list) or not value:
             return None
         return cls(id=value[0], name=value[1])
 

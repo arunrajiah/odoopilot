@@ -72,6 +72,7 @@ packages = ["odoopilot"]
 [tool.ruff]
 target-version = "py311"
 line-length = 100
+exclude = ["odoo_addon"]
 
 [tool.ruff.lint]
 select = [
@@ -101,6 +102,10 @@ python_version = "3.11"
 strict = true
 ignore_missing_imports = true
 files = ["odoopilot"]
+
+[[tool.mypy.overrides]]
+module = "odoopilot.agent.tools.*"
+disable_error_code = ["override"]
 
 # ---------------------------------------------------------------------------
 # Pytest

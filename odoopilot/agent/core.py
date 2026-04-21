@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from odoopilot.agent.providers.base import BaseLLMProvider, Message, ToolCallRequest
 from odoopilot.agent.tools import TOOL_REGISTRY
@@ -111,7 +111,7 @@ class AgentCore:
         channel: Channel,
         identity: UserIdentity,
         pending_tool_name: str,
-        pending_tool_args: dict,
+        pending_tool_args: dict[str, Any],
     ) -> None:
         """Resume a write tool after the user taps confirm/cancel."""
         if not msg.confirmed:

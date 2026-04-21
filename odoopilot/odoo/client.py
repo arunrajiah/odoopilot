@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 import httpx
 
@@ -59,8 +59,9 @@ class OdooClient:
         uid = result[0] if result else None
         if not uid:
             raise OdooError(f"Authentication failed for user '{username}'")
-        self._uid_cache[cache_key] = uid
-        return uid
+        uid_int = int(uid)
+        self._uid_cache[cache_key] = uid_int
+        return uid_int
 
     async def search_read(
         self,
@@ -82,13 +83,16 @@ class OdooClient:
         }
         if order:
             kwargs["order"] = order
-        return await self._call(
-            model=model,
-            method="search_read",
-            args=[domain],
-            kwargs=kwargs,
-            uid=uid,
-            password=password,
+        return cast(
+            list[dict[str, Any]],
+            await self._call(
+                model=model,
+                method="search_read",
+                args=[domain],
+                kwargs=kwargs,
+                uid=uid,
+                password=password,
+            ),
         )
 
     async def read(
@@ -102,13 +106,16 @@ class OdooClient:
     ) -> list[dict[str, Any]]:
         """Call read on an Odoo model."""
         id_list = [ids] if isinstance(ids, int) else ids
-        return await self._call(
-            model=model,
-            method="read",
-            args=[id_list, fields],
-            kwargs={},
-            uid=uid,
-            password=password,
+        return cast(
+            list[dict[str, Any]],
+            await self._call(
+                model=model,
+                method="read",
+                args=[id_list, fields],
+                kwargs={},
+                uid=uid,
+                password=password,
+            ),
         )
 
     async def search(
@@ -122,13 +129,16 @@ class OdooClient:
         offset: int = 0,
     ) -> list[int]:
         """Call search on an Odoo model, returning record IDs."""
-        return await self._call(
-            model=model,
-            method="search",
-            args=[domain],
-            kwargs={"limit": limit, "offset": offset},
-            uid=uid,
-            password=password,
+        return cast(
+            list[int],
+            await self._call(
+                model=model,
+                method="search",
+                args=[domain],
+                kwargs={"limit": limit, "offset": offset},
+                uid=uid,
+                password=password,
+            ),
         )
 
     async def execute_kw(

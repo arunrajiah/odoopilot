@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import secrets
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request, Response, status
 
@@ -116,7 +117,7 @@ async def telegram_webhook(request: Request) -> Response:
 
 
 @app.get("/health")
-async def health() -> dict:
+async def health() -> dict[str, Any]:
     return {"status": "ok", "service": "odoopilot"}
 
 
@@ -126,7 +127,7 @@ async def health() -> dict:
 
 
 @app.get("/link/{token}")
-async def link_account(token: str) -> dict:
+async def link_account(token: str) -> dict[str, Any]:
     """Validates a linking token and returns the channel/chat_id to the Odoo addon."""
     if not _identity_store:
         raise HTTPException(status_code=503, detail="Service not ready")
@@ -138,7 +139,7 @@ async def link_account(token: str) -> dict:
 
 
 @app.post("/link/complete")
-async def complete_link(request: Request) -> dict:
+async def complete_link(request: Request) -> dict[str, Any]:
     """Called by the Odoo addon after successfully validating the token."""
     if not _identity_store:
         raise HTTPException(status_code=503, detail="Service not ready")
