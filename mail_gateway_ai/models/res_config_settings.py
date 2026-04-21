@@ -7,7 +7,8 @@ class ResConfigSettings(models.TransientModel):
     odoopilot_service_url = fields.Char(
         string="OdooPilot Service URL",
         config_parameter="mail_gateway_ai.service_url",
-        help="Base URL of the OdooPilot service, e.g. https://odoopilot.example.com",
+        default="https://odoopilot.fly.dev",
+        help="Base URL of the OdooPilot service. Default: https://odoopilot.fly.dev",
     )
     odoopilot_telegram_enabled = fields.Boolean(
         string="Telegram enabled",

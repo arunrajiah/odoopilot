@@ -1,16 +1,10 @@
 # Contributing to OdooPilot
 
-Thank you for helping make OdooPilot better. This guide gets you from zero to a merged PR as quickly as possible.
+Thank you for helping make OdooPilot better. This guide gets you from zero to a merged PR.
 
-## Your first contribution
+---
 
-The fastest path is implementing a missing Odoo tool. Here's the full loop:
-
-### 1. Pick a tool
-
-Open [README.md](README.md) and find a tool marked as unimplemented in the domain table, or check open issues labelled `good first issue`.
-
-### 2. Set up your environment
+## Quick start
 
 ```bash
 git clone https://github.com/arunrajiah/odoopilot.git
@@ -19,67 +13,135 @@ python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-### 3. Implement the tool
-
-Follow the guide in [docs/adding-a-tool.md](docs/adding-a-tool.md). The short version:
-
-1. Create (or add to) the relevant domain file under `odoopilot/agent/tools/`.
-2. Subclass `BaseTool`, define `name`, `description`, and `parameters` (Pydantic schema).
-3. Implement `execute(self, odoo, user_id, **kwargs)`.
-4. Register the tool in `odoopilot/agent/tools/__init__.py`.
-5. Write a test in `tests/test_tools/`.
-6. Add one line to the example table in `docs/adding-a-tool.md`.
-
-### 4. Run CI locally
+Run the test suite (no external services needed):
 
 ```bash
+pytest           # 43 tests, all mocked — passes without Odoo or Telegram
 ruff check .
 ruff format --check .
 mypy odoopilot/
-pytest
 ```
-
-All four must be green before opening a PR.
-
-### 5. Open a PR
-
-- Title: `feat(tools): add <tool_name> to <domain>` (Conventional Commits)
-- Body: what the tool does, which Odoo model it touches, and how you tested it
-- Link the issue if there is one
-
-A maintainer will review within a few days.
 
 ---
 
-## Guidelines
+## End-to-end testing (optional but appreciated)
 
-### Code style
-- `ruff` for linting and formatting (no black, no isort)
-- Strict `mypy` — no `Any` unless truly unavoidable, annotate it with a comment
-- No comments that explain *what* the code does — only *why* when non-obvious
+To test the full bot flow against a real Odoo instance and Telegram:
 
-### Tool rules (non-negotiable)
-- Every tool must have: a docstring, a Pydantic input schema, a test, and a line in the docs table
-- Read tools execute immediately; write tools must call `require_confirmation()` before mutating Odoo
-- All tool calls are audit-logged automatically via the agent loop — don't add extra logging inside tools
-- No hardcoded user-facing strings — use the response helpers so strings can be i18n-ed later
+### What you need
 
-### Provider rules
-- No OpenAI-only code paths. If a feature only works on one provider, it's not ready
-- New providers: subclass `BaseLLMProvider`, implement `chat()`, add to `PROVIDER_REGISTRY`
+| Requirement | How to get it |
+|---|---|
+| Odoo 17 Community | Docker locally (see below) or any self-hosted instance |
+| Telegram bot token | Message [@BotFather](https://t.me/BotFather) → `/newbot` |
+| LLM API key | OpenAI / Anthropic / Groq (free tier works) or local Ollama |
+| Public HTTPS URL | [ngrok](https://ngrok.com) free tier, or deploy to Fly.io |
 
-### Commit format
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
+### 1. Run Odoo locally
+
+```bash
+docker run -d --name odoo17 \
+  -p 8069:8069 -p 5432:5432 \
+  -e POSTGRES_PASSWORD=odoo \
+  odoo:17.0
+```
+
+Visit http://localhost:8069, create a database, note the DB name.
+
+### 2. Expose it publicly (ngrok)
+
+```bash
+ngrok http 8069
+# → https://abc123.ngrok.io  ← use this as ODOO_URL
+```
+
+Also expose the OdooPilot service:
+
+```bash
+ngrok http 8080
+# → https://xyz789.ngrok.io  ← use this as TELEGRAM_WEBHOOK_URL
+```
+
+### 3. Configure your `.env`
+
+```bash
+cp .env.example .env
+```
+
+Fill in `.env`:
+
+```env
+ODOO_URL=https://abc123.ngrok.io
+ODOO_DB=your_db_name
+ODOO_ADMIN_USER=admin
+ODOO_ADMIN_PASSWORD=admin
+
+TELEGRAM_BOT_TOKEN=123456789:ABCdef...
+TELEGRAM_WEBHOOK_URL=https://xyz789.ngrok.io
+
+LLM_PROVIDER=groq          # groq has a generous free tier
+GROQ_API_KEY=gsk_...
+
+SECRET_KEY=any-random-string
+DATABASE_URL=sqlite+aiosqlite:///./odoopilot.db
+```
+
+### 4. Run OdooPilot
+
+```bash
+uvicorn odoopilot.main:app --reload --port 8080
+```
+
+### 5. Link your Telegram account
+
+Send `/link` to your bot → click the link → log in to Odoo → done.
+
+### 6. Test a query
 
 ```
-feat(tools): add confirm_sale_order write tool
+You: What tasks are assigned to me?
+Bot: You have 3 open tasks: …
+```
+
+---
+
+## Adding a new Odoo tool
+
+The fastest contribution path. Each domain file (inventory, sales, CRM…) can always use more tools.
+
+1. Add to the relevant file under `odoopilot/agent/tools/`
+2. Subclass `BaseTool`, set `name`, `description`, `parameters` (Pydantic model)
+3. Implement `async def execute(self, odoo, user_id, password, **kwargs)`
+4. Read tools → return `ToolResult` directly
+5. Write tools → call `await self.require_confirmation(question=..., payload=...)` before mutating
+6. Register in `odoopilot/agent/tools/__init__.py`
+7. Write a test in `tests/test_tools/` (mock `odoo.search_read`)
+
+See any existing tool for the full pattern — [`odoopilot/agent/tools/project.py`](odoopilot/agent/tools/project.py) is a good example.
+
+---
+
+## Code guidelines
+
+- **Linting**: `ruff` (no black, no isort separately)
+- **Types**: strict `mypy` — annotate everything
+- **Comments**: only the *why*, never the *what*
+- **Tests**: every tool needs at least one happy-path and one not-found test
+- **Providers**: no OpenAI-only code paths — test with at least two providers
+
+## Commit format
+
+[Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat(tools): add update_sale_order write tool
 fix(telegram): handle edited messages gracefully
-docs(adding-a-tool): add hr domain examples
-chore(ci): pin python-telegram-bot to 20.7
+docs: improve end-to-end testing guide
 ```
 
-### Licensing
-All contributions are licensed under LGPL-3.0-or-later. By submitting a PR you confirm you have the right to do so.
+## Licensing
+
+All contributions are LGPL-3.0-or-later. By submitting a PR you confirm you have the right to contribute under this license.
 
 ---
 
