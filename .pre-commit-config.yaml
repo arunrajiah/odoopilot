@@ -34,4 +34,4 @@ repos:
           - anthropic>=0.28.0
 
   # OCA-specific: addon README generation (run manually before OCA submission)
-  # pip install oca-maintainer-tools then: oca-gen-addon-readme --addons-dir odoo_addon/
+  # pip install oca-maintainer-tools then: oca-gen-addon-readme --addons-dir .

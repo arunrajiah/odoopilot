@@ -30,7 +30,7 @@ services:
       - odoo_data:/var/lib/odoo
       - ./odoo_config:/etc/odoo
     # Mount the companion addon if you want it installed
-    # - ../odoo_addon:/mnt/extra-addons
+    # - ../mail_gateway_ai:/mnt/extra-addons/mail_gateway_ai
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8069/web/health || exit 1"]
       interval: 15s

@@ -49,4 +49,4 @@ __MACOSX/
 
 # Odoo
 *.pyc
-odoo_addon/**/__pycache__/
+mail_gateway_ai/**/__pycache__/

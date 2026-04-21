@@ -56,6 +56,6 @@ ngrok http 8000
 
 ## Adding the companion Odoo addon
 
-1. Copy `odoo_addon/mail_gateway_ai/` into your Odoo addons path
+1. Copy `mail_gateway_ai/` into your Odoo addons path
 2. Update your Odoo addon list and install `mail_gateway_ai`
 3. Go to **Settings → OdooPilot** to configure the bot URL and manage user links
