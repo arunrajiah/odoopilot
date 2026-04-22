@@ -173,7 +173,7 @@ OdooPilot is free, open-source, and solo-maintained. If it saves your team time,
 | Tier | Monthly | Perks |
 |------|---------|-------|
 | Supporter | $5 | Name in README |
-| Backer | $25 | Priority bug fixes · Discord role |
+| Backer | $25 | Priority bug fixes · shout-out in release notes |
 | Patron | $100 | Logo in README · Feature request queue |
 
 ---
