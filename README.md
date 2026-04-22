@@ -1,14 +1,17 @@
 # OdooPilot
 
-**AI-powered messaging bridge for Odoo Community.** Let your team query and act on Odoo data from Telegram — in plain language, without opening a browser.
+**AI assistant for Odoo — query and act on your business data from Telegram, in plain language.**
 
 ```
-Employee: "What's the stock level for product REF-1042?"
-OdooPilot: "Product Widget Pro (REF-1042): 247 units on hand across 2 warehouses."
+You:        "What tasks are assigned to me today?"
+OdooPilot:  "You have 3 open tasks: Update product catalogue (due today ⚠️),
+             Review Q2 report (Thu), Onboard new supplier (Fri)."
 
-Employee: "Confirm sale order SO/2024/0198"
-OdooPilot: "⚠️ Confirm SO/2024/0198 for Acme Corp — €4,320.00?  [Yes ✓] [No ✗]"
+You:        "Mark the first one as done."
+OdooPilot:  "✅ Update product catalogue marked as done in Odoo."
 ```
+
+No external service to host. No per-seat SaaS fees. Everything runs inside your Odoo instance.
 
 ---
 
@@ -17,38 +20,49 @@ OdooPilot: "⚠️ Confirm SO/2024/0198 for Acme Corp — €4,320.00?  [Yes ✓
 | | OdooPilot | Paid chatbot modules | OCA mail_gateway |
 |---|---|---|---|
 | Open-source | ✅ LGPL-3 | ❌ | ✅ |
-| Employee-facing | ✅ | ❌ customer-facing | — |
-| Model-agnostic | ✅ OpenAI / Anthropic / Ollama / Groq | ❌ OpenAI only | — |
-| Telegram | ✅ v0.1 | rarely | ✅ transport only |
-| WhatsApp | 🔜 v0.3 | ✅ | ✅ transport only |
-| AI layer | ✅ | ✅ | ❌ |
+| All-in-one Odoo addon | ✅ | ❌ external service | — |
+| Employee-facing AI | ✅ | ❌ customer-facing | — |
+| Multi-provider LLM | ✅ Anthropic / OpenAI / Groq | ❌ OpenAI only | — |
+| Telegram | ✅ | rarely | ✅ transport only |
 | Odoo Community | ✅ | mixed | ✅ |
+| No extra infrastructure | ✅ | ❌ | ✅ |
 
 ---
 
 ## Architecture
 
+Everything runs inside the Odoo addon — no separate Python service, no Docker container, no cloud deployment.
+
 ```
-┌─────────────────────────────────┐
-│  Channel adapters               │
-│  Telegram (v1) · WhatsApp (v2)  │
-└──────────────┬──────────────────┘
-               │
-┌──────────────▼──────────────────┐
-│  Identity & permission layer    │
-│  (channel, chat_id) → Odoo user │
-└──────────────┬──────────────────┘
-               │
-┌──────────────▼──────────────────┐
-│  Agent core  (LLM + tool-router)│
-│  OpenAI · Anthropic · Ollama    │
-│  Reads: instant  Writes: confirm│
-└──────────────┬──────────────────┘
-               │
-┌──────────────▼──────────────────┐
-│  Odoo adapter (JSON-RPC)        │
-│  Works with any Odoo v17+       │
-└─────────────────────────────────┘
+Telegram
+    │  HTTPS webhook
+    ▼
+┌─────────────────────────────────────────────┐
+│  OdooPilot Odoo Addon (odoopilot/)          │
+│                                             │
+│  ┌─────────────────────────────────────┐   │
+│  │  HTTP Controller  /odoopilot/webhook │   │
+│  │  Validates secret · spawns thread   │   │
+│  └──────────────┬──────────────────────┘   │
+│                 │                           │
+│  ┌──────────────▼──────────────────────┐   │
+│  │  Agent  (services/agent.py)         │   │
+│  │  Loads session · runs LLM loop      │   │
+│  │  Gates writes behind confirmation   │   │
+│  └──────┬──────────────────────────────┘   │
+│         │                    │              │
+│  ┌──────▼──────┐    ┌────────▼──────────┐  │
+│  │  LLM Client │    │  ORM Tools        │  │
+│  │  Anthropic  │    │  project / sales  │  │
+│  │  OpenAI     │    │  crm / inventory  │  │
+│  │  Groq       │    │  invoices / hr    │  │
+│  └─────────────┘    │  purchase         │  │
+│                     └───────────────────┘  │
+│                                             │
+│  Models: odoopilot.session                  │
+│           odoopilot.identity                │
+│           odoopilot.audit                   │
+└─────────────────────────────────────────────┘
 ```
 
 ---
@@ -56,88 +70,95 @@ OdooPilot: "⚠️ Confirm SO/2024/0198 for Acme Corp — €4,320.00?  [Yes ✓
 ## Quickstart
 
 ### Prerequisites
-- Python 3.11+
-- A running Odoo 17+ Community instance
-- A Telegram Bot token ([@BotFather](https://t.me/BotFather))
-- An API key for your chosen LLM provider
 
-### 1. Clone and install
+- Odoo **17.0 Community** (self-hosted or Odoo.sh)
+- A Telegram Bot token — create one via [@BotFather](https://t.me/BotFather)
+- An API key from [Anthropic](https://console.anthropic.com), [OpenAI](https://platform.openai.com), or [Groq](https://console.groq.com) (Groq has a free tier)
+- Odoo must be reachable from the internet (for Telegram webhook delivery)
 
-```bash
-git clone https://github.com/arunrajiah/odoopilot.git
-cd odoopilot
-pip install -e ".[dev]"
-```
+### 1. Install the addon
 
-### 2. Configure
+Copy the `odoopilot/` directory into your Odoo addons path, then:
 
 ```bash
-cp .env.example .env
-# Edit .env with your Odoo URL, Telegram token, and LLM API key
+# Restart Odoo and update the module list
+./odoo-bin -c odoo.conf -u odoopilot
 ```
 
-### 3. Run with Docker (recommended)
+Or install from the [Odoo App Store](https://apps.odoo.com/apps/modules/17.0/odoopilot).
 
-```bash
-cd examples
-docker-compose up
-```
+### 2. Configure in Odoo Settings
 
-### 4. Link a user
+Go to **Settings → OdooPilot** and fill in:
 
-In Odoo, open **Settings → OdooPilot → Link Account** and follow the `/link` flow in Telegram.
+| Field | Value |
+|-------|-------|
+| Telegram Bot Token | Paste the token from @BotFather |
+| Webhook Secret | Any random string (keep it secret) |
+| LLM Provider | `anthropic`, `openai`, or `groq` |
+| LLM API Key | Your key from the provider |
+| LLM Model | e.g. `claude-opus-4-5`, `gpt-4o`, `llama3-70b-8192` |
 
-### 5. Start chatting
+Click **Register Webhook** — OdooPilot will call Telegram's `setWebhook` API automatically.
 
-Send `/start` to your bot. Ask anything about your Odoo data.
+### 3. Link employee accounts
+
+Each employee sends `/link` to the bot. They receive a magic link, click it while logged into Odoo, and they're linked. Done.
+
+### 4. Start chatting
+
+Send any natural-language question to the bot. OdooPilot answers from live Odoo data.
 
 ---
 
-## Supported Odoo modules (v0.1)
+## Supported domains
 
-| Domain | Read tools | Write tools |
-|---|---|---|
-| Sales | list_quotes, get_quote, list_sale_orders, get_sale_order | confirm_sale_order |
-| CRM | list_my_leads, get_lead | log_lead_activity |
-| Purchase | list_rfqs, get_purchase_order | — |
-| Inventory | check_stock, list_warehouses, **find_product** | — |
-| HR | my_leave_balance, list_team_leaves | request_leave, approve_leave |
-| Accounting | list_overdue_invoices, get_invoice, list_my_expenses | submit_expense |
-| Project | list_my_tasks, get_task | log_timesheet_entry |
-| Helpdesk | list_my_tickets, get_ticket | update_ticket_status |
+| Domain | Read | Write (with confirmation) |
+|--------|------|--------------------------|
+| Project & Tasks | ✅ list, filter, deadlines | ✅ mark task done |
+| Sales & CRM | ✅ pipeline, orders, revenue | ✅ confirm sale order |
+| Invoices & Accounting | ✅ overdue, balances, bills | — |
+| Inventory | ✅ stock levels, locations | — |
+| HR & Leaves | ✅ leave balances, employees | — |
+| Purchase | ✅ purchase orders, RFQs | — |
+
+Write tools always show an inline Yes/No confirmation before touching data.
 
 ---
 
 ## LLM providers
 
-Configure `LLM_PROVIDER` in `.env`:
+| Provider | `llm_provider` value | Recommended model |
+|----------|----------------------|-------------------|
+| Anthropic | `anthropic` | `claude-opus-4-5` |
+| OpenAI | `openai` | `gpt-4o` |
+| Groq | `groq` | `llama3-70b-8192` |
 
-| Value | Provider | Notes |
-|---|---|---|
-| `openai` | OpenAI | GPT-4o recommended |
-| `anthropic` | Anthropic | Claude 3.5 Sonnet recommended |
-| `ollama` | Ollama | Self-hosted, fully private |
-| `groq` | Groq | Fast inference |
+No SDKs installed — OdooPilot calls the provider APIs directly via `requests`, so there are no extra Python dependencies beyond what Odoo already ships.
 
 ---
 
 ## Roadmap
 
-- **v0.1** — Telegram + OpenAI/Anthropic + inventory reads. _← you are here_
-- **v0.2** — All 8 domains (reads + guided writes). Ollama + Groq. Audit log UI in Odoo.
-- **v0.3** — WhatsApp Cloud API adapter. i18n framework.
-- **v0.4** — OCA submission. PyPI release. GitHub Sponsors launch.
-- **v1.0** — Production-hardened. Rate limiting, retries, observability. Case study.
+| Version | Status | What's in it |
+|---------|--------|--------------|
+| **17.0.2.0.0** | ✅ **Released** | All-in-one addon · Telegram webhook · 3 LLM providers · 7 domains · magic link identity · audit log |
+| **17.0.3.0.0** | 🔜 Next | More write tools (approve leave, update CRM stage, create lead) · rate limiting · session memory improvements |
+| **17.0.4.0.0** | 📋 Planned | Proactive notifications — daily task digest, overdue invoice alerts pushed to Telegram |
+| **17.0.5.0.0** | 📋 Planned | WhatsApp Cloud API channel |
+| **17.0.6.0.0** | 📋 Planned | Multi-language support · per-user language preference |
+| **18.0.1.0.0** | 📋 Planned | Odoo 18 port · OCA submission |
 
 ---
 
 ## Contributing
 
-We welcome contributions! The fastest path to a merged PR:
+Pull requests welcome. The fastest path to a merged PR:
 
-1. Pick an unimplemented tool from the table above
-2. Follow the guide in [docs/adding-a-tool.md](docs/adding-a-tool.md)
-3. Open a PR — CI must be green (ruff + mypy + pytest)
+1. Pick an unimplemented tool or domain from the table above
+2. Add it to `odoopilot/services/tools.py` following the existing pattern
+3. Register the tool schema in `odoopilot/services/agent.py`
+4. Open a PR — CI must be green (ruff format + lint + XML check)
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 
@@ -145,14 +166,15 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 
 ## Sponsor
 
-OdooPilot is free, open-source, and community-maintained. If it saves your team time, consider sponsoring:
+OdooPilot is free, open-source, and solo-maintained. If it saves your team time, please consider sponsoring:
 
-**[Sponsor on GitHub →](https://github.com/sponsors/arunrajiah)**
+**[♥ Sponsor on GitHub →](https://github.com/sponsors/arunrajiah)**
 
-Sponsors get:
-- Priority issue responses
-- Input on the roadmap
-- Recognition in the README
+| Tier | Monthly | Perks |
+|------|---------|-------|
+| Supporter | $5 | Name in README |
+| Backer | $25 | Priority bug fixes · Discord role |
+| Patron | $100 | Logo in README · Feature request queue |
 
 ---
 
