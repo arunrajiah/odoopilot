@@ -1,4 +1,3 @@
-import hashlib
 import hmac
 import json
 import logging
@@ -13,7 +12,6 @@ _logger = logging.getLogger(__name__)
 
 
 class OdooPilotController(http.Controller):
-
     # ------------------------------------------------------------------
     # Telegram webhook
     # ------------------------------------------------------------------
@@ -31,7 +29,9 @@ class OdooPilotController(http.Controller):
         cfg = request.env["ir.config_parameter"].sudo()
         secret = cfg.get_param("odoopilot.telegram_webhook_secret")
         if secret:
-            received = request.httprequest.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
+            received = request.httprequest.headers.get(
+                "X-Telegram-Bot-Api-Secret-Token", ""
+            )
             if not hmac.compare_digest(received, secret):
                 return request.make_response("Forbidden", status=403)
 
@@ -61,6 +61,7 @@ class OdooPilotController(http.Controller):
     def _process_update_async(self, db, registry, update):
         """Process the Telegram update in a background thread with its own cursor."""
         import odoo
+
         try:
             with registry.cursor() as cr:
                 env = odoo.api.Environment(cr, odoo.SUPERUSER_ID, {})
@@ -95,7 +96,6 @@ class OdooPilotController(http.Controller):
 
         chat_id = str(message["chat"]["id"])
         text = message["text"].strip()
-        first_name = message.get("from", {}).get("first_name", "")
 
         # /link command — generate and send a linking URL
         if text.startswith("/link"):
@@ -113,7 +113,11 @@ class OdooPilotController(http.Controller):
 
         # Regular message — check identity and route to agent
         identity = env["odoopilot.identity"].search(
-            [("channel", "=", "telegram"), ("chat_id", "=", chat_id), ("active", "=", True)],
+            [
+                ("channel", "=", "telegram"),
+                ("chat_id", "=", chat_id),
+                ("active", "=", True),
+            ],
             limit=1,
         )
         if not identity:
@@ -148,7 +152,11 @@ class OdooPilotController(http.Controller):
         from ..services.agent import OdooPilotAgent
 
         identity = env["odoopilot.identity"].search(
-            [("channel", "=", "telegram"), ("chat_id", "=", chat_id), ("active", "=", True)],
+            [
+                ("channel", "=", "telegram"),
+                ("chat_id", "=", chat_id),
+                ("active", "=", True),
+            ],
             limit=1,
         )
         if not identity:
@@ -172,7 +180,9 @@ class OdooPilotController(http.Controller):
                 return
             user_env = env(user=identity.user_id.id)
             agent = OdooPilotAgent(user_env, tg)
-            agent.execute_confirmed(chat_id, session.pending_tool, json.loads(session.pending_args or "{}"))
+            agent.execute_confirmed(
+                chat_id, session.pending_tool, json.loads(session.pending_args or "{}")
+            )
             session.write({"pending_tool": False, "pending_args": False})
 
     # ------------------------------------------------------------------
@@ -188,7 +198,9 @@ class OdooPilotController(http.Controller):
         cfg = request.env["ir.config_parameter"].sudo()
         raw = cfg.get_param(f"odoopilot.link_token.{token}")
         if not raw:
-            return request.render("odoopilot.link_error", {"error": "Invalid or expired link."})
+            return request.render(
+                "odoopilot.link_error", {"error": "Invalid or expired link."}
+            )
 
         try:
             data = json.loads(raw)
@@ -197,7 +209,10 @@ class OdooPilotController(http.Controller):
 
         if int(time.time()) > data.get("exp", 0):
             cfg.set_param(f"odoopilot.link_token.{token}", "")
-            return request.render("odoopilot.link_error", {"error": "This link has expired. Use /link again."})
+            return request.render(
+                "odoopilot.link_error",
+                {"error": "This link has expired. Use /link again."},
+            )
 
         channel = data.get("channel", "telegram")
         chat_id = data.get("chat_id", "")
@@ -207,14 +222,22 @@ class OdooPilotController(http.Controller):
             [("channel", "=", channel), ("chat_id", "=", chat_id)], limit=1
         )
         if existing:
-            existing.write({"user_id": request.env.user.id, "linked_at": fields.Datetime.now(), "active": True})
+            existing.write(
+                {
+                    "user_id": request.env.user.id,
+                    "linked_at": fields.Datetime.now(),
+                    "active": True,
+                }
+            )
         else:
-            request.env["odoopilot.identity"].create({
-                "user_id": request.env.user.id,
-                "channel": channel,
-                "chat_id": chat_id,
-                "linked_at": fields.Datetime.now(),
-            })
+            request.env["odoopilot.identity"].create(
+                {
+                    "user_id": request.env.user.id,
+                    "channel": channel,
+                    "chat_id": chat_id,
+                    "linked_at": fields.Datetime.now(),
+                }
+            )
 
         # Consume token
         cfg.set_param(f"odoopilot.link_token.{token}", "")
@@ -223,6 +246,7 @@ class OdooPilotController(http.Controller):
         bot_token = cfg.get_param("odoopilot.telegram_bot_token")
         if bot_token and channel == "telegram":
             from ..services.telegram import TelegramClient
+
             tg = TelegramClient(bot_token)
             tg.send_message(
                 chat_id,

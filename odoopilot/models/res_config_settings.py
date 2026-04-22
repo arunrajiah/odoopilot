@@ -1,7 +1,6 @@
-from odoo import _, api, fields, models
+from odoo import _, fields, models
 from odoo.exceptions import UserError
 import requests
-import json
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -49,13 +48,22 @@ class ResConfigSettings(models.TransientModel):
 
     def action_register_telegram_webhook(self):
         """Register the Odoo webhook URL with Telegram."""
-        token = self.env["ir.config_parameter"].sudo().get_param("odoopilot.telegram_bot_token")
+        token = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("odoopilot.telegram_bot_token")
+        )
         if not token:
             raise UserError(_("Please save the Telegram Bot Token first."))
 
         base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url", "")
         webhook_url = f"{base_url.rstrip('/')}/odoopilot/webhook/telegram"
-        secret = self.env["ir.config_parameter"].sudo().get_param("odoopilot.telegram_webhook_secret") or None
+        secret = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("odoopilot.telegram_webhook_secret")
+            or None
+        )
 
         payload = {"url": webhook_url, "allowed_updates": ["message", "callback_query"]}
         if secret:
@@ -77,11 +85,17 @@ class ResConfigSettings(models.TransientModel):
                     "type": "success",
                 },
             }
-        raise UserError(_(f"Telegram error: {data.get('description', 'Unknown error')}"))
+        raise UserError(
+            _(f"Telegram error: {data.get('description', 'Unknown error')}")
+        )
 
     def action_test_telegram_connection(self):
         """Test bot token by calling getMe."""
-        token = self.env["ir.config_parameter"].sudo().get_param("odoopilot.telegram_bot_token")
+        token = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("odoopilot.telegram_bot_token")
+        )
         if not token:
             raise UserError(_("No Telegram Bot Token configured."))
         resp = requests.get(f"https://api.telegram.org/bot{token}/getMe", timeout=10)
@@ -97,4 +111,6 @@ class ResConfigSettings(models.TransientModel):
                     "type": "success",
                 },
             }
-        raise UserError(_(f"Telegram error: {data.get('description', 'Unknown error')}"))
+        raise UserError(
+            _(f"Telegram error: {data.get('description', 'Unknown error')}")
+        )

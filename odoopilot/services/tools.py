@@ -1,6 +1,6 @@
 """ORM-based tools for OdooPilot. Each function receives `env` (scoped to the linked user)."""
+
 from __future__ import annotations
-import json
 import logging
 from datetime import datetime
 
@@ -18,7 +18,10 @@ TOOL_DEFINITIONS = [
         "parameters": {
             "type": "object",
             "properties": {
-                "project": {"type": "string", "description": "Filter by project name (optional)"},
+                "project": {
+                    "type": "string",
+                    "description": "Filter by project name (optional)",
+                },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
             },
         },
@@ -44,7 +47,10 @@ TOOL_DEFINITIONS = [
         "parameters": {
             "type": "object",
             "properties": {
-                "stage": {"type": "string", "description": "Filter by stage name (optional)"},
+                "stage": {
+                    "type": "string",
+                    "description": "Filter by stage name (optional)",
+                },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
             },
         },
@@ -55,8 +61,14 @@ TOOL_DEFINITIONS = [
         "parameters": {
             "type": "object",
             "properties": {
-                "name": {"type": "string", "description": "Product name search (optional)"},
-                "low_stock_only": {"type": "boolean", "description": "Only show products with qty <= 0"},
+                "name": {
+                    "type": "string",
+                    "description": "Product name search (optional)",
+                },
+                "low_stock_only": {
+                    "type": "boolean",
+                    "description": "Only show products with qty <= 0",
+                },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
             },
         },
@@ -72,7 +84,10 @@ TOOL_DEFINITIONS = [
                     "enum": ["draft", "posted", "cancel"],
                     "description": "Invoice state (optional)",
                 },
-                "overdue_only": {"type": "boolean", "description": "Only show overdue invoices"},
+                "overdue_only": {
+                    "type": "boolean",
+                    "description": "Only show overdue invoices",
+                },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
             },
         },
@@ -98,7 +113,10 @@ TOOL_DEFINITIONS = [
         "parameters": {
             "type": "object",
             "properties": {
-                "department": {"type": "string", "description": "Department name filter (optional)"},
+                "department": {
+                    "type": "string",
+                    "description": "Department name filter (optional)",
+                },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
             },
         },
@@ -110,7 +128,10 @@ TOOL_DEFINITIONS = [
             "type": "object",
             "required": ["task_name"],
             "properties": {
-                "task_name": {"type": "string", "description": "Name or partial name of the task"},
+                "task_name": {
+                    "type": "string",
+                    "description": "Name or partial name of the task",
+                },
             },
         },
     },
@@ -121,7 +142,10 @@ TOOL_DEFINITIONS = [
             "type": "object",
             "required": ["order_name"],
             "properties": {
-                "order_name": {"type": "string", "description": "Sale order name e.g. S00042"},
+                "order_name": {
+                    "type": "string",
+                    "description": "Sale order name e.g. S00042",
+                },
             },
         },
     },
@@ -129,6 +153,7 @@ TOOL_DEFINITIONS = [
 
 
 # ── Tool implementations ───────────────────────────────────────────────────────
+
 
 def execute_tool(env, tool_name: str, args: dict) -> str:
     """Dispatch to the right tool function. Returns a string result."""
@@ -165,11 +190,15 @@ def get_my_tasks(env, project=None, limit=10, **_):
     domain = [("user_ids", "in", [env.uid]), ("stage_id.fold", "=", False)]
     if project:
         domain.append(("project_id.name", "ilike", project))
-    tasks = env["project.task"].search(domain, limit=int(limit), order="date_deadline asc")
+    tasks = env["project.task"].search(
+        domain, limit=int(limit), order="date_deadline asc"
+    )
     if not tasks:
         return "No open tasks found."
     lines = [
-        f"- {t.name}" + (f" [{t.project_id.name}]" if t.project_id else "") + (f" - due {_fmt_date(t.date_deadline)}" if t.date_deadline else "")
+        f"- {t.name}"
+        + (f" [{t.project_id.name}]" if t.project_id else "")
+        + (f" - due {_fmt_date(t.date_deadline)}" if t.date_deadline else "")
         for t in tasks
     ]
     return f"Open tasks ({len(tasks)}):\n" + "\n".join(lines)
@@ -182,7 +211,10 @@ def get_sale_orders(env, state=None, limit=10, **_):
     orders = env["sale.order"].search(domain, limit=int(limit), order="date_order desc")
     if not orders:
         return "No sale orders found."
-    lines = [f"- {o.name} | {o.partner_id.name} | {o.state} | {o.currency_id.symbol}{o.amount_total:,.2f}" for o in orders]
+    lines = [
+        f"- {o.name} | {o.partner_id.name} | {o.state} | {o.currency_id.symbol}{o.amount_total:,.2f}"
+        for o in orders
+    ]
     return f"Sale orders ({len(orders)}):\n" + "\n".join(lines)
 
 
@@ -193,7 +225,10 @@ def get_crm_leads(env, stage=None, limit=10, **_):
     leads = env["crm.lead"].search(domain, limit=int(limit), order="priority desc")
     if not leads:
         return "No opportunities found."
-    lines = [f"- {l.name} | {l.partner_id.name or 'No contact'} | {l.stage_id.name} | {l.expected_revenue:,.0f}" for l in leads]
+    lines = [
+        f"- {lead.name} | {lead.partner_id.name or 'No contact'} | {lead.stage_id.name} | {lead.expected_revenue:,.0f}"
+        for lead in leads
+    ]
     return f"Opportunities ({len(leads)}):\n" + "\n".join(lines)
 
 
@@ -218,8 +253,14 @@ def get_invoices(env, state=None, overdue_only=False, limit=10, **_):
     if state:
         domain.append(("state", "=", state))
     if overdue_only:
-        domain += [("state", "=", "posted"), ("payment_state", "!=", "paid"), ("invoice_date_due", "<", datetime.today().strftime("%Y-%m-%d"))]
-    invoices = env["account.move"].search(domain, limit=int(limit), order="invoice_date_due asc")
+        domain += [
+            ("state", "=", "posted"),
+            ("payment_state", "!=", "paid"),
+            ("invoice_date_due", "<", datetime.today().strftime("%Y-%m-%d")),
+        ]
+    invoices = env["account.move"].search(
+        domain, limit=int(limit), order="invoice_date_due asc"
+    )
     if not invoices:
         return "No invoices found."
     lines = [
@@ -233,10 +274,15 @@ def get_purchase_orders(env, state=None, limit=10, **_):
     domain = []
     if state:
         domain.append(("state", "=", state))
-    orders = env["purchase.order"].search(domain, limit=int(limit), order="date_order desc")
+    orders = env["purchase.order"].search(
+        domain, limit=int(limit), order="date_order desc"
+    )
     if not orders:
         return "No purchase orders found."
-    lines = [f"- {o.name} | {o.partner_id.name} | {o.state} | {o.currency_id.symbol}{o.amount_total:,.2f}" for o in orders]
+    lines = [
+        f"- {o.name} | {o.partner_id.name} | {o.state} | {o.currency_id.symbol}{o.amount_total:,.2f}"
+        for o in orders
+    ]
     return f"Purchase orders ({len(orders)}):\n" + "\n".join(lines)
 
 
@@ -247,13 +293,18 @@ def get_employees(env, department=None, limit=10, **_):
     employees = env["hr.employee"].search(domain, limit=int(limit))
     if not employees:
         return "No employees found."
-    lines = [f"- {e.name} | {e.job_id.name or 'No job'} | {e.department_id.name or 'No dept'}" for e in employees]
+    lines = [
+        f"- {e.name} | {e.job_id.name or 'No job'} | {e.department_id.name or 'No dept'}"
+        for e in employees
+    ]
     return f"Employees ({len(employees)}):\n" + "\n".join(lines)
 
 
 def mark_task_done(env, task_name: str, **_):
     """Write tool - agent should call send_confirmation before this runs."""
-    tasks = env["project.task"].search([("name", "ilike", task_name), ("stage_id.fold", "=", False)], limit=1)
+    tasks = env["project.task"].search(
+        [("name", "ilike", task_name), ("stage_id.fold", "=", False)], limit=1
+    )
     if not tasks:
         return f"Task '{task_name}' not found."
     done_stage = env["project.task.type"].search([("fold", "=", True)], limit=1)
@@ -265,7 +316,9 @@ def mark_task_done(env, task_name: str, **_):
 
 def confirm_sale_order(env, order_name: str, **_):
     """Write tool - agent should call send_confirmation before this runs."""
-    order = env["sale.order"].search([("name", "=", order_name), ("state", "in", ["draft", "sent"])], limit=1)
+    order = env["sale.order"].search(
+        [("name", "=", order_name), ("state", "in", ["draft", "sent"])], limit=1
+    )
     if not order:
         return f"Sale order '{order_name}' not found or already confirmed."
     order.action_confirm()

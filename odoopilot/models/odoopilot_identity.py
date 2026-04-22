@@ -1,11 +1,8 @@
-import hashlib
-import hmac
 import json
 import secrets
 import time
 
 from odoo import api, fields, models
-from odoo.exceptions import UserError
 
 
 class MailGatewayAIIdentity(models.Model):
@@ -14,7 +11,9 @@ class MailGatewayAIIdentity(models.Model):
     _name = "odoopilot.identity"
     _description = "OdooPilot User Identity"
 
-    user_id = fields.Many2one("res.users", string="Odoo User", required=True, ondelete="cascade")
+    user_id = fields.Many2one(
+        "res.users", string="Odoo User", required=True, ondelete="cascade"
+    )
     channel = fields.Selection(
         [("telegram", "Telegram"), ("whatsapp", "WhatsApp")],
         required=True,
@@ -25,7 +24,11 @@ class MailGatewayAIIdentity(models.Model):
     linked_at = fields.Datetime(readonly=True)
 
     _sql_constraints = [
-        ("unique_channel_chat", "UNIQUE(channel, chat_id)", "This chat is already linked to a user."),
+        (
+            "unique_channel_chat",
+            "UNIQUE(channel, chat_id)",
+            "This chat is already linked to a user.",
+        ),
     ]
 
     @api.model

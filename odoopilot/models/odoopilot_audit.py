@@ -10,7 +10,9 @@ class MailGatewayAIAudit(models.Model):
     _rec_name = "tool_name"
 
     timestamp = fields.Datetime(string="Timestamp", readonly=True, required=True)
-    user_id = fields.Many2one("res.users", string="User", readonly=True, ondelete="set null")
+    user_id = fields.Many2one(
+        "res.users", string="User", readonly=True, ondelete="set null"
+    )
     channel = fields.Char(string="Channel", readonly=True)
     tool_name = fields.Char(string="Tool", readonly=True, required=True)
     tool_args = fields.Text(string="Arguments", readonly=True)

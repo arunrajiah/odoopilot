@@ -32,7 +32,9 @@ class OdooPilotAgent:
         self.llm = LLMClient(provider, api_key, model)
 
     def handle_message(self, chat_id: str, text: str) -> None:
-        session = self.env["odoopilot.session"].sudo().get_or_create("telegram", chat_id)
+        session = (
+            self.env["odoopilot.session"].sudo().get_or_create("telegram", chat_id)
+        )
 
         system = SYSTEM_PROMPT.format(
             today=date.today().strftime("%A, %d %B %Y"),
@@ -43,7 +45,7 @@ class OdooPilotAgent:
 
         try:
             response_text = self._run_loop(chat_id, messages, session)
-        except Exception as e:
+        except Exception:
             _logger.exception("Agent error for chat %s", chat_id)
             response_text = "Sorry, I encountered an error. Please try again."
 
@@ -55,12 +57,17 @@ class OdooPilotAgent:
         # Write audit log
         self._audit(chat_id, text, response_text)
 
-    def _run_loop(self, chat_id: str, messages: list, session, max_iterations: int = 5) -> str:
+    def _run_loop(
+        self, chat_id: str, messages: list, session, max_iterations: int = 5
+    ) -> str:
         """LLM tool-use loop. Returns final text response."""
         for _ in range(max_iterations):
             result = self.llm.chat(messages, TOOL_DEFINITIONS)
 
-            if result["stop_reason"] in ("end_turn", "stop") or not result["tool_calls"]:
+            if (
+                result["stop_reason"] in ("end_turn", "stop")
+                or not result["tool_calls"]
+            ):
                 return result["text"]
 
             # Process tool calls
@@ -73,10 +80,12 @@ class OdooPilotAgent:
 
                 if tool_name in WRITE_TOOLS:
                     # Save pending action and ask for confirmation
-                    session.sudo().write({
-                        "pending_tool": tool_name,
-                        "pending_args": json.dumps(args),
-                    })
+                    session.sudo().write(
+                        {
+                            "pending_tool": tool_name,
+                            "pending_args": json.dumps(args),
+                        }
+                    )
                     question = f"<b>Confirm action</b>\n\nTool: <code>{tool_name}</code>\nArgs: <code>{json.dumps(args)}</code>\n\nProceed?"
                     self.tg.send_confirmation(chat_id, question)
                     return ""  # Wait for user confirmation
@@ -98,14 +107,16 @@ class OdooPilotAgent:
 
     def _audit(self, chat_id: str, user_text: str, response: str) -> None:
         try:
-            self.env["odoopilot.audit"].sudo().create({
-                "timestamp": fields.Datetime.now(),
-                "user_id": self.env.uid,
-                "channel": "telegram",
-                "tool_name": "chat",
-                "tool_args": user_text[:500],
-                "result_summary": (response or "")[:500],
-                "success": True,
-            })
+            self.env["odoopilot.audit"].sudo().create(
+                {
+                    "timestamp": fields.Datetime.now(),
+                    "user_id": self.env.uid,
+                    "channel": "telegram",
+                    "tool_name": "chat",
+                    "tool_args": user_text[:500],
+                    "result_summary": (response or "")[:500],
+                    "success": True,
+                }
+            )
         except Exception:
             pass  # Audit failure must never break the main flow

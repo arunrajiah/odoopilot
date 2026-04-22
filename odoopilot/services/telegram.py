@@ -1,4 +1,3 @@
-import json
 import logging
 
 import requests
@@ -30,12 +29,16 @@ class TelegramClient:
     def send_confirmation(self, chat_id: str, question: str) -> dict:
         """Send a yes/no inline keyboard for write-action confirmation."""
         markup = {
-            "inline_keyboard": [[
-                {"text": "Yes", "callback_data": "confirm:yes"},
-                {"text": "No", "callback_data": "confirm:no"},
-            ]]
+            "inline_keyboard": [
+                [
+                    {"text": "Yes", "callback_data": "confirm:yes"},
+                    {"text": "No", "callback_data": "confirm:no"},
+                ]
+            ]
         }
         return self.send_message(chat_id, question, reply_markup=markup)
 
     def answer_callback_query(self, callback_query_id: str) -> dict:
-        return self._call("answerCallbackQuery", {"callback_query_id": callback_query_id})
+        return self._call(
+            "answerCallbackQuery", {"callback_query_id": callback_query_id}
+        )
