@@ -4,99 +4,65 @@ Thank you for helping make OdooPilot better. This guide gets you from zero to a 
 
 ---
 
-## Quick start
+## Architecture overview
 
-```bash
-git clone https://github.com/arunrajiah/odoopilot.git
-cd odoopilot
-python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
+OdooPilot is a single Odoo addon — no external service, no Docker container.
+
 ```
-
-Run the test suite (no external services needed):
-
-```bash
-pytest           # 43 tests, all mocked — passes without Odoo or Telegram
-ruff check .
-ruff format --check .
-mypy odoopilot/
+odoopilot/
+├── controllers/main.py      # Telegram webhook + identity link routes
+├── models/                  # Odoo ORM models (session, identity, audit, settings)
+├── services/
+│   ├── agent.py             # LLM tool-use loop
+│   ├── llm.py               # Anthropic / OpenAI / Groq client (raw requests)
+│   ├── telegram.py          # Telegram API helpers
+│   └── tools.py             # ORM tool definitions + implementations
+├── views/                   # XML views and link page templates
+└── data/ir_cron.xml         # Session GC cron job
 ```
 
 ---
 
-## End-to-end testing (optional but appreciated)
-
-To test the full bot flow against a real Odoo instance and Telegram:
+## Setting up a dev environment
 
 ### What you need
 
-| Requirement | How to get it |
+| Requirement | Notes |
 |---|---|
-| Odoo 17 Community | Docker locally (see below) or any self-hosted instance |
-| Telegram bot token | Message [@BotFather](https://t.me/BotFather) → `/newbot` |
-| LLM API key | OpenAI / Anthropic / Groq (free tier works) or local Ollama |
-| Public HTTPS URL | [ngrok](https://ngrok.com) free tier, or deploy to Fly.io |
+| Odoo 17.0 Community | Self-hosted or [Odoo.sh](https://www.odoo.sh) |
+| Telegram bot token | [@BotFather](https://t.me/BotFather) → `/newbot` |
+| LLM API key | Anthropic / OpenAI / Groq (Groq has a free tier) |
+| Public HTTPS URL | [ngrok](https://ngrok.com) free tier works for local testing |
 
-### 1. Run Odoo locally
+### 1. Install the addon into your Odoo
+
+Copy the `odoopilot/` directory into your Odoo addons path, then:
 
 ```bash
-docker run -d --name odoo17 \
-  -p 8069:8069 -p 5432:5432 \
-  -e POSTGRES_PASSWORD=odoo \
-  odoo:17.0
+./odoo-bin -c odoo.conf -i odoopilot
 ```
 
-Visit http://localhost:8069, create a database, note the DB name.
+Or for development with auto-reload, add the parent directory to `--addons-path`.
 
-### 2. Expose it publicly (ngrok)
+### 2. Expose Odoo publicly (for Telegram webhook)
 
 ```bash
 ngrok http 8069
-# → https://abc123.ngrok.io  ← use this as ODOO_URL
+# → https://abc123.ngrok.io  ← Telegram will send webhooks here
 ```
 
-Also expose the OdooPilot service:
+### 3. Configure OdooPilot
 
-```bash
-ngrok http 8080
-# → https://xyz789.ngrok.io  ← use this as TELEGRAM_WEBHOOK_URL
-```
+Go to **Settings → OdooPilot** in your Odoo instance and fill in:
+- Telegram Bot Token
+- Webhook Secret (any random string)
+- LLM Provider + API Key + Model
 
-### 3. Configure your `.env`
+Click **Register Webhook** — done.
 
-```bash
-cp .env.example .env
-```
+### 4. Link your account and test
 
-Fill in `.env`:
-
-```env
-ODOO_URL=https://abc123.ngrok.io
-ODOO_DB=your_db_name
-ODOO_ADMIN_USER=admin
-ODOO_ADMIN_PASSWORD=admin
-
-TELEGRAM_BOT_TOKEN=123456789:ABCdef...
-TELEGRAM_WEBHOOK_URL=https://xyz789.ngrok.io
-
-LLM_PROVIDER=groq          # groq has a generous free tier
-GROQ_API_KEY=gsk_...
-
-SECRET_KEY=any-random-string
-DATABASE_URL=sqlite+aiosqlite:///./odoopilot.db
-```
-
-### 4. Run OdooPilot
-
-```bash
-uvicorn odoopilot.main:app --reload --port 8080
-```
-
-### 5. Link your Telegram account
-
-Send `/link` to your bot → click the link → log in to Odoo → done.
-
-### 6. Test a query
+Send `/link` to your bot → click the link → log in to Odoo → you're linked.
 
 ```
 You: What tasks are assigned to me?
@@ -107,44 +73,50 @@ Bot: You have 3 open tasks: …
 
 ## Adding a new Odoo tool
 
-The fastest contribution path. Each domain file (inventory, sales, CRM…) can always use more tools.
+The fastest contribution path — each business domain can always use more tools.
 
-1. Add to the relevant file under `odoopilot/agent/tools/`
-2. Subclass `BaseTool`, set `name`, `description`, `parameters` (Pydantic model)
-3. Implement `async def execute(self, odoo, user_id, password, **kwargs)`
-4. Read tools → return `ToolResult` directly
-5. Write tools → call `await self.require_confirmation(question=..., payload=...)` before mutating
-6. Register in `odoopilot/agent/tools/__init__.py`
-7. Write a test in `tests/test_tools/` (mock `odoo.search_read`)
+1. Open `odoopilot/services/tools.py`
+2. Add a new entry to `TOOL_DEFINITIONS` (name, description, parameters schema)
+3. If it mutates data, add the tool name to `WRITE_TOOLS` — confirmation is automatic
+4. Add a `_fmt_confirmation()` branch for a human-readable confirmation prompt
+5. Implement the function — receives `env` (scoped to the linked Odoo user) + kwargs
+6. Register in the `fn_map` dict inside `execute_tool()`
 
-See any existing tool for the full pattern — [`odoopilot/agent/tools/project.py`](odoopilot/agent/tools/project.py) is a good example.
+See `mark_task_done` or `approve_leave` for a complete write tool example.
+See `get_my_tasks` for a read tool example.
 
 ---
 
 ## Code guidelines
 
-- **Linting**: `ruff` (no black, no isort separately)
-- **Types**: strict `mypy` — annotate everything
+- **Linting / formatting**: `ruff` — run `ruff format odoopilot/ && ruff check odoopilot/` before committing
+- **No new Python dependencies** — only stdlib + what Odoo already ships (`requests` is available)
 - **Comments**: only the *why*, never the *what*
-- **Tests**: every tool needs at least one happy-path and one not-found test
-- **Providers**: no OpenAI-only code paths — test with at least two providers
+- **XML**: all views must be well-formed — the CI XML check will catch parse errors
 
 ## Commit format
 
 [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-feat(tools): add update_sale_order write tool
-fix(telegram): handle edited messages gracefully
-docs: improve end-to-end testing guide
+feat(tools): add approve_purchase_order write tool
+fix(webhook): handle Telegram edited_message updates gracefully
+docs: update contributing guide
 ```
 
-## Licensing
+## CI checks
 
-All contributions are LGPL-3.0-or-later. By submitting a PR you confirm you have the right to contribute under this license.
+Every PR must pass:
+- `ruff format --check odoopilot/` — formatting
+- `ruff check odoopilot/` — lint
+- XML well-formed check — all `*.xml` files under `odoopilot/`
 
 ---
 
 ## Getting help
 
 Open a [GitHub Discussion](https://github.com/arunrajiah/odoopilot/discussions) — we're friendly.
+
+## Licensing
+
+All contributions are LGPL-3.0-or-later. By submitting a PR you confirm you have the right to contribute under this license.

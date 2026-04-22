@@ -5,7 +5,7 @@ import time
 from odoo import api, fields, models
 
 
-class MailGatewayAIIdentity(models.Model):
+class OdooPilotIdentity(models.Model):
     """Links an Odoo user to a Telegram chat ID."""
 
     _name = "odoopilot.identity"

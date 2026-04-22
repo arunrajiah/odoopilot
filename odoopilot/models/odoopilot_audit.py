@@ -1,8 +1,8 @@
 from odoo import fields, models
 
 
-class MailGatewayAIAudit(models.Model):
-    """Read-only audit log written by the OdooPilot service via JSON-RPC."""
+class OdooPilotAudit(models.Model):
+    """Read-only audit log for every OdooPilot tool call."""
 
     _name = "odoopilot.audit"
     _description = "OdooPilot Audit Log"
