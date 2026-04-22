@@ -143,7 +143,7 @@ No SDKs installed — OdooPilot calls the provider APIs directly via `requests`,
 | Version | Status | What's in it |
 |---------|--------|--------------|
 | **17.0.2.0.0** | ✅ **Released** | All-in-one addon · Telegram webhook · 3 LLM providers · 7 domains · magic link identity · audit log |
-| **17.0.3.0.0** | 🔜 Next | More write tools (approve leave, update CRM stage, create lead) · rate limiting · session memory improvements |
+| **17.0.3.0.0** | 🔜 Next | More write tools (approve leave, update CRM stage, create lead) · session memory improvements |
 | **17.0.4.0.0** | 📋 Planned | Proactive notifications — daily task digest, overdue invoice alerts pushed to Telegram |
 | **17.0.5.0.0** | 📋 Planned | WhatsApp Cloud API channel |
 | **17.0.6.0.0** | 📋 Planned | Multi-language support · per-user language preference |

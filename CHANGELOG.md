@@ -55,7 +55,7 @@ The project has been restructured from a two-component system (FastAPI service +
 
 | Version | Target | Description |
 |---------|--------|-------------|
-| **17.0.3.0.0** | Q2 2026 | More write tools (approve leave, update CRM stage, create lead) · rate limiting · improved session memory |
+| **17.0.3.0.0** | Q2 2026 | More write tools (approve leave, update CRM stage, create lead) · improved session memory |
 | **17.0.4.0.0** | Q3 2026 | Proactive notifications — daily task digest and overdue invoice alerts pushed to Telegram via cron |
 | **17.0.5.0.0** | Q3 2026 | WhatsApp Cloud API channel |
 | **17.0.6.0.0** | Q4 2026 | Multi-language support · per-user language preference |
