@@ -1,20 +1,100 @@
-from odoo import fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
+import requests
+import json
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class ResConfigSettings(models.TransientModel):
     _inherit = "res.config.settings"
 
-    odoopilot_service_url = fields.Char(
-        string="OdooPilot Service URL",
-        config_parameter="mail_gateway_ai.service_url",
-        default="https://odoopilot.fly.dev",
-        help="Base URL of the OdooPilot service. Default: https://odoopilot.fly.dev",
+    # Telegram
+    odoopilot_telegram_bot_token = fields.Char(
+        string="Telegram Bot Token",
+        config_parameter="mail_gateway_ai.telegram_bot_token",
+        help="From @BotFather on Telegram.",
+    )
+    odoopilot_telegram_webhook_secret = fields.Char(
+        string="Webhook Secret (optional)",
+        config_parameter="mail_gateway_ai.telegram_webhook_secret",
+        help="Random string added as X-Telegram-Bot-Api-Secret-Token header.",
     )
     odoopilot_telegram_enabled = fields.Boolean(
-        string="Telegram enabled",
+        string="Telegram Enabled",
         config_parameter="mail_gateway_ai.telegram_enabled",
     )
-    odoopilot_whatsapp_enabled = fields.Boolean(
-        string="WhatsApp enabled (v0.3+)",
-        config_parameter="mail_gateway_ai.whatsapp_enabled",
+
+    # LLM
+    odoopilot_llm_provider = fields.Selection(
+        [
+            ("anthropic", "Anthropic (Claude)"),
+            ("openai", "OpenAI (GPT)"),
+            ("groq", "Groq (Free tier)"),
+        ],
+        string="LLM Provider",
+        config_parameter="mail_gateway_ai.llm_provider",
+        default="anthropic",
     )
+    odoopilot_llm_api_key = fields.Char(
+        string="LLM API Key",
+        config_parameter="mail_gateway_ai.llm_api_key",
+    )
+    odoopilot_llm_model = fields.Char(
+        string="Model (optional override)",
+        config_parameter="mail_gateway_ai.llm_model",
+        help="Leave blank to use provider default: claude-3-5-haiku-20241022 / gpt-4o-mini / llama-3.1-70b-versatile",
+    )
+
+    def action_register_telegram_webhook(self):
+        """Register the Odoo webhook URL with Telegram."""
+        token = self.env["ir.config_parameter"].sudo().get_param("mail_gateway_ai.telegram_bot_token")
+        if not token:
+            raise UserError(_("Please save the Telegram Bot Token first."))
+
+        base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url", "")
+        webhook_url = f"{base_url.rstrip('/')}/odoopilot/webhook/telegram"
+        secret = self.env["ir.config_parameter"].sudo().get_param("mail_gateway_ai.telegram_webhook_secret") or None
+
+        payload = {"url": webhook_url, "allowed_updates": ["message", "callback_query"]}
+        if secret:
+            payload["secret_token"] = secret
+
+        resp = requests.post(
+            f"https://api.telegram.org/bot{token}/setWebhook",
+            json=payload,
+            timeout=10,
+        )
+        data = resp.json()
+        if data.get("ok"):
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Webhook registered"),
+                    "message": f"Telegram webhook set to: {webhook_url}",
+                    "type": "success",
+                },
+            }
+        raise UserError(_(f"Telegram error: {data.get('description', 'Unknown error')}"))
+
+    def action_test_telegram_connection(self):
+        """Test bot token by calling getMe."""
+        token = self.env["ir.config_parameter"].sudo().get_param("mail_gateway_ai.telegram_bot_token")
+        if not token:
+            raise UserError(_("No Telegram Bot Token configured."))
+        resp = requests.get(f"https://api.telegram.org/bot{token}/getMe", timeout=10)
+        data = resp.json()
+        if data.get("ok"):
+            bot = data["result"]
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Connected!"),
+                    "message": f"Bot: @{bot.get('username')} ({bot.get('first_name')})",
+                    "type": "success",
+                },
+            }
+        raise UserError(_(f"Telegram error: {data.get('description', 'Unknown error')}"))

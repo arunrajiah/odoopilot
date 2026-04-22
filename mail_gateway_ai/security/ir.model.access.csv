@@ -2,3 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_mail_gateway_ai_identity_user,mail.gateway.ai.identity user,model_mail_gateway_ai_identity,base.group_user,1,0,0,0
 access_mail_gateway_ai_identity_manager,mail.gateway.ai.identity manager,model_mail_gateway_ai_identity,base.group_system,1,1,1,1
 access_mail_gateway_ai_audit_manager,mail.gateway.ai.audit manager,model_mail_gateway_ai_audit,base.group_system,1,1,1,0
+access_mail_gateway_ai_session_system,mail.gateway.ai.session system,model_mail_gateway_ai_session,base.group_system,1,1,1,1
