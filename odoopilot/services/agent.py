@@ -5,7 +5,7 @@ from datetime import date
 from odoo import fields
 
 from .llm import LLMClient
-from .tools import TOOL_DEFINITIONS, WRITE_TOOLS, execute_tool
+from .tools import TOOL_DEFINITIONS, WRITE_TOOLS, _fmt_confirmation, execute_tool
 
 _logger = logging.getLogger(__name__)
 
@@ -15,8 +15,8 @@ Today is {today}. The user's name is {user_name}.
 
 Rules:
 - Be concise. Use bullet points for lists.
-- For write/mutating operations (mark done, confirm order, etc.), always ask for confirmation first using the tool - never execute them directly.
-- If a module isn't installed, say so politely.
+- For write/mutating operations, always request confirmation first — never execute them directly.
+- If a module isn't installed (e.g. CRM, Purchase), say so politely.
 - Respond in the same language the user writes in.
 """
 
@@ -54,8 +54,7 @@ class OdooPilotAgent:
             session.append_message("user", text)
             session.append_message("assistant", response_text)
 
-        # Write audit log
-        self._audit(chat_id, text, response_text)
+        self._audit(chat_id, "chat", {"text": text}, response_text or "", True)
 
     def _run_loop(
         self, chat_id: str, messages: list, session, max_iterations: int = 5
@@ -70,7 +69,6 @@ class OdooPilotAgent:
             ):
                 return result["text"]
 
-            # Process tool calls
             tool_calls = result["tool_calls"]
             tool_results = []
 
@@ -79,43 +77,59 @@ class OdooPilotAgent:
                 args = tc["args"]
 
                 if tool_name in WRITE_TOOLS:
-                    # Save pending action and ask for confirmation
+                    # Store the pending action and ask for confirmation
                     session.sudo().write(
                         {
                             "pending_tool": tool_name,
                             "pending_args": json.dumps(args),
                         }
                     )
-                    question = f"<b>Confirm action</b>\n\nTool: <code>{tool_name}</code>\nArgs: <code>{json.dumps(args)}</code>\n\nProceed?"
+                    question = _fmt_confirmation(tool_name, args)
                     self.tg.send_confirmation(chat_id, question)
-                    return ""  # Wait for user confirmation
+                    return ""  # Pause — wait for user's Yes/No
 
                 result_str = execute_tool(self.env, tool_name, args)
+                self._audit(chat_id, tool_name, args, result_str, True)
                 tool_results.append(result_str)
 
-            # Append tool results to message history for next LLM call
             extra = self.llm.build_tool_result_messages(tool_calls, tool_results)
             messages.extend(extra)
 
         return "I wasn't able to complete your request after several attempts."
 
     def execute_confirmed(self, chat_id: str, tool_name: str, args: dict) -> None:
-        """Execute a write tool after user confirmed."""
-        result = execute_tool(self.env, tool_name, args)
-        self.tg.send_message(chat_id, result)
-        self._audit(chat_id, f"[confirmed] {tool_name}", result)
+        """Execute a write tool after the user confirmed via inline keyboard."""
+        try:
+            result = execute_tool(self.env, tool_name, args)
+            success = True
+        except Exception as e:
+            result = f"Error: {e}"
+            success = False
+            _logger.exception(
+                "Confirmed tool %s failed for chat %s", tool_name, chat_id
+            )
 
-    def _audit(self, chat_id: str, user_text: str, response: str) -> None:
+        self.tg.send_message(chat_id, result)
+        self._audit(chat_id, tool_name, args, result, success)
+
+    def _audit(
+        self,
+        chat_id: str,
+        tool_name: str,
+        tool_args: dict,
+        result: str,
+        success: bool,
+    ) -> None:
         try:
             self.env["odoopilot.audit"].sudo().create(
                 {
                     "timestamp": fields.Datetime.now(),
                     "user_id": self.env.uid,
                     "channel": "telegram",
-                    "tool_name": "chat",
-                    "tool_args": user_text[:500],
-                    "result_summary": (response or "")[:500],
-                    "success": True,
+                    "tool_name": tool_name,
+                    "tool_args": json.dumps(tool_args)[:500],
+                    "result_summary": result[:500],
+                    "success": success,
                 }
             )
         except Exception:

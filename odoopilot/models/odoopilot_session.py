@@ -1,8 +1,17 @@
+import json
+from datetime import datetime, timedelta
+
 from odoo import api, fields, models
 
+# Keep the last N messages per session (30 exchanges = 60 messages)
+_MAX_MESSAGES = 60
 
-class MailGatewayAISession(models.Model):
-    """Conversation history per chat (last 20 messages, 24h TTL)."""
+# Session TTL in hours — inactive sessions older than this are garbage-collected
+_SESSION_TTL_HOURS = 72
+
+
+class OdooPilotSession(models.Model):
+    """Conversation history per chat."""
 
     _name = "odoopilot.session"
     _description = "OdooPilot Conversation Session"
@@ -28,26 +37,22 @@ class MailGatewayAISession(models.Model):
         return session
 
     def get_messages(self):
-        import json
-
         return json.loads(self.messages_json or "[]")
 
     def append_message(self, role, content):
-        import json
-
         msgs = self.get_messages()
         msgs.append({"role": role, "content": content})
-        # Keep last 20 exchanges
-        if len(msgs) > 40:
-            msgs = msgs[-40:]
+        if len(msgs) > _MAX_MESSAGES:
+            msgs = msgs[-_MAX_MESSAGES:]
         self.write(
             {"messages_json": json.dumps(msgs), "updated_at": fields.Datetime.now()}
         )
 
+    def clear_pending(self):
+        self.write({"pending_tool": False, "pending_args": False})
+
     @api.model
     def _gc_old_sessions(self):
-        """Cron: delete sessions older than 24h."""
-        from datetime import datetime, timedelta
-
-        cutoff = datetime.utcnow() - timedelta(hours=24)
+        """Cron: delete sessions inactive for longer than _SESSION_TTL_HOURS."""
+        cutoff = datetime.utcnow() - timedelta(hours=_SESSION_TTL_HOURS)
         self.search([("updated_at", "<", cutoff)]).unlink()

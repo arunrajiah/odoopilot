@@ -1,7 +1,7 @@
 {
     "name": "OdooPilot",
     "summary": "AI Telegram bot for Odoo Community — no external service needed",
-    "version": "17.0.2.0.0",
+    "version": "17.0.3.0.0",
     "development_status": "Alpha",
     "category": "Discuss",
     "license": "LGPL-3",

@@ -1,5 +1,27 @@
 # Changelog
 
+## 17.0.3.0.0 (2026-04-22)
+
+### Added
+
+- **`get_my_leaves`** read tool — list own or team leave requests filtered by state
+- **`approve_leave`** write tool — approve a pending leave request (with confirmation)
+- **`update_crm_stage`** write tool — move a CRM opportunity to a different pipeline stage (with confirmation)
+- **`create_crm_lead`** write tool — create a new CRM opportunity with optional partner, revenue, and stage (with confirmation)
+- `_fmt_confirmation()` — human-readable confirmation prompts (replaces raw JSON display)
+- Per-tool audit log entries — every tool call is now logged individually, not just the top-level chat turn
+- `clear_pending()` helper on session model
+
+### Changed
+
+- Session class renamed from `MailGatewayAISession` → `OdooPilotSession`
+- Session TTL extended from 24h → 72h (`_SESSION_TTL_HOURS`)
+- Session message cap increased from 40 → 60 (`_MAX_MESSAGES`, 30 exchanges)
+- `json` import moved to module level in session model
+- Write tools now return `✅` prefixed success messages
+
+---
+
 ## 17.0.2.0.0 (2026-04-22)
 
 ### Changed — Architecture pivot

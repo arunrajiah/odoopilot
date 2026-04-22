@@ -5,6 +5,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [17.0.3.0.0] — 2026-04-22
+
+### Added
+
+- **`get_my_leaves`** — read pending/approved leave requests (own or team)
+- **`approve_leave`** — approve a pending leave request (write, confirmation required)
+- **`update_crm_stage`** — move a CRM opportunity to a different stage (write, confirmation required)
+- **`create_crm_lead`** — create a new CRM opportunity (write, confirmation required)
+- Human-readable inline confirmation messages (e.g. "Approve leave for John Smith?") — replaced raw JSON display
+- Per-tool audit log entries — every tool call is individually logged with name, args, result, and success flag
+
+### Changed
+
+- Session class renamed `MailGatewayAISession` → `OdooPilotSession`
+- Session TTL extended 24h → 72h
+- Session message history cap raised 40 → 60 messages (30 exchanges)
+- Write tool responses prefixed with ✅ for clarity
+
+---
+
 ## [17.0.2.0.0] — 2026-04-22
 
 ### Architecture pivot — all logic now lives inside the Odoo addon
@@ -55,8 +75,8 @@ The project has been restructured from a two-component system (FastAPI service +
 
 | Version | Target | Description |
 |---------|--------|-------------|
-| **17.0.3.0.0** | Q2 2026 | More write tools (approve leave, update CRM stage, create lead) · improved session memory |
-| **17.0.4.0.0** | Q3 2026 | Proactive notifications — daily task digest and overdue invoice alerts pushed to Telegram via cron |
+| **17.0.3.0.0** | ✅ Released | New write tools · get_my_leaves · 72h session TTL · human-readable confirmations · per-tool audit log |
+| **17.0.4.0.0** | 🔜 Next | Proactive notifications — daily task digest and overdue invoice alerts pushed to Telegram via cron |
 | **17.0.5.0.0** | Q3 2026 | WhatsApp Cloud API channel |
 | **17.0.6.0.0** | Q4 2026 | Multi-language support · per-user language preference |
 | **18.0.1.0.0** | Q4 2026 | Odoo 18 port · OCA submission |

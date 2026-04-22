@@ -1,6 +1,7 @@
 """ORM-based tools for OdooPilot. Each function receives `env` (scoped to the linked user)."""
 
 from __future__ import annotations
+
 import logging
 from datetime import datetime
 
@@ -9,7 +10,13 @@ _logger = logging.getLogger(__name__)
 
 # ── Tool registry ──────────────────────────────────────────────────────────────
 
-WRITE_TOOLS = {"mark_task_done", "create_crm_activity", "confirm_sale_order"}
+WRITE_TOOLS = {
+    "mark_task_done",
+    "confirm_sale_order",
+    "approve_leave",
+    "update_crm_stage",
+    "create_crm_lead",
+}
 
 TOOL_DEFINITIONS = [
     {
@@ -122,6 +129,25 @@ TOOL_DEFINITIONS = [
         },
     },
     {
+        "name": "get_my_leaves",
+        "description": "List leave requests — own leaves or pending approvals if the user is a manager.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "state": {
+                    "type": "string",
+                    "enum": ["confirm", "validate1", "validate", "refuse"],
+                    "description": "Filter by leave state (optional). 'confirm' = waiting approval.",
+                },
+                "team_leaves": {
+                    "type": "boolean",
+                    "description": "If true, show leaves from the user's team (for managers)",
+                },
+                "limit": {"type": "integer", "description": "Max results (default 10)"},
+            },
+        },
+    },
+    {
         "name": "mark_task_done",
         "description": "Mark a task as done. REQUIRES user confirmation before executing.",
         "parameters": {
@@ -149,6 +175,68 @@ TOOL_DEFINITIONS = [
             },
         },
     },
+    {
+        "name": "approve_leave",
+        "description": "Approve a pending leave request. REQUIRES user confirmation.",
+        "parameters": {
+            "type": "object",
+            "required": ["employee_name"],
+            "properties": {
+                "employee_name": {
+                    "type": "string",
+                    "description": "Employee whose leave to approve (partial name match)",
+                },
+                "leave_type": {
+                    "type": "string",
+                    "description": "Holiday type/name to narrow down if employee has multiple pending leaves (optional)",
+                },
+            },
+        },
+    },
+    {
+        "name": "update_crm_stage",
+        "description": "Move a CRM lead/opportunity to a different pipeline stage. REQUIRES user confirmation.",
+        "parameters": {
+            "type": "object",
+            "required": ["lead_name", "stage_name"],
+            "properties": {
+                "lead_name": {
+                    "type": "string",
+                    "description": "Name or partial name of the lead/opportunity",
+                },
+                "stage_name": {
+                    "type": "string",
+                    "description": "Target stage name (e.g. 'Qualified', 'Won', 'Proposition')",
+                },
+            },
+        },
+    },
+    {
+        "name": "create_crm_lead",
+        "description": "Create a new CRM lead/opportunity. REQUIRES user confirmation.",
+        "parameters": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Lead/opportunity title",
+                },
+                "partner_name": {
+                    "type": "string",
+                    "description": "Customer/company name (optional)",
+                },
+                "expected_revenue": {
+                    "type": "number",
+                    "description": "Expected revenue amount (optional)",
+                },
+                "stage_name": {
+                    "type": "string",
+                    "description": "Pipeline stage name (optional, defaults to first stage)",
+                },
+            },
+        },
+    },
 ]
 
 
@@ -165,8 +253,12 @@ def execute_tool(env, tool_name: str, args: dict) -> str:
         "get_invoices": get_invoices,
         "get_purchase_orders": get_purchase_orders,
         "get_employees": get_employees,
+        "get_my_leaves": get_my_leaves,
         "mark_task_done": mark_task_done,
         "confirm_sale_order": confirm_sale_order,
+        "approve_leave": approve_leave,
+        "update_crm_stage": update_crm_stage,
+        "create_crm_lead": create_crm_lead,
     }
     fn = fn_map.get(tool_name)
     if not fn:
@@ -186,6 +278,36 @@ def _fmt_date(dt):
     return str(dt)[:10]
 
 
+def _fmt_confirmation(tool_name: str, args: dict) -> str:
+    """Return a human-readable confirmation prompt for a write tool."""
+    if tool_name == "mark_task_done":
+        return f"Mark task <b>{args.get('task_name')}</b> as done?"
+    if tool_name == "confirm_sale_order":
+        return f"Confirm sale order <b>{args.get('order_name')}</b>?"
+    if tool_name == "approve_leave":
+        msg = f"Approve leave for <b>{args.get('employee_name')}</b>"
+        if args.get("leave_type"):
+            msg += f" ({args['leave_type']})"
+        return msg + "?"
+    if tool_name == "update_crm_stage":
+        return (
+            f"Move lead <b>{args.get('lead_name')}</b> to "
+            f"stage <b>{args.get('stage_name')}</b>?"
+        )
+    if tool_name == "create_crm_lead":
+        msg = f"Create new lead: <b>{args.get('name')}</b>"
+        if args.get("partner_name"):
+            msg += f" for {args['partner_name']}"
+        if args.get("expected_revenue"):
+            msg += f" — revenue: {args['expected_revenue']:,.0f}"
+        return msg + "?"
+    # Fallback
+    return f"Execute <b>{tool_name}</b>?"
+
+
+# ── Read tools ─────────────────────────────────────────────────────────────────
+
+
 def get_my_tasks(env, project=None, limit=10, **_):
     domain = [("user_ids", "in", [env.uid]), ("stage_id.fold", "=", False)]
     if project:
@@ -198,7 +320,7 @@ def get_my_tasks(env, project=None, limit=10, **_):
     lines = [
         f"- {t.name}"
         + (f" [{t.project_id.name}]" if t.project_id else "")
-        + (f" - due {_fmt_date(t.date_deadline)}" if t.date_deadline else "")
+        + (f" — due {_fmt_date(t.date_deadline)}" if t.date_deadline else "")
         for t in tasks
     ]
     return f"Open tasks ({len(tasks)}):\n" + "\n".join(lines)
@@ -242,7 +364,7 @@ def get_stock_products(env, name=None, low_stock_only=False, limit=10, **_):
         qty = p.qty_available
         if low_stock_only and qty > 0:
             continue
-        lines.append(f"- {p.display_name} - {qty} {p.uom_id.name}")
+        lines.append(f"- {p.display_name} — {qty} {p.uom_id.name}")
     if not lines:
         return "No products found."
     return f"Products ({len(lines)}):\n" + "\n".join(lines)
@@ -300,8 +422,44 @@ def get_employees(env, department=None, limit=10, **_):
     return f"Employees ({len(employees)}):\n" + "\n".join(lines)
 
 
+def get_my_leaves(env, state=None, team_leaves=False, limit=10, **_):
+    _STATE_LABELS = {
+        "confirm": "Waiting approval",
+        "validate1": "2nd approval needed",
+        "validate": "Approved",
+        "refuse": "Refused",
+    }
+    if team_leaves:
+        # Show leaves from the user's subordinates (manager view)
+        employee = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+        if not employee:
+            return "No employee record found for your account."
+        domain = [("department_id", "=", employee.department_id.id)]
+    else:
+        domain = [("employee_id.user_id", "=", env.uid)]
+
+    if state:
+        domain.append(("state", "=", state))
+    else:
+        # Default: show pending + upcoming approved
+        domain.append(("state", "in", ["confirm", "validate1", "validate"]))
+
+    leaves = env["hr.leave"].search(domain, limit=int(limit), order="date_from asc")
+    if not leaves:
+        return "No leave requests found."
+    lines = [
+        f"- {leave.employee_id.name} | {leave.holiday_status_id.name} | "
+        f"{_fmt_date(leave.date_from)} → {_fmt_date(leave.date_to)} | "
+        f"{_STATE_LABELS.get(leave.state, leave.state)}"
+        for leave in leaves
+    ]
+    return f"Leave requests ({len(leaves)}):\n" + "\n".join(lines)
+
+
+# ── Write tools ────────────────────────────────────────────────────────────────
+
+
 def mark_task_done(env, task_name: str, **_):
-    """Write tool - agent should call send_confirmation before this runs."""
     tasks = env["project.task"].search(
         [("name", "ilike", task_name), ("stage_id.fold", "=", False)], limit=1
     )
@@ -309,17 +467,77 @@ def mark_task_done(env, task_name: str, **_):
         return f"Task '{task_name}' not found."
     done_stage = env["project.task.type"].search([("fold", "=", True)], limit=1)
     if not done_stage:
-        return "No 'done' stage found in your project."
+        return "No 'done' stage found in your project configuration."
     tasks.write({"stage_id": done_stage.id})
-    return f"Task '{tasks.name}' marked as done."
+    return f"✅ Task '{tasks.name}' marked as done."
 
 
 def confirm_sale_order(env, order_name: str, **_):
-    """Write tool - agent should call send_confirmation before this runs."""
     order = env["sale.order"].search(
         [("name", "=", order_name), ("state", "in", ["draft", "sent"])], limit=1
     )
     if not order:
         return f"Sale order '{order_name}' not found or already confirmed."
     order.action_confirm()
-    return f"Sale order {order.name} confirmed."
+    return f"✅ Sale order {order.name} confirmed."
+
+
+def approve_leave(env, employee_name: str, leave_type: str | None = None, **_):
+    domain = [
+        ("employee_id.name", "ilike", employee_name),
+        ("state", "in", ["confirm", "validate1"]),
+    ]
+    if leave_type:
+        domain.append(("holiday_status_id.name", "ilike", leave_type))
+    leave = env["hr.leave"].search(domain, limit=1, order="date_from asc")
+    if not leave:
+        return f"No pending leave found for '{employee_name}'."
+    employee = leave.employee_id.name
+    leave_name = leave.holiday_status_id.name
+    date_from = _fmt_date(leave.date_from)
+    date_to = _fmt_date(leave.date_to)
+    leave.action_approve()
+    return f"✅ Leave approved: {employee} — {leave_name} ({date_from} → {date_to})."
+
+
+def update_crm_stage(env, lead_name: str, stage_name: str, **_):
+    lead = env["crm.lead"].search(
+        [("name", "ilike", lead_name), ("type", "=", "opportunity")], limit=1
+    )
+    if not lead:
+        return f"Opportunity '{lead_name}' not found."
+    stage = env["crm.stage"].search([("name", "ilike", stage_name)], limit=1)
+    if not stage:
+        return f"Stage '{stage_name}' not found. Check the stage name in your CRM pipeline."
+    old_stage = lead.stage_id.name
+    lead.write({"stage_id": stage.id})
+    return f"✅ '{lead.name}' moved from {old_stage} → {stage.name}."
+
+
+def create_crm_lead(
+    env,
+    name: str,
+    partner_name: str | None = None,
+    expected_revenue: float | None = None,
+    stage_name: str | None = None,
+    **_,
+):
+    vals = {
+        "name": name,
+        "type": "opportunity",
+        "user_id": env.uid,
+    }
+    if partner_name:
+        partner = env["res.partner"].search([("name", "ilike", partner_name)], limit=1)
+        if partner:
+            vals["partner_id"] = partner.id
+        else:
+            vals["partner_name"] = partner_name
+    if expected_revenue is not None:
+        vals["expected_revenue"] = expected_revenue
+    if stage_name:
+        stage = env["crm.stage"].search([("name", "ilike", stage_name)], limit=1)
+        if stage:
+            vals["stage_id"] = stage.id
+    lead = env["crm.lead"].create(vals)
+    return f"✅ Lead created: '{lead.name}' (ID {lead.id})."
