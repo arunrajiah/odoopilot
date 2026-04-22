@@ -1,177 +1,251 @@
-<!-- Odoo App Store listing for OdooPilot companion addon -->
+<!-- Odoo App Store listing for OdooPilot -->
+
+<!-- ── HERO ── -->
 <section class="oe_container">
-  <div class="oe_row oe_spaced" style="text-align:center; padding: 32px 0;">
-    <h2 class="oe_slogan" style="font-size:2.4em; font-weight:700; color:#1a1a2e;">OdooPilot</h2>
-    <h3 class="oe_slogan" style="font-size:1.2em; color:#555; margin-top:8px;">
-      AI assistant for Odoo — query &amp; act on your data from Telegram in plain language
+  <div class="oe_row oe_spaced" style="text-align:center; padding:40px 0 28px;">
+    <h2 class="oe_slogan" style="font-size:2.6em; font-weight:800; color:#1a1a2e; margin-bottom:8px;">
+      OdooPilot
+    </h2>
+    <h3 class="oe_slogan" style="font-size:1.15em; color:#555; font-weight:400; margin-top:0;">
+      Talk to your Odoo data from Telegram — in plain language, with AI
     </h3>
-    <div style="margin-top:24px;">
+    <p style="color:#777; font-size:0.95em; margin:8px 0 24px;">
+      Free &amp; open-source · Odoo 17 Community · No per-seat fees · Works entirely inside Odoo
+    </p>
+    <div>
       <a href="https://github.com/arunrajiah/odoopilot" style="
-        display:inline-block; background:#5865f2; color:#fff;
-        padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px;">
-        View on GitHub
+        display:inline-block; background:#24292f; color:#fff;
+        padding:11px 28px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px; font-size:0.95em;">
+        ⭐ GitHub
       </a>
       <a href="https://github.com/sponsors/arunrajiah" style="
         display:inline-block; background:#ea4aaa; color:#fff;
-        padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px;">
-        ♥ Sponsor
+        padding:11px 28px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px; font-size:0.95em;">
+        ♥ Sponsor this project
       </a>
     </div>
   </div>
 </section>
 
+<!-- ── DEMO CONVERSATION ── -->
 <section class="oe_container oe_dark">
   <div class="oe_row oe_spaced">
-    <h2 style="text-align:center; margin-bottom:32px;">What is OdooPilot?</h2>
+    <h2 style="text-align:center; margin-bottom:8px;">See it in action</h2>
+    <p style="text-align:center; color:#666; margin-bottom:28px; font-size:0.97em;">
+      Your team asks questions in Telegram — OdooPilot answers from live Odoo data.
+    </p>
 
-    <!-- Mock conversation -->
-    <div style="max-width:480px; margin:0 auto 40px; font-family:sans-serif;">
-      <div style="background:#f0f0f0; border-radius:16px; padding:24px;">
-        <p style="font-size:0.8em; color:#888; margin:0 0 16px;">Telegram conversation</p>
+    <div style="max-width:460px; margin:0 auto; font-family:sans-serif;">
+      <div style="background:#e5ddd5; border-radius:16px; padding:20px 16px; background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 opacity=%220.05%22><rect width=%22100%22 height=%22100%22 fill=%22none%22/></svg>');">
+        <p style="font-size:0.75em; color:#888; margin:0 0 14px; text-align:center; letter-spacing:.5px; text-transform:uppercase;">Telegram · OdooPilot Bot</p>
 
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <div style="align-self:flex-end; background:#dcf8c6; padding:10px 14px; border-radius:14px 14px 2px 14px; max-width:80%; font-size:0.92em;">
-            What tasks are assigned to me this week?
+        <div style="display:flex; flex-direction:column; gap:8px;">
+
+          <div style="align-self:flex-end; background:#dcf8c6; padding:9px 13px; border-radius:14px 14px 2px 14px; max-width:82%; font-size:0.91em; box-shadow:0 1px 1px rgba(0,0,0,.1);">
+            What's my open task list?
           </div>
-          <div style="align-self:flex-start; background:#fff; padding:10px 14px; border-radius:14px 14px 14px 2px; max-width:80%; font-size:0.92em; box-shadow:0 1px 2px rgba(0,0,0,.1);">
-            You have <strong>3 open tasks</strong>:<br>
-            1. Update product catalogue — <em>due today</em><br>
+          <div style="align-self:flex-start; background:#fff; padding:9px 13px; border-radius:14px 14px 14px 2px; max-width:82%; font-size:0.91em; box-shadow:0 1px 1px rgba(0,0,0,.1);">
+            You have <strong>3 tasks</strong> open this week:<br>
+            1. Update product catalogue — <em>due today</em> ⚠️<br>
             2. Review Q2 sales report — <em>due Thu</em><br>
             3. Onboard new supplier — <em>due Fri</em>
           </div>
-          <div style="align-self:flex-end; background:#dcf8c6; padding:10px 14px; border-radius:14px 14px 2px 14px; max-width:80%; font-size:0.92em;">
+
+          <div style="align-self:flex-end; background:#dcf8c6; padding:9px 13px; border-radius:14px 14px 2px 14px; max-width:82%; font-size:0.91em; box-shadow:0 1px 1px rgba(0,0,0,.1);">
+            How many overdue invoices do we have?
+          </div>
+          <div style="align-self:flex-start; background:#fff; padding:9px 13px; border-radius:14px 14px 14px 2px; max-width:82%; font-size:0.91em; box-shadow:0 1px 1px rgba(0,0,0,.1);">
+            <strong>7 overdue invoices</strong> totalling €14,320.<br>
+            Oldest: Acme Corp — 42 days overdue.
+          </div>
+
+          <div style="align-self:flex-end; background:#dcf8c6; padding:9px 13px; border-radius:14px 14px 2px 14px; max-width:82%; font-size:0.91em; box-shadow:0 1px 1px rgba(0,0,0,.1);">
             Mark task 1 as done
           </div>
-          <div style="align-self:flex-start; background:#fff; padding:10px 14px; border-radius:14px 14px 14px 2px; max-width:80%; font-size:0.92em; box-shadow:0 1px 2px rgba(0,0,0,.1);">
-            ✅ <strong>Update product catalogue</strong> marked as done.
+          <div style="align-self:flex-start; background:#fff; padding:9px 13px; border-radius:14px 14px 14px 2px; max-width:82%; font-size:0.91em; box-shadow:0 1px 1px rgba(0,0,0,.1);">
+            ✅ <strong>Update product catalogue</strong> marked as done in Odoo.
           </div>
+
         </div>
       </div>
     </div>
+  </div>
+</section>
 
-    <p style="text-align:center; max-width:640px; margin:0 auto; font-size:1.05em; color:#444;">
-      OdooPilot is an open-source AI assistant that lets your team talk to Odoo
-      in plain language — from Telegram. No custom code, no per-seat SaaS fees.
-      Self-host the service; install this addon; start chatting.
+<!-- ── FEATURE TILES ── -->
+<section class="oe_container">
+  <div class="oe_row oe_spaced">
+    <h2 style="text-align:center; margin-bottom:8px;">What you can ask</h2>
+    <p style="text-align:center; color:#666; margin-bottom:28px; font-size:0.97em;">
+      8 business domains, natural language — no training required for your team.
+    </p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px;">
+
+      <div style="background:#f4f6ff; border-radius:10px; padding:18px 16px;">
+        <div style="font-size:1.8em; margin-bottom:6px;">📋</div>
+        <strong>Projects &amp; Tasks</strong>
+        <p style="color:#555; font-size:0.88em; margin:6px 0 0;">List tasks, check deadlines, mark complete.</p>
+      </div>
+
+      <div style="background:#f4f6ff; border-radius:10px; padding:18px 16px;">
+        <div style="font-size:1.8em; margin-bottom:6px;">💰</div>
+        <strong>Sales &amp; CRM</strong>
+        <p style="color:#555; font-size:0.88em; margin:6px 0 0;">Pipeline totals, sale orders, revenue snapshots.</p>
+      </div>
+
+      <div style="background:#f4f6ff; border-radius:10px; padding:18px 16px;">
+        <div style="font-size:1.8em; margin-bottom:6px;">💳</div>
+        <strong>Invoices</strong>
+        <p style="color:#555; font-size:0.88em; margin:6px 0 0;">Overdue invoices, outstanding balances, vendor bills.</p>
+      </div>
+
+      <div style="background:#f4f6ff; border-radius:10px; padding:18px 16px;">
+        <div style="font-size:1.8em; margin-bottom:6px;">📦</div>
+        <strong>Inventory</strong>
+        <p style="color:#555; font-size:0.88em; margin:6px 0 0;">Stock levels, product locations, pending pickings.</p>
+      </div>
+
+      <div style="background:#f4f6ff; border-radius:10px; padding:18px 16px;">
+        <div style="font-size:1.8em; margin-bottom:6px;">👥</div>
+        <strong>HR &amp; Leaves</strong>
+        <p style="color:#555; font-size:0.88em; margin:6px 0 0;">Leave balances, employee list, attendance.</p>
+      </div>
+
+      <div style="background:#f4f6ff; border-radius:10px; padding:18px 16px;">
+        <div style="font-size:1.8em; margin-bottom:6px;">🛒</div>
+        <strong>Purchase</strong>
+        <p style="color:#555; font-size:0.88em; margin:6px 0 0;">Purchase orders, supplier deliveries, pending RFQs.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="oe_container oe_dark">
+  <div class="oe_row oe_spaced">
+    <h2 style="text-align:center; margin-bottom:28px;">Everything runs inside Odoo</h2>
+    <div style="max-width:680px; margin:0 auto;">
+
+      <p style="font-size:1.03em; color:#444; margin-bottom:20px;">
+        Unlike other AI integrations, <strong>OdooPilot has no external service to host</strong>.
+        The Telegram webhook, the LLM calls, and the Odoo tools all live inside this single addon.
+        Install it, configure your keys, and you're live.
+      </p>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:24px;">
+        <div style="background:#fff; border-radius:8px; padding:16px; border-left:4px solid #6c63ff;">
+          <strong>🔌 Webhook controller</strong>
+          <p style="font-size:0.88em; color:#555; margin:6px 0 0;">Receives Telegram updates directly inside Odoo HTTP.</p>
+        </div>
+        <div style="background:#fff; border-radius:8px; padding:16px; border-left:4px solid #6c63ff;">
+          <strong>🤖 LLM loop</strong>
+          <p style="font-size:0.88em; color:#555; margin:6px 0 0;">Calls Anthropic, OpenAI, or Groq — your key, no middleman.</p>
+        </div>
+        <div style="background:#fff; border-radius:8px; padding:16px; border-left:4px solid #6c63ff;">
+          <strong>🔐 Identity linking</strong>
+          <p style="font-size:0.88em; color:#555; margin:6px 0 0;">One-click magic link maps each Telegram user to an Odoo employee.</p>
+        </div>
+        <div style="background:#fff; border-radius:8px; padding:16px; border-left:4px solid #6c63ff;">
+          <strong>📝 Audit trail</strong>
+          <p style="font-size:0.88em; color:#555; margin:6px 0 0;">Every AI action is logged — who asked, what ran, success or failure.</p>
+        </div>
+      </div>
+
+      <p style="background:#eaf4fb; padding:14px 18px; border-radius:8px; border-left:4px solid #3498db; font-size:0.97em; margin:0;">
+        <strong>No Odoo Enterprise required.</strong> Works entirely on Odoo 17 Community Edition.
+        Supports Anthropic Claude, OpenAI GPT, and Groq.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SETUP ── -->
+<section class="oe_container">
+  <div class="oe_row oe_spaced">
+    <h2 style="text-align:center; margin-bottom:28px;">Up and running in 5 minutes</h2>
+    <div style="max-width:600px; margin:0 auto;">
+      <ol style="line-height:2.4; font-size:1.02em; padding-left:1.2em;">
+        <li>Install this addon from the Odoo App Store.</li>
+        <li>Create a Telegram bot via <a href="https://t.me/BotFather">@BotFather</a> — copy the token.</li>
+        <li>Get an API key from <a href="https://console.anthropic.com">Anthropic</a>, <a href="https://platform.openai.com">OpenAI</a>, or <a href="https://console.groq.com">Groq</a> (free tier works).</li>
+        <li>Go to <strong>Settings → OdooPilot</strong>, paste both keys, choose your LLM, click <em>Register Webhook</em>.</li>
+        <li>Tell each team member to message the bot — they tap a link to link their Odoo account. Done.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ── SPONSOR CTA ── -->
+<section class="oe_container" style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%); border-radius:12px; margin:16px;">
+  <div class="oe_row oe_spaced" style="text-align:center; padding:40px 20px;">
+    <p style="font-size:2em; margin:0 0 12px;">♥</p>
+    <h2 style="color:#fff; font-size:1.8em; font-weight:700; margin:0 0 12px;">
+      OdooPilot is free because of sponsors
+    </h2>
+    <p style="color:#c0c8e0; max-width:580px; margin:0 auto 24px; font-size:1.03em; line-height:1.7;">
+      This is a solo open-source project — no VC, no SaaS revenue, no enterprise tier.
+      If OdooPilot saves your team time, please consider sponsoring.
+      Even $5/month helps cover API costs and keeps the project alive.
+    </p>
+
+    <!-- Tiers -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; max-width:620px; margin:0 auto 28px;">
+      <div style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:18px 14px;">
+        <div style="font-size:1.5em; margin-bottom:6px;">☕</div>
+        <div style="color:#fff; font-weight:700; font-size:1.1em;">$5 / mo</div>
+        <div style="color:#ea4aaa; font-weight:600; font-size:0.88em; margin:4px 0 8px;">Supporter</div>
+        <p style="color:#b0bcd4; font-size:0.82em; margin:0; line-height:1.5;">Name in README · warm fuzzy feeling</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.12); border:2px solid #ea4aaa; border-radius:10px; padding:18px 14px; position:relative;">
+        <div style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:#ea4aaa; color:#fff; font-size:0.72em; font-weight:700; padding:2px 10px; border-radius:99px;">POPULAR</div>
+        <div style="font-size:1.5em; margin-bottom:6px;">🚀</div>
+        <div style="color:#fff; font-weight:700; font-size:1.1em;">$25 / mo</div>
+        <div style="color:#ea4aaa; font-weight:600; font-size:0.88em; margin:4px 0 8px;">Backer</div>
+        <p style="color:#b0bcd4; font-size:0.82em; margin:0; line-height:1.5;">Everything above + priority bug fixes + Discord role</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:18px 14px;">
+        <div style="font-size:1.5em; margin-bottom:6px;">🏆</div>
+        <div style="color:#fff; font-weight:700; font-size:1.1em;">$100 / mo</div>
+        <div style="color:#ea4aaa; font-weight:600; font-size:0.88em; margin:4px 0 8px;">Patron</div>
+        <p style="color:#b0bcd4; font-size:0.82em; margin:0; line-height:1.5;">Everything above + logo on README + feature request queue</p>
+      </div>
+    </div>
+
+    <a href="https://github.com/sponsors/arunrajiah" style="
+      display:inline-block; background:#ea4aaa; color:#fff;
+      padding:14px 40px; border-radius:8px; text-decoration:none;
+      font-weight:700; font-size:1.05em; letter-spacing:.3px;
+      box-shadow:0 4px 20px rgba(234,74,170,0.4);">
+      ♥ Become a Sponsor on GitHub
+    </a>
+
+    <p style="color:#8090b0; font-size:0.82em; margin:16px 0 0;">
+      Managed via GitHub Sponsors · Cancel anytime · No subscription traps
     </p>
   </div>
 </section>
 
-<section class="oe_container">
-  <div class="oe_row oe_spaced">
-    <h2 style="text-align:center; margin-bottom:32px;">What you can do</h2>
-    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px;">
-
-      <div style="background:#f8f9ff; border-radius:10px; padding:20px;">
-        <div style="font-size:2em; margin-bottom:8px;">📋</div>
-        <strong>Projects &amp; Tasks</strong>
-        <p style="color:#555; font-size:0.9em; margin-top:6px;">
-          List tasks, check deadlines, mark done — all from Telegram.
-        </p>
-      </div>
-
-      <div style="background:#f8f9ff; border-radius:10px; padding:20px;">
-        <div style="font-size:2em; margin-bottom:8px;">💰</div>
-        <strong>Sales &amp; CRM</strong>
-        <p style="color:#555; font-size:0.9em; margin-top:6px;">
-          Query pipeline, check sale orders, get revenue snapshots.
-        </p>
-      </div>
-
-      <div style="background:#f8f9ff; border-radius:10px; padding:20px;">
-        <div style="font-size:2em; margin-bottom:8px;">📦</div>
-        <strong>Inventory</strong>
-        <p style="color:#555; font-size:0.9em; margin-top:6px;">
-          Check stock levels, locate products, view pending pickings.
-        </p>
-      </div>
-
-      <div style="background:#f8f9ff; border-radius:10px; padding:20px;">
-        <div style="font-size:2em; margin-bottom:8px;">💳</div>
-        <strong>Invoices &amp; Accounting</strong>
-        <p style="color:#555; font-size:0.9em; margin-top:6px;">
-          List overdue invoices, check balances, find vendor bills.
-        </p>
-      </div>
-
-      <div style="background:#f8f9ff; border-radius:10px; padding:20px;">
-        <div style="font-size:2em; margin-bottom:8px;">👥</div>
-        <strong>HR &amp; Leaves</strong>
-        <p style="color:#555; font-size:0.9em; margin-top:6px;">
-          Check leave balances, list employees, view attendance.
-        </p>
-      </div>
-
-      <div style="background:#f8f9ff; border-radius:10px; padding:20px;">
-        <div style="font-size:2em; margin-bottom:8px;">🛒</div>
-        <strong>Purchase</strong>
-        <p style="color:#555; font-size:0.9em; margin-top:6px;">
-          Track purchase orders, check supplier deliveries.
-        </p>
-      </div>
-
-    </div>
-  </div>
-</section>
-
+<!-- ── FOOTER LINKS ── -->
 <section class="oe_container oe_dark">
-  <div class="oe_row oe_spaced">
-    <h2 style="text-align:center; margin-bottom:32px;">What this addon does</h2>
-    <div style="max-width:700px; margin:0 auto;">
-      <p>
-        This Odoo addon is the <strong>companion piece</strong> to the
-        <a href="https://github.com/arunrajiah/odoopilot">OdooPilot service</a>
-        (a self-hosted FastAPI app). The addon handles:
-      </p>
-      <ul style="line-height:2;">
-        <li><strong>One-click account linking</strong> — employees send <code>/link</code> to the Telegram bot and click a magic link inside Odoo to authenticate.</li>
-        <li><strong>Settings page</strong> — configure the OdooPilot service URL and toggle channels directly from <em>Settings → Technical → OdooPilot</em>.</li>
-        <li><strong>Audit log</strong> — every AI action is recorded: who asked, which tool ran, success/failure.</li>
-        <li><strong>Identity store</strong> — maps Telegram chat IDs to Odoo users securely.</li>
-      </ul>
-      <p>
-        The default service URL points to <strong>odoopilot.fly.dev</strong> — a free shared
-        instance good for evaluation. For production, self-host the OdooPilot service on
-        Fly.io (free tier) or any server.
-      </p>
-    </div>
-  </div>
-</section>
-
-<section class="oe_container">
-  <div class="oe_row oe_spaced">
-    <h2 style="text-align:center; margin-bottom:32px;">Quick setup</h2>
-    <div style="max-width:640px; margin:0 auto;">
-      <ol style="line-height:2.2; font-size:1.05em;">
-        <li>Install this addon from the App Store.</li>
-        <li>Go to <strong>Settings → Technical → OdooPilot</strong> and verify the service URL.</li>
-        <li>Create a Telegram bot via <a href="https://t.me/BotFather">@BotFather</a> and add the token to your OdooPilot service.</li>
-        <li>Tell employees to send <code>/link</code> to the bot — done in 30 seconds.</li>
-      </ol>
-      <p style="background:#e8f4fd; padding:16px; border-radius:8px; border-left:4px solid #3498db;">
-        <strong>No Odoo Enterprise required.</strong> OdooPilot works entirely on
-        Odoo 17 Community Edition.
-      </p>
-    </div>
-  </div>
-</section>
-
-<section class="oe_container oe_dark">
-  <div class="oe_row oe_spaced" style="text-align:center;">
-    <h2 style="margin-bottom:16px;">Open source &amp; self-hosted</h2>
-    <p style="max-width:600px; margin:0 auto 24px; font-size:1.05em; color:#555;">
-      OdooPilot is MIT-licensed on the service side, LGPL-3 on the Odoo addon.
-      Contributions welcome — 28 tools across 8 domains, 4 LLM providers supported.
+  <div class="oe_row oe_spaced" style="text-align:center; padding:28px 0;">
+    <p style="color:#555; margin-bottom:16px;">
+      MIT-licensed service · LGPL-3 Odoo addon · Contributions welcome
     </p>
     <a href="https://github.com/arunrajiah/odoopilot" style="
-      display:inline-block; background:#1a1a2e; color:#fff;
-      padding:12px 32px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px;">
+      display:inline-block; background:#24292f; color:#fff;
+      padding:10px 26px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px; font-size:0.93em;">
       GitHub Repository
     </a>
     <a href="https://github.com/arunrajiah/odoopilot/discussions" style="
       display:inline-block; background:#5865f2; color:#fff;
-      padding:12px 32px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px;">
+      padding:10px 26px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px; font-size:0.93em;">
       Community Discussions
+    </a>
+    <a href="https://github.com/arunrajiah/odoopilot/issues" style="
+      display:inline-block; background:#e67e22; color:#fff;
+      padding:10px 26px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px; font-size:0.93em;">
+      Report an Issue
     </a>
   </div>
 </section>
