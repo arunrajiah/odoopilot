@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List view -->
+    <record id="odoopilot_audit_view_list" model="ir.ui.view">
+        <field name="name">odoopilot.audit.view.list</field>
+        <field name="model">odoopilot.audit</field>
+        <field name="arch" type="xml">
+            <list string="OdooPilot Audit Log" create="false" delete="false">
+                <field name="timestamp"/>
+                <field name="user_id"/>
+                <field name="channel"/>
+                <field name="tool_name"/>
+                <field name="success"/>
+                <field name="error_message"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="odoopilot_audit_view_form" model="ir.ui.view">
+        <field name="name">odoopilot.audit.view.form</field>
+        <field name="model">odoopilot.audit</field>
+        <field name="arch" type="xml">
+            <form string="Audit Log Entry" create="false" delete="false">
+                <sheet>
+                    <group>
+                        <group string="Event">
+                            <field name="timestamp"/>
+                            <field name="user_id"/>
+                            <field name="channel"/>
+                            <field name="tool_name"/>
+                            <field name="success"/>
+                        </group>
+                        <group string="Details">
+                            <field name="tool_args" widget="code"/>
+                            <field name="result_summary"/>
+                            <field name="error_message"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_odoopilot_audit" model="ir.actions.act_window">
+        <field name="name">Audit Log</field>
+        <field name="res_model">odoopilot.audit</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu item -->
+    <menuitem id="menu_odoopilot_audit"
+              name="Audit Log"
+              parent="odoopilot_identity_views.menu_odoopilot_root"
+              action="action_odoopilot_audit"
+              sequence="20"
+              groups="base.group_system"/>
+</odoo>

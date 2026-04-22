@@ -1,0 +1,23 @@
+{
+    "name": "OdooPilot",
+    "summary": "AI Telegram bot for Odoo Community — no external service needed",
+    "version": "17.0.2.0.0",
+    "development_status": "Alpha",
+    "category": "Discuss",
+    "license": "LGPL-3",
+    "author": "OdooPilot Contributors",
+    "website": "https://github.com/arunrajiah/odoopilot",
+    "depends": ["mail", "base_setup", "web"],
+    "data": [
+        "security/ir.model.access.csv",
+        "views/res_config_settings_views.xml",
+        "views/odoopilot_identity_views.xml",
+        "views/odoopilot_audit_views.xml",
+        "views/link_pages.xml",
+        "data/ir_cron.xml",
+    ],
+    "images": ["static/description/banner.png"],
+    "installable": True,
+    "application": True,
+    "auto_install": False,
+}
