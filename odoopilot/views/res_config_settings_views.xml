@@ -54,6 +54,47 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Notifications -->
+                    <h2 class="mt16">Proactive Notifications</h2>
+                    <div class="row mt16 o_settings_container" invisible="not odoopilot_telegram_enabled">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="odoopilot_notify_task_digest"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="odoopilot_notify_task_digest" string="Daily task digest"/>
+                                <div class="text-muted">
+                                    Send each linked user their overdue and today's tasks every morning at 08:00 UTC.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="odoopilot_notify_invoice_alerts"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="odoopilot_notify_invoice_alerts" string="Overdue invoice alerts"/>
+                                <div class="text-muted">
+                                    Send users with accounting access a daily overdue invoice summary at 09:00 UTC.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt8" invisible="not odoopilot_telegram_enabled">
+                        <div class="col-12">
+                            <div class="text-muted">
+                                <i class="fa fa-info-circle"/> Notification times are in UTC. Cron schedules can be adjusted under <b>Settings → Technical → Scheduled Actions</b>.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt8" invisible="odoopilot_telegram_enabled">
+                        <div class="col-12">
+                            <div class="alert alert-info" role="alert">
+                                Enable Telegram above to configure proactive notifications.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </xpath>
         </field>

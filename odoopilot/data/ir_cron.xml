@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Session garbage collection — runs daily -->
     <record id="ir_cron_gc_sessions" model="ir.cron">
         <field name="name">OdooPilot: Clean up old conversation sessions</field>
         <field name="model_id" ref="odoopilot.model_odoopilot_session"/>
@@ -7,6 +8,32 @@
         <field name="code">model._gc_old_sessions()</field>
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Daily task digest — runs every morning at 08:00 UTC -->
+    <record id="ir_cron_task_digest" model="ir.cron">
+        <field name="name">OdooPilot: Send daily task digest via Telegram</field>
+        <field name="model_id" ref="odoopilot.model_odoopilot_identity"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_task_digest()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="(datetime.now() + timedelta(days=1)).replace(hour=8, minute=0, second=0)"/>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Overdue invoice alerts — runs every morning at 09:00 UTC -->
+    <record id="ir_cron_invoice_alerts" model="ir.cron">
+        <field name="name">OdooPilot: Send overdue invoice alerts via Telegram</field>
+        <field name="model_id" ref="odoopilot.model_odoopilot_identity"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_invoice_alerts()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="(datetime.now() + timedelta(days=1)).replace(hour=9, minute=0, second=0)"/>
         <field name="numbercall">-1</field>
         <field name="active">True</field>
     </record>

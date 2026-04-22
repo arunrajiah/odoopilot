@@ -5,6 +5,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [17.0.4.0.0] — 2026-04-23
+
+### Added
+
+- **`services/notifications.py`** — proactive notification service with two functions:
+  - `send_task_digest(env)` — sends each linked user their overdue + today's tasks every morning
+  - `send_invoice_alerts(env)` — sends users with `account.group_account_invoice` access a daily overdue invoice summary
+- **Two new cron jobs** in `data/ir_cron.xml`:
+  - `ir_cron_task_digest` — fires daily at 08:00 UTC
+  - `ir_cron_invoice_alerts` — fires daily at 09:00 UTC
+- **Two new settings toggles** (`Settings → OdooPilot → Proactive Notifications`):
+  - *Daily task digest* (`odoopilot.notify_task_digest`)
+  - *Overdue invoice alerts* (`odoopilot.notify_invoice_alerts`)
+- Notifications section in the settings view (hidden when Telegram is disabled)
+- Both notification types are opt-in (off by default); cron timing adjustable via Scheduled Actions
+
+---
+
 ## [17.0.3.0.0] — 2026-04-22
 
 ### Added
@@ -76,7 +94,7 @@ The project has been restructured from a two-component system (FastAPI service +
 | Version | Target | Description |
 |---------|--------|-------------|
 | **17.0.3.0.0** | ✅ Released | New write tools · get_my_leaves · 72h session TTL · human-readable confirmations · per-tool audit log |
-| **17.0.4.0.0** | 🔜 Next | Proactive notifications — daily task digest and overdue invoice alerts pushed to Telegram via cron |
+| **17.0.4.0.0** | ✅ Released | Proactive notifications — daily task digest (08:00 UTC) · overdue invoice alerts (09:00 UTC) |
 | **17.0.5.0.0** | Q3 2026 | WhatsApp Cloud API channel |
 | **17.0.6.0.0** | Q4 2026 | Multi-language support · per-user language preference |
 | **18.0.1.0.0** | Q4 2026 | Odoo 18 port · OCA submission |

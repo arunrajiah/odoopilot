@@ -46,6 +46,18 @@ class ResConfigSettings(models.TransientModel):
         help="Leave blank to use provider default: claude-3-5-haiku-20241022 / gpt-4o-mini / llama-3.1-70b-versatile",
     )
 
+    # Notifications
+    odoopilot_notify_task_digest = fields.Boolean(
+        string="Daily task digest",
+        config_parameter="odoopilot.notify_task_digest",
+        help="Send each user their overdue and today's tasks every morning at 08:00 UTC.",
+    )
+    odoopilot_notify_invoice_alerts = fields.Boolean(
+        string="Overdue invoice alerts",
+        config_parameter="odoopilot.notify_invoice_alerts",
+        help="Send users with accounting access a daily overdue invoice summary at 09:00 UTC.",
+    )
+
     def action_register_telegram_webhook(self):
         """Register the Odoo webhook URL with Telegram."""
         token = (
