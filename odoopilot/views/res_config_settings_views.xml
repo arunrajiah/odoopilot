@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="res_config_settings_view_form" model="ir.ui.view">
-        <field name="name">res.config.settings.view.form.mail.gateway.ai</field>
+        <field name="name">res.config.settings.view.form.odoopilot</field>
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
         <field name="arch" type="xml">
@@ -20,10 +20,10 @@
                                 <div class="text-muted">Activate the Telegram bot.</div>
                                 <div class="content-group" invisible="not odoopilot_telegram_enabled">
                                     <div class="mt8">
-                                        <field name="odoopilot_telegram_bot_token" string="Bot Token" placeholder="123456789:ABCdef..."/>
+                                        <field name="odoopilot_telegram_bot_token" string="Bot Token" widget="password" placeholder="123456789:ABCdef..."/>
                                     </div>
                                     <div class="mt4">
-                                        <field name="odoopilot_telegram_webhook_secret" string="Webhook Secret" placeholder="optional random string"/>
+                                        <field name="odoopilot_telegram_webhook_secret" string="Webhook Secret" widget="password" placeholder="optional random string"/>
                                     </div>
                                     <div class="mt8">
                                         <button name="action_test_telegram_connection" type="object" string="Test connection" class="btn btn-secondary btn-sm"/>

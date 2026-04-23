@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class OdooPilotAudit(models.Model):
@@ -7,7 +7,7 @@ class OdooPilotAudit(models.Model):
     _name = "odoopilot.audit"
     _description = "OdooPilot Audit Log"
     _order = "timestamp desc"
-    _rec_name = "tool_name"
+    _rec_name = "display_name_audit"
 
     timestamp = fields.Datetime(string="Timestamp", readonly=True, required=True)
     user_id = fields.Many2one(
@@ -19,3 +19,13 @@ class OdooPilotAudit(models.Model):
     result_summary = fields.Text(string="Result", readonly=True)
     success = fields.Boolean(string="Success", readonly=True, default=True)
     error_message = fields.Char(string="Error", readonly=True)
+    display_name_audit = fields.Char(
+        string="Name", compute="_compute_display_name_audit", store=False
+    )
+
+    @api.depends("tool_name", "user_id", "timestamp")
+    def _compute_display_name_audit(self):
+        for rec in self:
+            ts = rec.timestamp.strftime("%Y-%m-%d %H:%M") if rec.timestamp else ""
+            user = rec.user_id.name or "?"
+            rec.display_name_audit = f"[{rec.tool_name}] {user} — {ts}"

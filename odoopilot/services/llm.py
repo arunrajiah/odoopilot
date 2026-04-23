@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 DEFAULTS = {
     "anthropic": "claude-3-5-haiku-20241022",
     "openai": "gpt-4o-mini",
-    "groq": "llama-3.1-70b-versatile",
+    "groq": "llama-3.3-70b-versatile",
 }
 
 OPENAI_COMPAT_BASE = {
@@ -124,6 +124,11 @@ class LLMClient:
         resp.raise_for_status()
         data = resp.json()
 
+        if "choices" not in data or not data["choices"]:
+            error = data.get("error", {})
+            raise RuntimeError(
+                error.get("message", "LLM API returned no choices")
+            )
         choice = data["choices"][0]
         msg = choice["message"]
         text = msg.get("content") or ""

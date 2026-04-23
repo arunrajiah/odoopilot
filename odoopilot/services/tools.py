@@ -281,7 +281,7 @@ def _fmt_date(dt):
     if not dt:
         return ""
     if hasattr(dt, "strftime"):
-        return dt.strftime("%d %b")
+        return dt.strftime("%d %b %Y")
     return str(dt)[:10]
 
 
@@ -337,6 +337,9 @@ def get_my_tasks(env, project=None, limit=10, **_):
 
 
 def get_sale_orders(env, state=None, limit=10, **_):
+    err = _check_model(env, "sale.order", "Sales")
+    if err:
+        return err
     domain = []
     if state:
         domain.append(("state", "=", state))
@@ -354,17 +357,17 @@ def get_crm_leads(env, stage=None, limit=10, **_):
     err = _check_model(env, "crm.lead", "CRM")
     if err:
         return err
-    domain = [("user_id", "=", env.uid), ("type", "=", "opportunity")]
+    domain = [("user_id", "=", env.uid)]
     if stage:
         domain.append(("stage_id.name", "ilike", stage))
     leads = env["crm.lead"].search(domain, limit=int(limit), order="priority desc")
     if not leads:
-        return "No opportunities found."
+        return "No leads or opportunities found."
     lines = [
         f"- {lead.name} | {lead.partner_id.name or 'No contact'} | {lead.stage_id.name} | {lead.expected_revenue:,.0f}"
         for lead in leads
     ]
-    return f"Opportunities ({len(leads)}):\n" + "\n".join(lines)
+    return f"CRM leads/opportunities ({len(leads)}):\n" + "\n".join(lines)
 
 
 def get_stock_products(env, name=None, low_stock_only=False, limit=10, **_):
@@ -374,15 +377,12 @@ def get_stock_products(env, name=None, low_stock_only=False, limit=10, **_):
     domain = []
     if name:
         domain.append(("name", "ilike", name))
+    if low_stock_only:
+        domain.append(("qty_available", "<=", 0))
     products = env["product.product"].search(domain, limit=int(limit))
-    lines = []
-    for p in products:
-        qty = p.qty_available
-        if low_stock_only and qty > 0:
-            continue
-        lines.append(f"- {p.display_name} — {qty} {p.uom_id.name}")
-    if not lines:
+    if not products:
         return "No products found."
+    lines = [f"- {p.display_name} — {p.qty_available} {p.uom_id.name}" for p in products]
     return f"Products ({len(lines)}):\n" + "\n".join(lines)
 
 
@@ -391,14 +391,15 @@ def get_invoices(env, state=None, overdue_only=False, limit=10, **_):
     if err:
         return err
     domain = [("move_type", "=", "out_invoice")]
-    if state:
-        domain.append(("state", "=", state))
     if overdue_only:
+        # overdue_only implies posted + unpaid + past due; ignore any separate state filter
         domain += [
             ("state", "=", "posted"),
             ("payment_state", "!=", "paid"),
             ("invoice_date_due", "<", datetime.today().strftime("%Y-%m-%d")),
         ]
+    elif state:
+        domain.append(("state", "=", state))
     invoices = env["account.move"].search(
         domain, limit=int(limit), order="invoice_date_due asc"
     )
@@ -458,11 +459,11 @@ def get_my_leaves(env, state=None, team_leaves=False, limit=10, **_):
         "refuse": "Refused",
     }
     if team_leaves:
-        # Show leaves from the user's subordinates (manager view)
+        # Show leaves from direct reports (manager view)
         employee = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
         if not employee:
             return "No employee record found for your account."
-        domain = [("department_id", "=", employee.department_id.id)]
+        domain = [("employee_id.parent_id", "=", employee.id)]
     else:
         domain = [("employee_id.user_id", "=", env.uid)]
 
@@ -492,7 +493,12 @@ def mark_task_done(env, task_name: str, **_):
     if err:
         return err
     tasks = env["project.task"].search(
-        [("name", "ilike", task_name), ("stage_id.fold", "=", False)], limit=1
+        [
+            ("name", "ilike", task_name),
+            ("stage_id.fold", "=", False),
+            ("user_ids", "in", [env.uid]),
+        ],
+        limit=1,
     )
     if not tasks:
         return f"Task '{task_name}' not found."
@@ -504,8 +510,11 @@ def mark_task_done(env, task_name: str, **_):
 
 
 def confirm_sale_order(env, order_name: str, **_):
+    err = _check_model(env, "sale.order", "Sales")
+    if err:
+        return err
     order = env["sale.order"].search(
-        [("name", "=", order_name), ("state", "in", ["draft", "sent"])], limit=1
+        [("name", "ilike", order_name), ("state", "in", ["draft", "sent"])], limit=1
     )
     if not order:
         return f"Sale order '{order_name}' not found or already confirmed."

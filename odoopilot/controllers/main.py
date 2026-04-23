@@ -134,18 +134,44 @@ class OdooPilotController(http.Controller):
 
     def _handle_link_command(self, env, tg, chat_id):
         """Generate a one-time linking token and send the link to the user."""
+        cfg = env["ir.config_parameter"].sudo()
+        base_url = cfg.get_param("web.base.url", "").rstrip("/")
+        if not base_url:
+            tg.send_message(
+                chat_id,
+                "⚠️ OdooPilot is not fully configured: web.base.url is missing. "
+                "Ask your Odoo admin to set it in Settings → Technical → System Parameters.",
+            )
+            return
+
+        # Clean up any expired tokens for this chat_id before issuing a new one
+        self._cleanup_expired_link_tokens(env)
+
         token = secrets.token_urlsafe(32)
         expiry = int(time.time()) + 3600
-        env["ir.config_parameter"].sudo().set_param(
+        cfg.set_param(
             f"odoopilot.link_token.{token}",
             json.dumps({"channel": "telegram", "chat_id": chat_id, "exp": expiry}),
         )
-        base_url = env["ir.config_parameter"].sudo().get_param("web.base.url", "")
-        link_url = f"{base_url.rstrip('/')}/odoopilot/link/start?token={token}"
+        link_url = f"{base_url}/odoopilot/link/start?token={token}"
         tg.send_message(
             chat_id,
             f"Click the link below to connect your Odoo account (expires in 1 hour):\n\n{link_url}",
         )
+
+    def _cleanup_expired_link_tokens(self, env):
+        """Remove all expired OdooPilot link tokens from ir.config_parameter."""
+        now = int(time.time())
+        params = env["ir.config_parameter"].sudo().search(
+            [("key", "like", "odoopilot.link_token.")]
+        )
+        for param in params:
+            try:
+                data = json.loads(param.value or "{}")
+                if not data or now > data.get("exp", 0):
+                    param.unlink()
+            except Exception:
+                param.unlink()
 
     def _handle_confirmation(self, env, tg, chat_id, payload):
         """Handle yes/no confirmation from inline keyboard."""
@@ -211,7 +237,7 @@ class OdooPilotController(http.Controller):
             return request.render("odoopilot.link_error", {"error": "Corrupt token."})
 
         if int(time.time()) > data.get("exp", 0):
-            cfg.set_param(f"odoopilot.link_token.{token}", "")
+            cfg.search([("key", "=", f"odoopilot.link_token.{token}")]).unlink()
             return request.render(
                 "odoopilot.link_error",
                 {"error": "This link has expired. Use /link again."},
@@ -243,7 +269,7 @@ class OdooPilotController(http.Controller):
             )
 
         # Consume token
-        cfg.set_param(f"odoopilot.link_token.{token}", "")
+        cfg.search([("key", "=", f"odoopilot.link_token.{token}")]).unlink()
 
         # Notify user on Telegram
         bot_token = cfg.get_param("odoopilot.telegram_bot_token")

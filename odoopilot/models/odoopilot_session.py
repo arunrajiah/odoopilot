@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from odoo import api, fields, models
 
@@ -54,5 +54,5 @@ class OdooPilotSession(models.Model):
     @api.model
     def _gc_old_sessions(self):
         """Cron: delete sessions inactive for longer than _SESSION_TTL_HOURS."""
-        cutoff = datetime.utcnow() - timedelta(hours=_SESSION_TTL_HOURS)
+        cutoff = fields.Datetime.now() - timedelta(hours=_SESSION_TTL_HOURS)
         self.search([("updated_at", "<", cutoff)]).unlink()

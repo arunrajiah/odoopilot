@@ -49,9 +49,9 @@ class OdooPilotAgent:
             _logger.exception("Agent error for chat %s", chat_id)
             response_text = "Sorry, I encountered an error. Please try again."
 
+        session.append_message("user", text)
         if response_text:
             self.tg.send_message(chat_id, response_text)
-            session.append_message("user", text)
             session.append_message("assistant", response_text)
 
         self._audit(chat_id, "chat", {"text": text}, response_text or "", True)
@@ -70,30 +70,41 @@ class OdooPilotAgent:
                 return result["text"]
 
             tool_calls = result["tool_calls"]
-            tool_results = []
 
+            # Separate read and write tools; only handle the first write tool per turn
+            read_calls = []
+            write_call = None
             for tc in tool_calls:
-                tool_name = tc["name"]
-                args = tc["args"]
+                if tc["name"] in WRITE_TOOLS:
+                    if write_call is None:
+                        write_call = tc
+                else:
+                    read_calls.append(tc)
 
-                if tool_name in WRITE_TOOLS:
-                    # Store the pending action and ask for confirmation
-                    session.sudo().write(
-                        {
-                            "pending_tool": tool_name,
-                            "pending_args": json.dumps(args),
-                        }
-                    )
-                    question = _fmt_confirmation(tool_name, args)
-                    self.tg.send_confirmation(chat_id, question)
-                    return ""  # Pause — wait for user's Yes/No
+            # Execute all read tools
+            read_results = []
+            for tc in read_calls:
+                result_str = execute_tool(self.env, tc["name"], tc["args"])
+                self._audit(chat_id, tc["name"], tc["args"], result_str, True)
+                read_results.append(result_str)
 
-                result_str = execute_tool(self.env, tool_name, args)
-                self._audit(chat_id, tool_name, args, result_str, True)
-                tool_results.append(result_str)
+            if read_results:
+                extra = self.llm.build_tool_result_messages(read_calls, read_results)
+                messages.extend(extra)
 
-            extra = self.llm.build_tool_result_messages(tool_calls, tool_results)
-            messages.extend(extra)
+            if write_call:
+                session.sudo().write(
+                    {
+                        "pending_tool": write_call["name"],
+                        "pending_args": json.dumps(write_call["args"]),
+                    }
+                )
+                question = _fmt_confirmation(write_call["name"], write_call["args"])
+                self.tg.send_confirmation(chat_id, question)
+                return ""  # Pause — wait for user's Yes/No
+
+            if not read_results:
+                return result["text"]
 
         return "I wasn't able to complete your request after several attempts."
 
