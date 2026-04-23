@@ -162,28 +162,31 @@ class OdooPilotController(http.Controller):
         if not identity:
             return
 
+        session = env["odoopilot.session"].search(
+            [("channel", "=", "telegram"), ("chat_id", "=", chat_id)], limit=1
+        )
+
         if payload == "confirm:no":
             tg.send_message(chat_id, "Cancelled.")
-            session = env["odoopilot.session"].search(
-                [("channel", "=", "telegram"), ("chat_id", "=", chat_id)], limit=1
-            )
             if session:
-                session.write({"pending_tool": False, "pending_args": False})
+                session.clear_pending()
+                # Record decline in history so LLM has context next turn
+                session.append_message("user", "(I declined the action)")
+                session.append_message(
+                    "assistant", "Understood, the action was cancelled."
+                )
             return
 
         if payload.startswith("confirm:yes"):
-            session = env["odoopilot.session"].search(
-                [("channel", "=", "telegram"), ("chat_id", "=", chat_id)], limit=1
-            )
             if not session or not session.pending_tool:
                 tg.send_message(chat_id, "Nothing to confirm.")
                 return
+            tool_name = session.pending_tool
+            args = json.loads(session.pending_args or "{}")
+            session.clear_pending()  # Clear before executing to avoid double-run on retry
             user_env = env(user=identity.user_id.id)
             agent = OdooPilotAgent(user_env, tg)
-            agent.execute_confirmed(
-                chat_id, session.pending_tool, json.loads(session.pending_args or "{}")
-            )
-            session.write({"pending_tool": False, "pending_args": False})
+            agent.execute_confirmed(chat_id, tool_name, args)
 
     # ------------------------------------------------------------------
     # Account linking pages

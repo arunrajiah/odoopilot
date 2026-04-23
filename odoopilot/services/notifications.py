@@ -44,6 +44,10 @@ def send_task_digest(env) -> int:
         .search([("channel", "=", "telegram"), ("active", "=", True)])
     )
 
+    if "project.task" not in env.registry:
+        _logger.info("OdooPilot task digest skipped: Project module not installed")
+        return 0
+
     for identity in identities:
         try:
             user_env = env(user=identity.user_id.id)
@@ -114,6 +118,12 @@ def send_invoice_alerts(env) -> int:
 
     today_str = date.today().strftime("%Y-%m-%d")
     notified = 0
+
+    if "account.move" not in env.registry:
+        _logger.info(
+            "OdooPilot invoice alerts skipped: Accounting module not installed"
+        )
+        return 0
 
     identities = (
         env["odoopilot.identity"]

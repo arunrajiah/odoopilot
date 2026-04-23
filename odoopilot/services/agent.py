@@ -99,18 +99,29 @@ class OdooPilotAgent:
 
     def execute_confirmed(self, chat_id: str, tool_name: str, args: dict) -> None:
         """Execute a write tool after the user confirmed via inline keyboard."""
+        error_msg = None
         try:
             result = execute_tool(self.env, tool_name, args)
             success = True
         except Exception as e:
-            result = f"Error: {e}"
+            result = f"Error executing {tool_name}: {e}"
             success = False
+            error_msg = str(e)
             _logger.exception(
                 "Confirmed tool %s failed for chat %s", tool_name, chat_id
             )
 
         self.tg.send_message(chat_id, result)
-        self._audit(chat_id, tool_name, args, result, success)
+        self._audit(chat_id, tool_name, args, result, success, error_msg=error_msg)
+
+        # Append result to session history so the LLM has context in the next turn
+        session = (
+            self.env["odoopilot.session"]
+            .sudo()
+            .search([("channel", "=", "telegram"), ("chat_id", "=", chat_id)], limit=1)
+        )
+        if session:
+            session.append_message("assistant", result)
 
     def _audit(
         self,
@@ -119,6 +130,7 @@ class OdooPilotAgent:
         tool_args: dict,
         result: str,
         success: bool,
+        error_msg: str | None = None,
     ) -> None:
         try:
             self.env["odoopilot.audit"].sudo().create(
@@ -130,6 +142,7 @@ class OdooPilotAgent:
                     "tool_args": json.dumps(tool_args)[:500],
                     "result_summary": result[:500],
                     "success": success,
+                    "error_message": error_msg or "",
                 }
             )
         except Exception:

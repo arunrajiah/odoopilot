@@ -270,6 +270,13 @@ def execute_tool(env, tool_name: str, args: dict) -> str:
         return f"Error: {e}"
 
 
+def _check_model(env, model_name: str, module_hint: str) -> str | None:
+    """Return a user-friendly error if an optional Odoo module isn't installed."""
+    if model_name not in env.registry:
+        return f"The {module_hint} module is not installed on this Odoo instance."
+    return None
+
+
 def _fmt_date(dt):
     if not dt:
         return ""
@@ -309,6 +316,9 @@ def _fmt_confirmation(tool_name: str, args: dict) -> str:
 
 
 def get_my_tasks(env, project=None, limit=10, **_):
+    err = _check_model(env, "project.task", "Project")
+    if err:
+        return err
     domain = [("user_ids", "in", [env.uid]), ("stage_id.fold", "=", False)]
     if project:
         domain.append(("project_id.name", "ilike", project))
@@ -341,6 +351,9 @@ def get_sale_orders(env, state=None, limit=10, **_):
 
 
 def get_crm_leads(env, stage=None, limit=10, **_):
+    err = _check_model(env, "crm.lead", "CRM")
+    if err:
+        return err
     domain = [("user_id", "=", env.uid), ("type", "=", "opportunity")]
     if stage:
         domain.append(("stage_id.name", "ilike", stage))
@@ -355,6 +368,9 @@ def get_crm_leads(env, stage=None, limit=10, **_):
 
 
 def get_stock_products(env, name=None, low_stock_only=False, limit=10, **_):
+    err = _check_model(env, "product.product", "Inventory")
+    if err:
+        return err
     domain = []
     if name:
         domain.append(("name", "ilike", name))
@@ -371,6 +387,9 @@ def get_stock_products(env, name=None, low_stock_only=False, limit=10, **_):
 
 
 def get_invoices(env, state=None, overdue_only=False, limit=10, **_):
+    err = _check_model(env, "account.move", "Accounting")
+    if err:
+        return err
     domain = [("move_type", "=", "out_invoice")]
     if state:
         domain.append(("state", "=", state))
@@ -393,6 +412,9 @@ def get_invoices(env, state=None, overdue_only=False, limit=10, **_):
 
 
 def get_purchase_orders(env, state=None, limit=10, **_):
+    err = _check_model(env, "purchase.order", "Purchase")
+    if err:
+        return err
     domain = []
     if state:
         domain.append(("state", "=", state))
@@ -409,6 +431,9 @@ def get_purchase_orders(env, state=None, limit=10, **_):
 
 
 def get_employees(env, department=None, limit=10, **_):
+    err = _check_model(env, "hr.employee", "Human Resources")
+    if err:
+        return err
     domain = [("active", "=", True)]
     if department:
         domain.append(("department_id.name", "ilike", department))
@@ -423,6 +448,9 @@ def get_employees(env, department=None, limit=10, **_):
 
 
 def get_my_leaves(env, state=None, team_leaves=False, limit=10, **_):
+    err = _check_model(env, "hr.leave", "Human Resources / Time Off")
+    if err:
+        return err
     _STATE_LABELS = {
         "confirm": "Waiting approval",
         "validate1": "2nd approval needed",
@@ -460,6 +488,9 @@ def get_my_leaves(env, state=None, team_leaves=False, limit=10, **_):
 
 
 def mark_task_done(env, task_name: str, **_):
+    err = _check_model(env, "project.task", "Project")
+    if err:
+        return err
     tasks = env["project.task"].search(
         [("name", "ilike", task_name), ("stage_id.fold", "=", False)], limit=1
     )
@@ -483,6 +514,9 @@ def confirm_sale_order(env, order_name: str, **_):
 
 
 def approve_leave(env, employee_name: str, leave_type: str | None = None, **_):
+    err = _check_model(env, "hr.leave", "Human Resources / Time Off")
+    if err:
+        return err
     domain = [
         ("employee_id.name", "ilike", employee_name),
         ("state", "in", ["confirm", "validate1"]),
@@ -501,6 +535,9 @@ def approve_leave(env, employee_name: str, leave_type: str | None = None, **_):
 
 
 def update_crm_stage(env, lead_name: str, stage_name: str, **_):
+    err = _check_model(env, "crm.lead", "CRM")
+    if err:
+        return err
     lead = env["crm.lead"].search(
         [("name", "ilike", lead_name), ("type", "=", "opportunity")], limit=1
     )
@@ -522,6 +559,9 @@ def create_crm_lead(
     stage_name: str | None = None,
     **_,
 ):
+    err = _check_model(env, "crm.lead", "CRM")
+    if err:
+        return err
     vals = {
         "name": name,
         "type": "opportunity",
