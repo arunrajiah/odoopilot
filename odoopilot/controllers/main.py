@@ -127,9 +127,14 @@ class OdooPilotController(http.Controller):
             )
             return
 
+        # /language command — set or show per-user language preference
+        if text.startswith("/language"):
+            self._handle_language_command(env, tg, chat_id, text, identity)
+            return
+
         # Run agent as the linked user
         user_env = env(user=identity.user_id.id)
-        agent = OdooPilotAgent(user_env, tg)
+        agent = OdooPilotAgent(user_env, tg, channel="telegram")
         agent.handle_message(chat_id, text)
 
     def _handle_link_command(self, env, tg, chat_id):
@@ -157,6 +162,57 @@ class OdooPilotController(http.Controller):
         tg.send_message(
             chat_id,
             f"Click the link below to connect your Odoo account (expires in 1 hour):\n\n{link_url}",
+        )
+
+    def _handle_language_command(self, env, client, chat_id, text, identity):
+        """Handle /language command — show or set the per-user language preference."""
+        from ..models.odoopilot_identity import LANGUAGE_CHOICES
+
+        parts = text.strip().split(None, 1)
+        if len(parts) == 1:
+            # /language with no argument — show current setting
+            current = identity.language or ""
+            choices_map = dict(LANGUAGE_CHOICES)
+            current_name = choices_map.get(current, "Auto-detect")
+            options = ", ".join(
+                f"{code} ({name})"
+                for code, name in LANGUAGE_CHOICES
+                if code  # skip the "" / Auto-detect entry for the options list
+            )
+            client.send_message(
+                chat_id,
+                f"Current language: {current_name}\n\n"
+                f"To change, send /language <code>. Available codes:\n{options}\n\n"
+                "Send /language auto to reset to auto-detect.",
+            )
+            return
+
+        lang_arg = parts[1].strip().lower()
+        if lang_arg == "auto":
+            identity.sudo().write({"language": ""})
+            client.send_message(
+                chat_id,
+                "Language reset to auto-detect. I'll match the language you write in.",
+            )
+            return
+
+        valid_codes = {code for code, _ in LANGUAGE_CHOICES if code}
+        if lang_arg not in valid_codes:
+            choices_map = dict(LANGUAGE_CHOICES)
+            options = ", ".join(
+                f"{code} ({name})" for code, name in LANGUAGE_CHOICES if code
+            )
+            client.send_message(
+                chat_id,
+                f"Unknown language code '{lang_arg}'.\n\nAvailable codes:\n{options}",
+            )
+            return
+
+        choices_map = dict(LANGUAGE_CHOICES)
+        identity.sudo().write({"language": lang_arg})
+        client.send_message(
+            chat_id,
+            f"Language set to {choices_map[lang_arg]}. I'll reply in {choices_map[lang_arg]} from now on.",
         )
 
     def _cleanup_expired_link_tokens(self, env):
@@ -213,7 +269,7 @@ class OdooPilotController(http.Controller):
             args = json.loads(session.pending_args or "{}")
             session.clear_pending()  # Clear before executing to avoid double-run on retry
             user_env = env(user=identity.user_id.id)
-            agent = OdooPilotAgent(user_env, tg)
+            agent = OdooPilotAgent(user_env, tg, channel="telegram")
             agent.execute_confirmed(chat_id, tool_name, args)
 
     # ------------------------------------------------------------------
@@ -368,8 +424,13 @@ class OdooPilotController(http.Controller):
             )
             return
 
+        # /language command
+        if text.startswith("/language"):
+            self._handle_language_command(env, wa, from_number, text, identity)
+            return
+
         user_env = env(user=identity.user_id.id)
-        agent = OdooPilotAgent(user_env, wa)
+        agent = OdooPilotAgent(user_env, wa, channel="whatsapp")
         agent.handle_message(from_number, text)
 
     def _handle_whatsapp_confirmation(self, env, wa, from_number, payload):
@@ -408,7 +469,7 @@ class OdooPilotController(http.Controller):
             args = json.loads(session.pending_args or "{}")
             session.clear_pending()
             user_env = env(user=identity.user_id.id)
-            agent = OdooPilotAgent(user_env, wa)
+            agent = OdooPilotAgent(user_env, wa, channel="whatsapp")
             agent.execute_confirmed(from_number, tool_name, args)
 
     # ------------------------------------------------------------------

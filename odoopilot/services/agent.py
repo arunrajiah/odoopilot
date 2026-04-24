@@ -9,36 +9,80 @@ from .tools import TOOL_DEFINITIONS, WRITE_TOOLS, _fmt_confirmation, execute_too
 
 _logger = logging.getLogger(__name__)
 
+# ISO 639-1 code → English name used in the system prompt
+_LANGUAGE_NAMES: dict[str, str] = {
+    "en": "English",
+    "fr": "French",
+    "es": "Spanish",
+    "de": "German",
+    "it": "Italian",
+    "pt": "Portuguese",
+    "nl": "Dutch",
+    "ar": "Arabic",
+    "zh": "Chinese",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "ru": "Russian",
+    "tr": "Turkish",
+    "pl": "Polish",
+    "hi": "Hindi",
+}
+
 SYSTEM_PROMPT = """You are OdooPilot, an AI assistant integrated with Odoo ERP.
-You help users query and manage their Odoo data via Telegram.
+You help users query and manage their Odoo data via Telegram and WhatsApp.
 Today is {today}. The user's name is {user_name}.
 
 Rules:
 - Be concise. Use bullet points for lists.
 - For write/mutating operations, always request confirmation first — never execute them directly.
 - If a module isn't installed (e.g. CRM, Purchase), say so politely.
-- Respond in the same language the user writes in.
+- {language_instruction}
 """
 
 
+def _language_instruction(language: str) -> str:
+    """Return the language rule for the system prompt."""
+    if language and language in _LANGUAGE_NAMES:
+        return f"Always respond in {_LANGUAGE_NAMES[language]}."
+    return "Respond in the same language the user writes in."
+
+
 class OdooPilotAgent:
-    def __init__(self, env, tg):
+    def __init__(self, env, client, channel: str = "telegram"):
         self.env = env  # Odoo env scoped to the linked user
-        self.tg = tg
+        self.tg = client  # messaging client (Telegram or WhatsApp)
+        self.channel = channel
         cfg = env["ir.config_parameter"].sudo()
         provider = cfg.get_param("odoopilot.llm_provider") or "anthropic"
         api_key = cfg.get_param("odoopilot.llm_api_key") or ""
         model = cfg.get_param("odoopilot.llm_model") or ""
         self.llm = LLMClient(provider, api_key, model)
 
+    def _get_language(self, chat_id: str) -> str:
+        """Return the language code stored in the user's identity, or '' for auto."""
+        identity = (
+            self.env["odoopilot.identity"]
+            .sudo()
+            .search(
+                [
+                    ("channel", "=", self.channel),
+                    ("chat_id", "=", chat_id),
+                ],
+                limit=1,
+            )
+        )
+        return identity.language if identity else ""
+
     def handle_message(self, chat_id: str, text: str) -> None:
         session = (
-            self.env["odoopilot.session"].sudo().get_or_create("telegram", chat_id)
+            self.env["odoopilot.session"].sudo().get_or_create(self.channel, chat_id)
         )
 
+        language = self._get_language(chat_id)
         system = SYSTEM_PROMPT.format(
             today=date.today().strftime("%A, %d %B %Y"),
             user_name=self.env.user.name,
+            language_instruction=_language_instruction(language),
         )
         messages = [{"role": "system", "content": system}] + session.get_messages()
         messages.append({"role": "user", "content": text})
@@ -129,7 +173,10 @@ class OdooPilotAgent:
         session = (
             self.env["odoopilot.session"]
             .sudo()
-            .search([("channel", "=", "telegram"), ("chat_id", "=", chat_id)], limit=1)
+            .search(
+                [("channel", "=", self.channel), ("chat_id", "=", chat_id)],
+                limit=1,
+            )
         )
         if session:
             session.append_message("assistant", result)
@@ -148,7 +195,7 @@ class OdooPilotAgent:
                 {
                     "timestamp": fields.Datetime.now(),
                     "user_id": self.env.uid,
-                    "channel": "telegram",
+                    "channel": self.channel,
                     "tool_name": tool_name,
                     "tool_args": json.dumps(tool_args)[:500],
                     "result_summary": result[:500],

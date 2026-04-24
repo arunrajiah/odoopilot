@@ -10,6 +10,7 @@
                 <field name="channel"/>
                 <field name="chat_id"/>
                 <field name="display_name_channel"/>
+                <field name="language"/>
                 <field name="linked_at"/>
                 <field name="active"/>
             </list>
@@ -32,6 +33,7 @@
                             <field name="channel"/>
                             <field name="chat_id"/>
                             <field name="display_name_channel"/>
+                            <field name="language"/>
                             <field name="linked_at"/>
                         </group>
                     </group>

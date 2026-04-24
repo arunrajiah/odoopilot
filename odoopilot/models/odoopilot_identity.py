@@ -2,9 +2,29 @@ from odoo import api, fields, models
 
 from ..services import notifications
 
+# Supported languages — ISO 639-1 code → display name shown in the UI
+LANGUAGE_CHOICES = [
+    ("", "Auto-detect"),
+    ("en", "English"),
+    ("fr", "French"),
+    ("es", "Spanish"),
+    ("de", "German"),
+    ("it", "Italian"),
+    ("pt", "Portuguese"),
+    ("nl", "Dutch"),
+    ("ar", "Arabic"),
+    ("zh", "Chinese"),
+    ("ja", "Japanese"),
+    ("ko", "Korean"),
+    ("ru", "Russian"),
+    ("tr", "Turkish"),
+    ("pl", "Polish"),
+    ("hi", "Hindi"),
+]
+
 
 class OdooPilotIdentity(models.Model):
-    """Links an Odoo user to a Telegram chat ID."""
+    """Links an Odoo user to a messaging channel (Telegram / WhatsApp)."""
 
     _name = "odoopilot.identity"
     _description = "OdooPilot User Identity"
@@ -20,6 +40,12 @@ class OdooPilotIdentity(models.Model):
     display_name_channel = fields.Char(string="Channel Display Name")
     active = fields.Boolean(default=True)
     linked_at = fields.Datetime(readonly=True)
+    language = fields.Selection(
+        LANGUAGE_CHOICES,
+        string="Language",
+        default="",
+        help="Preferred language for bot replies. Leave empty to auto-detect from user messages.",
+    )
 
     _sql_constraints = [
         (

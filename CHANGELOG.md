@@ -5,6 +5,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [17.0.6.0.0] — 2026-04-24
+
+### Added — Multi-language support · per-user language preference
+
+- **`language` field on `odoopilot.identity`** — stores ISO 639-1 code (`en`, `fr`, `es`, `de`, `it`, `pt`, `nl`, `ar`, `zh`, `ja`, `ko`, `ru`, `tr`, `pl`, `hi`) or empty for auto-detect
+- **`/language` command** (Telegram & WhatsApp):
+  - `/language` — shows current setting and all available codes
+  - `/language fr` — sets French as the fixed reply language
+  - `/language auto` — resets to auto-detect (match what the user writes)
+- **`LANGUAGE_CHOICES`** constant exported from `odoopilot_identity.py` — single source of truth for valid codes and display names
+- Language preference surfaced in the **OdooPilot Identities** list and form views (Odoo backend)
+
+### Changed
+
+- `SYSTEM_PROMPT` updated: when a language is set, the instruction reads `"Always respond in {language}."` instead of the generic detect-and-match rule
+- `OdooPilotAgent.__init__` now accepts a `channel` parameter (`"telegram"` or `"whatsapp"`) — used for session lookup, identity lookup, and audit logging. Previously all audit records were hard-coded as `channel="telegram"`, which meant WhatsApp actions were mis-labelled. Now fixed.
+- All `OdooPilotAgent(...)` instantiation sites in `controllers/main.py` pass the correct channel
+
+---
+
 ## [17.0.5.0.0] — 2026-04-23
 
 ### Added — WhatsApp Cloud API channel
@@ -119,5 +139,5 @@ The project has been restructured from a two-component system (FastAPI service +
 | **17.0.3.0.0** | ✅ Released | New write tools · get_my_leaves · 72h session TTL · human-readable confirmations · per-tool audit log |
 | **17.0.4.0.0** | ✅ Released | Proactive notifications — daily task digest (08:00 UTC) · overdue invoice alerts (09:00 UTC) |
 | **17.0.5.0.0** | ✅ Released | WhatsApp Cloud API — full channel parity with Telegram |
-| **17.0.6.0.0** | 🔜 Next | Multi-language support · per-user language preference |
+| **17.0.6.0.0** | ✅ Released | Multi-language support · `/language` command · per-user language preference |
 | **18.0.1.0.0** | Q4 2026 | Odoo 18 port · OCA submission |
