@@ -1,265 +1,475 @@
-<!-- OdooPilot — Odoo App Store Listing  v17.0.6.0.0
-     =====================================================================
-     SEO / App Store Keywords:
-     Odoo AI chatbot, Odoo AI agent, Odoo AI copilot, Odoo AI assistant,
-     Telegram bot Odoo, WhatsApp bot Odoo, Odoo Telegram integration,
-     Odoo WhatsApp integration, ChatGPT Odoo, Claude AI Odoo, GPT-4 Odoo,
-     Groq Odoo, Llama Odoo, natural language ERP, Odoo NLQ, NLP Odoo,
-     Odoo chatbot free, Odoo copilot, Odoo 17 AI, Odoo 17 Community AI,
-     free AI Odoo, ERP chatbot open source, Odoo AI assistant employee,
-     Odoo automation, Odoo push notifications, Odoo audit log, multi-LLM Odoo,
-     multi-language Odoo bot, Odoo write actions, Odoo task bot, Odoo CRM bot,
-     Odoo invoice alerts, Odoo leave approval bot, Odoo sales bot,
-     Odoo inventory chatbot, Odoo employee bot, self-hosted Odoo AI,
-     on-premise Odoo AI, LGPL Odoo AI, open source Odoo chatbot,
-     agentic AI Odoo, Odoo LLM integration, Odoo conversational AI,
-     Odoo business intelligence chatbot, Odoo ERP automation
+<!-- OdooPilot v17.0.6.0.0 | Odoo App Store Listing
+     SEO Keywords: Odoo AI chatbot, Odoo AI agent, Odoo AI copilot, Odoo AI assistant,
+     Telegram bot Odoo, WhatsApp bot Odoo, ChatGPT Odoo, Claude AI Odoo, GPT-4 Odoo,
+     Groq Odoo, natural language ERP, Odoo NLQ, Odoo chatbot free, Odoo copilot,
+     Odoo 17 AI, Odoo 17 Community AI, free AI Odoo, ERP chatbot open source,
+     Odoo AI assistant employee, Odoo automation, Odoo push notifications,
+     Odoo audit log, multi-LLM Odoo, multi-language Odoo bot, Odoo write actions,
+     Odoo Telegram integration, Odoo WhatsApp integration, self-hosted Odoo AI,
+     on-premise Odoo AI, LGPL Odoo AI, open source Odoo chatbot, agentic AI Odoo,
+     Odoo LLM integration, Odoo conversational AI, Odoo business intelligence chatbot
 -->
 <style>
-  .op-wrap  { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1e293b; }
-  .op-hero  { background: linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%);
-              border-radius: 16px; padding: 56px 40px 48px; text-align: center; margin-bottom: 8px; }
-  .op-hero h1 { font-size: 2.8em; font-weight: 800; color: #fff; margin: 0 0 12px; letter-spacing: -1px; }
-  .op-hero .sub { font-size: 1.15em; color: #94a3b8; margin: 0 auto 24px; max-width: 720px; line-height: 1.6; }
-  .op-badge { display: inline-block; padding: 5px 14px; border-radius: 99px; font-size: 0.82em;
-              font-weight: 700; margin: 3px; letter-spacing: .3px; }
-  .op-badge-free   { background: #dcfce7; color: #16a34a; }
-  .op-badge-lgpl   { background: #e0e7ff; color: #4338ca; }
-  .op-badge-ce     { background: #fef9c3; color: #854d0e; }
-  .op-badge-v17    { background: #f0fdf4; color: #15803d; }
-  .op-badge-wa     { background: #dcfce7; color: #15803d; }
-  .op-badge-ml     { background: #fce7f3; color: #9d174d; }
-  .op-pill-row { margin: 18px 0 0; }
-  .op-cta  { display: inline-block; padding: 14px 36px; border-radius: 8px; font-weight: 700;
-             font-size: 1em; text-decoration: none; margin: 6px; }
-  .op-cta-primary   { background: #7c3aed; color: #fff; }
-  .op-cta-secondary { background: rgba(255,255,255,0.08); color: #c4b5fd;
-                      border: 1px solid rgba(255,255,255,0.15); }
-  /* Sections */
-  .op-section { padding: 48px 0 32px; }
-  .op-section-dark { background: #f8fafc; border-radius: 12px; padding: 40px 36px; margin: 12px 0; }
-  .op-h2 { font-size: 1.75em; font-weight: 800; color: #0f172a; text-align: center; margin: 0 0 8px; }
-  .op-sub { text-align: center; color: #64748b; font-size: 1em; margin: 0 auto 32px; max-width: 640px; line-height: 1.65; }
-  /* Demo phones side-by-side */
-  .op-demo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto; }
-  .op-demo-label { text-align: center; font-weight: 700; color: #64748b; font-size: .85em;
-                   margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
-  .op-demo-wrap { max-width: 100%; }
-  .op-phone { background: #1a1a2e; border-radius: 24px; overflow: hidden;
-              box-shadow: 0 24px 64px rgba(0,0,0,.35); border: 1px solid #2d2d5e; }
-  .op-phone-bar { background: #212d3b; padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
-  .op-phone-bar .dot { width: 9px; height: 9px; border-radius: 50%; background: #4caf50; }
-  .op-phone-bar .dot-wa { background: #25d366; }
-  .op-phone-bar .name { color: #fff; font-size: .9em; font-weight: 600; }
-  .op-phone-bar .sub2 { color: #4caf50; font-size: .75em; }
-  .op-phone-bar .sub2-wa { color: #25d366; }
-  .op-chat { background: #0d1117; padding: 14px 12px; display: flex; flex-direction: column; gap: 8px; }
-  .op-msg { max-width: 84%; padding: 9px 13px; border-radius: 14px; font-size: .85em; line-height: 1.5; }
-  .op-msg-u { align-self: flex-end; background: #2b5278; color: #fff; border-radius: 14px 14px 2px 14px; }
-  .op-msg-u-wa { align-self: flex-end; background: #005c4b; color: #fff; border-radius: 14px 14px 2px 14px; }
-  .op-msg-b { align-self: flex-start; background: #182533; color: #e0e8f0; border-radius: 14px 14px 14px 2px; }
-  .op-msg-b-wa { align-self: flex-start; background: #1e2d24; color: #e0e8f0; border-radius: 14px 14px 14px 2px; }
-  .op-msg-b strong { color: #7dd3fc; }
-  .op-msg-b-wa strong { color: #4ade80; }
-  .op-btn-row { display: flex; gap: 6px; margin-top: 4px; }
-  .op-btn { padding: 5px 14px; border-radius: 6px; font-size: .8em; font-weight: 600; cursor: default; }
-  .op-btn-yes { background: #166534; color: #4ade80; }
-  .op-btn-no  { background: #7f1d1d; color: #f87171; }
-  .op-phone-input { background: #212d3b; padding: 10px 14px; }
-  .op-phone-input-inner { background: #17212b; border-radius: 20px; padding: 8px 14px;
-                          color: #4a6080; font-size: .82em; }
-  /* Feature grid */
-  .op-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
-  .op-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-  .op-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px 18px;
-             transition: box-shadow .2s; }
-  .op-card:hover { box-shadow: 0 4px 20px rgba(124,58,237,.12); border-color: #c4b5fd; }
-  .op-card-icon { font-size: 1.9em; margin-bottom: 8px; }
-  .op-card h3 { font-size: 1em; font-weight: 700; color: #1e293b; margin: 0 0 6px; }
-  .op-card p  { font-size: .87em; color: #64748b; margin: 0; line-height: 1.55; }
-  .op-card-new { border-color: #a855f7; background: #faf5ff; }
-  .op-new-badge { display: inline-block; background: #7c3aed; color: #fff; font-size: .72em;
-                  font-weight: 700; padding: 2px 8px; border-radius: 99px; margin-left: 6px; vertical-align: middle; }
-  /* Write actions */
-  .op-action-list { list-style: none; padding: 0; margin: 0; display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
-  .op-action-list li { background: #fdf4ff; border: 1px solid #e9d5ff; border-radius: 8px;
-                       padding: 10px 14px; font-size: .9em; color: #6b21a8; font-weight: 500; }
-  .op-action-list li::before { content: "> "; color: #7c3aed; font-weight: 700; }
-  /* How it works */
-  .op-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
-  .op-step { background: #fff; border-radius: 10px; padding: 20px 16px;
-             border-left: 4px solid #7c3aed; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-  .op-step-num { font-size: 1.5em; font-weight: 800; color: #7c3aed; margin-bottom: 6px; }
-  .op-step h3 { font-size: .95em; font-weight: 700; color: #1e293b; margin: 0 0 4px; }
-  .op-step p  { font-size: .84em; color: #64748b; margin: 0; line-height: 1.5; }
-  /* LLM providers */
-  .op-llm-row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin: 24px 0; }
-  .op-llm { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
-            padding: 18px 24px; text-align: center; min-width: 140px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.05); }
-  .op-llm-name { font-weight: 700; font-size: .97em; color: #1e293b; margin-bottom: 4px; }
-  .op-llm-model { font-size: .78em; color: #64748b; }
-  .op-llm-free { font-size: .72em; font-weight: 700; color: #16a34a; background: #dcfce7;
-                 padding: 2px 8px; border-radius: 99px; margin-top: 6px; display: inline-block; }
-  /* Comparison table */
-  .op-table { width: 100%; border-collapse: collapse; font-size: .92em; }
-  .op-table th { background: #f1f5f9; padding: 12px 16px; text-align: left;
-                 font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0; }
-  .op-table td { padding: 11px 16px; border-bottom: 1px solid #f1f5f9; color: #374151; }
-  .op-table tr:hover td { background: #fafafa; }
-  .op-table .op-hl { background: #faf5ff; font-weight: 700; }
-  .op-table .op-hl td { color: #6b21a8; }
-  .check { color: #16a34a; font-weight: 700; }
-  .cross { color: #dc2626; }
-  .partial { color: #d97706; }
-  /* Notification */
-  .op-notif { background: #f8fafc; border-radius: 10px; padding: 18px 20px; margin: 10px 0;
-              border-left: 4px solid #7c3aed; font-size: .9em; }
-  .op-notif strong { color: #4c1d95; }
-  /* Stats bar */
-  .op-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr));
-              gap: 16px; margin: 24px 0; }
-  .op-stat { text-align: center; background: #fff; border-radius: 10px; padding: 20px 12px;
-             border: 1px solid #e2e8f0; }
-  .op-stat .num { font-size: 2em; font-weight: 800; color: #7c3aed; }
-  .op-stat .lbl { font-size: .8em; color: #64748b; margin-top: 4px; }
-  /* Alert */
-  .op-alert { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
-              padding: 14px 18px; font-size: .92em; color: #1e40af; margin: 12px 0; }
-  .op-alert strong { color: #1d4ed8; }
-  .op-alert-green { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
-  .op-alert-green strong { color: #15803d; }
-  /* Lang grid */
-  .op-lang-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr));
-                  gap: 8px; margin: 20px 0; }
-  .op-lang { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px;
-             text-align: center; font-size: .85em; }
-  .op-lang .flag { font-size: 1.4em; display: block; margin-bottom: 4px; }
-  .op-lang .code { font-size: .75em; color: #94a3b8; font-family: monospace; }
-  /* FAQ */
-  .op-faq { margin: 0; padding: 0; list-style: none; }
-  .op-faq li { border-bottom: 1px solid #f1f5f9; padding: 16px 0; }
-  .op-faq li:last-child { border-bottom: none; }
-  .op-faq .q { font-weight: 700; color: #1e293b; margin-bottom: 6px; font-size: .97em; }
-  .op-faq .a { color: #64748b; font-size: .9em; line-height: 1.6; }
-  /* Sponsor */
-  .op-sponsor { background: linear-gradient(135deg,#1e1b4b,#0f172a);
-                border-radius: 14px; padding: 48px 32px; text-align: center; }
-  .op-sponsor h2 { color: #fff; font-size: 1.6em; margin: 0 0 12px; }
-  .op-sponsor p  { color: #94a3b8; max-width: 540px; margin: 0 auto 28px; line-height: 1.7; font-size: .97em; }
-  .op-tiers { display: grid; grid-template-columns: repeat(auto-fit,minmax(170px,1fr));
-              gap: 14px; max-width: 580px; margin: 0 auto 28px; }
-  .op-tier { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
-             border-radius: 12px; padding: 20px 14px; }
-  .op-tier.popular { border-color: #a855f7; background: rgba(168,85,247,.1); }
-  .op-tier .price { font-size: 1.2em; font-weight: 800; color: #fff; }
-  .op-tier .role  { font-size: .78em; color: #a855f7; font-weight: 700; margin: 4px 0 8px; text-transform: uppercase; letter-spacing: .5px; }
-  .op-tier .desc  { font-size: .8em; color: #94a3b8; line-height: 1.5; }
-  .op-sponsor-btn { display: inline-block; background: #a855f7; color: #fff;
-                    padding: 14px 40px; border-radius: 8px; font-weight: 700;
-                    font-size: 1em; text-decoration: none; }
-  /* Channel badges */
-  .op-channel-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
-  .op-channel { display: flex; align-items: center; gap: 8px; background: #fff;
-                border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 20px;
-                font-weight: 700; font-size: .95em; }
-  .op-channel-tg { border-color: #0088cc; color: #0088cc; }
-  .op-channel-wa { border-color: #25d366; color: #128c7e; }
-  @media (max-width: 640px) {
-    .op-demo-row { grid-template-columns: 1fr; }
-    .op-hero h1 { font-size: 2em; }
-    .op-hero { padding: 40px 20px 36px; }
-  }
+/* ── Reset ── */
+.op { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1e293b; line-height: 1.6; }
+.op * { box-sizing: border-box; }
+
+/* ── Hero ── */
+.op-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #0f172a 100%);
+  border-radius: 16px; padding: 52px 44px 44px; text-align: center; margin-bottom: 6px;
+}
+.op-badge-row { margin-bottom: 22px; }
+.op-badge {
+  display: inline-block; padding: 5px 14px; border-radius: 99px;
+  font-size: 0.8em; font-weight: 700; margin: 3px; letter-spacing: 0.3px;
+}
+.op-b-free { background: #dcfce7; color: #15803d; }
+.op-b-lgpl { background: #e0e7ff; color: #4338ca; }
+.op-b-ce   { background: #fef9c3; color: #854d0e; }
+.op-b-tg   { background: #dbeafe; color: #1e40af; }
+.op-b-wa   { background: #dcfce7; color: #166534; }
+.op-b-ml   { background: #fce7f3; color: #9d174d; }
+.op-hero h1 {
+  font-size: 3em; font-weight: 800; color: #fff;
+  margin: 0 0 14px; letter-spacing: -1px;
+}
+.op-hero-sub {
+  font-size: 1.12em; color: #94a3b8; max-width: 680px;
+  margin: 0 auto 10px; line-height: 1.65;
+}
+.op-hero-sub strong { color: #fff; }
+.op-hero-providers {
+  font-size: 0.88em; color: #64748b; margin: 0 auto 26px;
+}
+.op-hero-providers span { color: #a78bfa; font-weight: 600; }
+.op-cta-row { margin-top: 4px; }
+.op-cta {
+  display: inline-block; padding: 13px 32px; border-radius: 8px;
+  font-weight: 700; font-size: 0.95em; text-decoration: none; margin: 5px;
+}
+.op-cta-primary   { background: #7c3aed; color: #fff; }
+.op-cta-secondary {
+  background: rgba(255,255,255,0.07); color: #c4b5fd;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* ── Channel strip ── */
+.op-channels {
+  display: -webkit-flex; display: flex;
+  gap: 14px; justify-content: center; flex-wrap: wrap;
+  margin: 20px 0;
+}
+.op-ch {
+  display: -webkit-flex; display: flex;
+  align-items: center; gap: 10px;
+  background: #fff; border-radius: 10px; padding: 13px 24px;
+  font-weight: 700; font-size: 0.95em;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+.op-ch-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: -webkit-flex; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 0.75em; font-weight: 800; letter-spacing: 0.5px;
+}
+.op-ch-tg .op-ch-icon { background: #2b7fbe; color: #fff; }
+.op-ch-wa .op-ch-icon { background: #25d366; color: #fff; }
+.op-ch-tg { border: 1.5px solid #bfdbfe; color: #1e40af; }
+.op-ch-wa { border: 1.5px solid #bbf7d0; color: #166534; }
+.op-ch-sub { font-size: 0.75em; color: #64748b; font-weight: 400; margin-top: 1px; }
+
+/* ── Stats bar ── */
+.op-stats {
+  display: -webkit-flex; display: flex;
+  flex-wrap: wrap; gap: 12px; margin: 20px 0;
+  justify-content: center;
+}
+.op-stat {
+  text-align: center; background: #fff; border-radius: 12px;
+  padding: 18px 20px; border: 1px solid #e2e8f0; min-width: 110px;
+  flex: 1 1 110px; max-width: 160px;
+}
+.op-stat .num { font-size: 1.9em; font-weight: 800; color: #7c3aed; line-height: 1; }
+.op-stat .lbl { font-size: 0.78em; color: #64748b; margin-top: 5px; line-height: 1.35; }
+
+/* ── Section layout ── */
+.op-section { padding: 44px 0 28px; }
+.op-section-dark {
+  background: #f8fafc; border-radius: 14px;
+  padding: 40px 36px; margin: 10px 0;
+}
+.op-h2 {
+  font-size: 1.65em; font-weight: 800; color: #0f172a;
+  text-align: center; margin: 0 0 8px;
+}
+.op-h2-new { position: relative; }
+.op-new {
+  display: inline-block; background: #7c3aed; color: #fff;
+  font-size: 0.45em; font-weight: 700; padding: 3px 9px;
+  border-radius: 99px; vertical-align: middle; margin-left: 8px;
+  letter-spacing: 0.5px; position: relative; top: -4px;
+}
+.op-lead {
+  text-align: center; color: #64748b; font-size: 1em;
+  margin: 0 auto 28px; max-width: 640px; line-height: 1.65;
+}
+
+/* ── Demo ── */
+.op-demo-row {
+  display: -webkit-flex; display: flex;
+  gap: 20px; justify-content: center; flex-wrap: wrap;
+}
+.op-demo-col { flex: 0 0 300px; max-width: 300px; }
+.op-demo-label {
+  text-align: center; font-size: 0.78em; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;
+}
+.op-demo-label.tg { color: #2b7fbe; }
+.op-demo-label.wa { color: #128c7e; }
+.op-phone {
+  border-radius: 20px; overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+.op-phone-tg { background: #1a1a2e; border: 1px solid #2d3a6b; }
+.op-phone-wa { background: #1a1a2e; border: 1px solid #1a3a2a; }
+.op-bar {
+  display: -webkit-flex; display: flex;
+  align-items: center; gap: 9px; padding: 9px 13px;
+}
+.op-bar-tg { background: #1e2a3b; }
+.op-bar-wa { background: #1b2b22; }
+.op-dot { width: 8px; height: 8px; border-radius: 50%; }
+.op-dot-tg { background: #5fb3f5; }
+.op-dot-wa { background: #25d366; }
+.op-bar-name { color: #fff; font-size: 0.82em; font-weight: 600; }
+.op-bar-status { font-size: 0.68em; }
+.op-bar-status.tg { color: #5fb3f5; }
+.op-bar-status.wa { color: #25d366; }
+.op-chat {
+  background: #0d1117; padding: 12px 10px;
+  display: -webkit-flex; display: flex;
+  flex-direction: column; gap: 7px;
+}
+.op-msg {
+  max-width: 85%; padding: 8px 11px;
+  border-radius: 12px; font-size: 0.8em; line-height: 1.45;
+}
+.op-msg-user-tg {
+  align-self: flex-end; background: #2b5278; color: #fff;
+  border-radius: 12px 12px 2px 12px;
+}
+.op-msg-user-wa {
+  align-self: flex-end; background: #005c4b; color: #fff;
+  border-radius: 12px 12px 2px 12px;
+}
+.op-msg-bot-tg {
+  align-self: flex-start; background: #1a2535; color: #d1dbe8;
+  border-radius: 12px 12px 12px 2px;
+}
+.op-msg-bot-wa {
+  align-self: flex-start; background: #1a2e22; color: #d1dbe8;
+  border-radius: 12px 12px 12px 2px;
+}
+.op-msg-bot-tg strong { color: #7dd3fc; }
+.op-msg-bot-wa strong { color: #4ade80; }
+.op-confirm-btns { display: -webkit-flex; display: flex; gap: 5px; margin-top: 5px; }
+.op-btn-yes { background: #166534; color: #4ade80; padding: 4px 11px; border-radius: 5px; font-size: 0.8em; font-weight: 600; }
+.op-btn-no  { background: #7f1d1d; color: #f87171; padding: 4px 11px; border-radius: 5px; font-size: 0.8em; font-weight: 600; }
+.op-phone-input { padding: 8px 10px; }
+.op-phone-input-inner {
+  background: #17212b; border-radius: 16px;
+  padding: 7px 12px; color: #4a6080; font-size: 0.74em;
+}
+
+/* ── Feature grid ── */
+.op-grid {
+  display: -webkit-flex; display: flex;
+  flex-wrap: wrap; gap: 14px;
+}
+.op-card {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 22px 18px; flex: 1 1 200px;
+}
+.op-card:hover { border-color: #c4b5fd; box-shadow: 0 4px 16px rgba(124,58,237,0.1); }
+.op-card-icon {
+  width: 38px; height: 38px; border-radius: 9px; margin-bottom: 10px;
+  display: -webkit-flex; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 0.78em; font-weight: 800; letter-spacing: 0.3px;
+  background: #f3f0ff; color: #7c3aed;
+}
+.op-card h3 { font-size: 0.95em; font-weight: 700; color: #1e293b; margin: 0 0 6px; }
+.op-card p  { font-size: 0.85em; color: #64748b; margin: 0; line-height: 1.55; }
+.op-card-accent { border-left: 3px solid #7c3aed; background: #faf5ff; }
+.op-card-accent .op-card-icon { background: #ede9fe; }
+
+/* ── Action list ── */
+.op-action-list {
+  display: -webkit-flex; display: flex;
+  flex-wrap: wrap; gap: 10px; list-style: none; margin: 0 0 20px; padding: 0;
+}
+.op-action-list li {
+  background: #fdf4ff; border: 1px solid #e9d5ff; border-radius: 8px;
+  padding: 10px 16px; font-size: 0.9em; color: #6b21a8; font-weight: 500;
+  flex: 1 1 220px;
+}
+.op-action-list li::before { content: "> "; color: #7c3aed; font-weight: 700; }
+
+/* ── Alert boxes ── */
+.op-alert {
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px;
+  padding: 16px 20px; font-size: 0.92em; color: #1e40af; margin: 14px 0;
+  line-height: 1.6;
+}
+.op-alert strong { color: #1d4ed8; }
+.op-alert-green { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.op-alert-green strong { color: #15803d; }
+.op-alert-purple { background: #faf5ff; border-color: #e9d5ff; color: #6b21a8; }
+.op-alert-purple strong { color: #7c3aed; }
+
+/* ── Language grid ── */
+.op-lang-grid {
+  display: -webkit-flex; display: flex;
+  flex-wrap: wrap; gap: 8px; margin: 20px 0;
+}
+.op-lang {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+  padding: 10px 14px; font-size: 0.85em; text-align: center;
+  flex: 1 1 100px; min-width: 100px;
+}
+.op-lang .lc {
+  display: inline-block; background: #7c3aed; color: #fff;
+  font-size: 0.72em; font-weight: 700; padding: 2px 7px;
+  border-radius: 4px; font-family: monospace; margin-bottom: 4px;
+}
+.op-lang .ln { display: block; color: #374151; font-weight: 600; font-size: 0.92em; }
+
+/* ── Notification mockup ── */
+.op-notif {
+  background: #f8fafc; border-radius: 10px; padding: 18px 22px;
+  margin: 10px 0; border-left: 4px solid #7c3aed; font-size: 0.9em;
+  line-height: 1.65;
+}
+.op-notif strong { color: #4c1d95; }
+.op-notif-blue { border-left-color: #0ea5e9; }
+.op-notif-blue strong { color: #0369a1; }
+
+/* ── LLM providers ── */
+.op-llm-row {
+  display: -webkit-flex; display: flex;
+  flex-wrap: wrap; gap: 14px; justify-content: center; margin: 24px 0;
+}
+.op-llm {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 20px 24px; text-align: center; min-width: 150px; flex: 1 1 150px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.op-llm-logo {
+  width: 42px; height: 42px; border-radius: 10px; margin: 0 auto 10px;
+  display: -webkit-flex; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 0.72em; font-weight: 800; letter-spacing: 0.3px;
+}
+.op-llm-name { font-weight: 700; font-size: 0.97em; color: #1e293b; margin-bottom: 4px; }
+.op-llm-models { font-size: 0.78em; color: #64748b; line-height: 1.5; }
+.op-llm-free {
+  display: inline-block; background: #dcfce7; color: #166534;
+  font-size: 0.72em; font-weight: 700; padding: 2px 9px;
+  border-radius: 99px; margin-top: 6px;
+}
+.op-llm-local {
+  display: inline-block; background: #f3f4f6; color: #374151;
+  font-size: 0.72em; font-weight: 700; padding: 2px 9px;
+  border-radius: 99px; margin-top: 6px;
+}
+
+/* ── Comparison table ── */
+.op-table { width: 100%; border-collapse: collapse; font-size: 0.88em; margin: 0; }
+.op-table th {
+  background: #f1f5f9; padding: 11px 14px; text-align: left;
+  font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+.op-table th.op-hl-h { background: #f5f3ff; color: #6d28d9; }
+.op-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #374151; vertical-align: top; }
+.op-table tr:last-child td { border-bottom: none; }
+.op-table .op-hl-row td { background: #faf5ff; }
+.op-table .op-hl-row td:first-child { font-weight: 700; }
+.op-yes { color: #15803d; font-weight: 700; }
+.op-no  { color: #dc2626; }
+.op-part { color: #d97706; }
+
+/* ── How-it-works steps ── */
+.op-steps {
+  display: -webkit-flex; display: flex;
+  flex-wrap: wrap; gap: 14px; margin: 0;
+}
+.op-step {
+  background: #fff; border-radius: 10px; padding: 22px 18px;
+  border-left: 4px solid #7c3aed; flex: 1 1 200px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.op-step-num {
+  font-size: 1.4em; font-weight: 800; color: #7c3aed; margin-bottom: 7px;
+}
+.op-step h3 { font-size: 0.93em; font-weight: 700; color: #1e293b; margin: 0 0 5px; }
+.op-step p  { font-size: 0.84em; color: #64748b; margin: 0; line-height: 1.55; }
+
+/* ── FAQ ── */
+.op-faq { list-style: none; margin: 0; padding: 0; }
+.op-faq li { border-bottom: 1px solid #f1f5f9; padding: 18px 0; }
+.op-faq li:last-child { border-bottom: none; }
+.op-faq .q { font-weight: 700; color: #1e293b; margin-bottom: 7px; font-size: 0.97em; }
+.op-faq .a { color: #64748b; font-size: 0.9em; line-height: 1.65; }
+
+/* ── Sponsor ── */
+.op-sponsor {
+  background: linear-gradient(135deg, #1e1b4b, #0f172a);
+  border-radius: 14px; padding: 52px 36px; text-align: center;
+}
+.op-sponsor h2 { color: #fff; font-size: 1.55em; margin: 0 0 12px; }
+.op-sponsor p { color: #94a3b8; max-width: 520px; margin: 0 auto 28px; line-height: 1.7; }
+.op-tiers {
+  display: -webkit-flex; display: flex;
+  flex-wrap: wrap; gap: 14px; max-width: 560px; margin: 0 auto 28px;
+  justify-content: center;
+}
+.op-tier {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px; padding: 22px 18px; flex: 1 1 160px; text-align: center;
+}
+.op-tier.popular { border-color: #a855f7; background: rgba(168,85,247,0.1); }
+.op-tier .price { font-size: 1.2em; font-weight: 800; color: #fff; }
+.op-tier .role  { font-size: 0.76em; color: #a855f7; font-weight: 700; margin: 5px 0 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+.op-tier .desc  { font-size: 0.8em; color: #94a3b8; line-height: 1.5; }
+.op-sponsor-btn {
+  display: inline-block; background: #a855f7; color: #fff;
+  padding: 14px 42px; border-radius: 8px; font-weight: 700;
+  font-size: 1em; text-decoration: none; letter-spacing: 0.2px;
+}
+.op-sponsor-note { font-size: 0.8em; color: #475569; margin-top: 14px; }
+
+/* ── Utility ── */
+.op-divider { border: none; border-top: 1px solid #f1f5f9; margin: 8px 0; }
+.op-text-center { text-align: center; }
+.op-mt { margin-top: 20px; }
+.op-inline-code {
+  background: #f1f5f9; color: #7c3aed; padding: 1px 6px;
+  border-radius: 4px; font-family: monospace; font-size: 0.9em;
+}
 </style>
 
-<div class="op-wrap">
+<div class="op">
 
-<!-- ===========================================================
+<!-- ============================================================
      HERO
 ============================================================ -->
 <div class="op-hero">
-  <div class="op-pill-row">
-    <span class="op-badge op-badge-free">100% FREE</span>
-    <span class="op-badge op-badge-lgpl">LGPL-3 Open Source</span>
-    <span class="op-badge op-badge-ce">Odoo 17 Community</span>
-    <span class="op-badge op-badge-wa">Telegram + WhatsApp</span>
-    <span class="op-badge op-badge-ml">15 Languages</span>
+  <div class="op-badge-row">
+    <span class="op-badge op-b-free">100% FREE</span>
+    <span class="op-badge op-b-lgpl">LGPL-3 Open Source</span>
+    <span class="op-badge op-b-ce">Odoo 17 Community</span>
+    <span class="op-badge op-b-tg">Telegram</span>
+    <span class="op-badge op-b-wa">WhatsApp</span>
+    <span class="op-badge op-b-ml">15 Languages</span>
   </div>
 
   <h1>OdooPilot</h1>
 
-  <p class="sub">
-    The free, open-source AI agent for Odoo ERP — query live data and take real actions
-    via <strong style="color:#fff;">Telegram</strong> or <strong style="color:#25d366;">WhatsApp</strong>,
-    in plain language.<br>
-    Powered by Claude AI, ChatGPT / GPT-4, or Groq. Self-hosted. No SaaS fees. No external service.
+  <p class="op-hero-sub">
+    The free, open-source AI agent for Odoo ERP &mdash; query live data and take real actions
+    via <strong>Telegram</strong> and <strong>WhatsApp</strong>, in plain language.<br>
+    No external service. No SaaS fees. Everything runs inside your Odoo instance.
+  </p>
+  <p class="op-hero-providers">
+    Powered by &nbsp;
+    <span>Anthropic Claude</span> &nbsp;&middot;&nbsp;
+    <span>OpenAI ChatGPT / GPT-4</span> &nbsp;&middot;&nbsp;
+    <span>Groq (free tier)</span> &nbsp;&middot;&nbsp;
+    <span>Ollama (local AI)</span>
   </p>
 
-  <a href="https://github.com/arunrajiah/odoopilot" class="op-cta op-cta-primary">View on GitHub</a>
-  <a href="https://github.com/sponsors/arunrajiah" class="op-cta op-cta-secondary">&#9829; Sponsor</a>
+  <div class="op-cta-row">
+    <a href="https://github.com/arunrajiah/odoopilot" class="op-cta op-cta-primary">View on GitHub</a>
+    <a href="https://github.com/sponsors/arunrajiah" class="op-cta op-cta-secondary">&hearts; Sponsor this project</a>
+  </div>
 </div>
 
-<!-- ===========================================================
-     CHANNEL BADGES
-============================================================ -->
-<div class="op-channel-row">
-  <div class="op-channel op-channel-tg">&#9992; Telegram Bot</div>
-  <div class="op-channel op-channel-wa">&#128241; WhatsApp Cloud API</div>
+<!-- ── Channel strip ── -->
+<div class="op-channels">
+  <div class="op-ch op-ch-tg">
+    <div class="op-ch-icon">TG</div>
+    <div>
+      <div>Telegram Bot</div>
+      <div class="op-ch-sub">Native webhook &middot; inline keyboards</div>
+    </div>
+  </div>
+  <div class="op-ch op-ch-wa">
+    <div class="op-ch-icon">WA</div>
+    <div>
+      <div>WhatsApp Cloud API</div>
+      <div class="op-ch-sub">Meta Cloud API &middot; interactive buttons</div>
+    </div>
+  </div>
 </div>
 
-<!-- ===========================================================
-     STATS BAR
-============================================================ -->
+<!-- ── Stats bar ── -->
 <div class="op-stats">
-  <div class="op-stat"><div class="num">8</div><div class="lbl">Odoo domains covered</div></div>
-  <div class="op-stat"><div class="num">2</div><div class="lbl">Channels: Telegram + WhatsApp</div></div>
-  <div class="op-stat"><div class="num">4+</div><div class="lbl">LLM providers (Claude, GPT-4, Groq, Ollama)</div></div>
-  <div class="op-stat"><div class="num">15</div><div class="lbl">Languages supported</div></div>
-  <div class="op-stat"><div class="num">5 min</div><div class="lbl">From install to first chat</div></div>
-  <div class="op-stat"><div class="num">EUR 0</div><div class="lbl">No SaaS cost ever</div></div>
+  <div class="op-stat"><div class="num">8</div><div class="lbl">Business<br>domains</div></div>
+  <div class="op-stat"><div class="num">2</div><div class="lbl">Channels:<br>Telegram + WhatsApp</div></div>
+  <div class="op-stat"><div class="num">4+</div><div class="lbl">LLM providers<br>incl. local AI</div></div>
+  <div class="op-stat"><div class="num">15</div><div class="lbl">Languages<br>supported</div></div>
+  <div class="op-stat"><div class="num">5 min</div><div class="lbl">From install<br>to first chat</div></div>
+  <div class="op-stat"><div class="num">EUR 0</div><div class="lbl">SaaS cost<br>forever</div></div>
 </div>
 
-<!-- ===========================================================
-     DEMO CONVERSATIONS — TELEGRAM + WHATSAPP
+
+<!-- ============================================================
+     DEMO CONVERSATIONS
 ============================================================ -->
 <div class="op-section">
-  <h2 class="op-h2">Your Odoo data — one message away, on any channel</h2>
-  <p class="op-sub">
+  <h2 class="op-h2">Your Odoo data &mdash; one message away, on any channel</h2>
+  <p class="op-lead">
     Type a question in Telegram or WhatsApp. OdooPilot reads your live Odoo data and replies
-    in seconds. Write actions — like confirming a sale order — require your explicit approval.
+    in seconds. Write actions &mdash; like confirming a sale order or approving a leave &mdash;
+    require your explicit Yes/No approval before touching any record.
   </p>
 
   <div class="op-demo-row">
-    <!-- Telegram demo -->
-    <div>
-      <div class="op-demo-label">&#9992; Telegram</div>
-      <div class="op-phone">
-        <div class="op-phone-bar">
-          <div class="dot"></div>
+
+    <!-- Telegram -->
+    <div class="op-demo-col">
+      <div class="op-demo-label tg">Telegram Bot</div>
+      <div class="op-phone op-phone-tg">
+        <div class="op-bar op-bar-tg">
+          <div class="op-dot op-dot-tg"></div>
           <div>
-            <div class="name">OdooPilot Bot</div>
-            <div class="sub2">online</div>
+            <div class="op-bar-name">OdooPilot Bot</div>
+            <div class="op-bar-status tg">online</div>
           </div>
         </div>
         <div class="op-chat">
-          <div class="op-msg op-msg-u">What tasks are due today?</div>
-          <div class="op-msg op-msg-b">
-            You have <strong>3 tasks due today</strong>:<br>
-            &#9888; Update product catalogue — overdue<br>
-            &#128197; Review Q2 sales report<br>
-            &#128197; Onboard new supplier
+          <div class="op-msg op-msg-user-tg">Show my overdue invoices</div>
+          <div class="op-msg op-msg-bot-tg">
+            <strong>7 overdue invoices</strong><br>
+            Total: EUR 14,320<br>
+            Oldest: Acme Corp &mdash; 42 days
           </div>
-          <div class="op-msg op-msg-u">Confirm sale order SO-0042</div>
-          <div class="op-msg op-msg-b">
-            Confirm <strong>SO-0042</strong> for Acme Corp (EUR 4,800)?
-            <div class="op-btn-row">
-              <span class="op-btn op-btn-yes">Yes</span>
-              <span class="op-btn op-btn-no">No</span>
+          <div class="op-msg op-msg-user-tg">Confirm sale order SO-0042</div>
+          <div class="op-msg op-msg-bot-tg">
+            Confirm <strong>SO-0042</strong><br>
+            Acme Corp &mdash; EUR 4,800?
+            <div class="op-confirm-btns">
+              <span class="op-btn-yes">Yes</span>
+              <span class="op-btn-no">No</span>
             </div>
           </div>
-          <div class="op-msg op-msg-u">Yes</div>
-          <div class="op-msg op-msg-b">&#9989; <strong>SO-0042 confirmed</strong> in Odoo.</div>
+          <div class="op-msg op-msg-user-tg">Yes</div>
+          <div class="op-msg op-msg-bot-tg">
+            <strong>Done.</strong> SO-0042 confirmed in Odoo.
+          </div>
         </div>
         <div class="op-phone-input">
           <div class="op-phone-input-inner">Ask anything about your Odoo data...</div>
@@ -267,36 +477,37 @@
       </div>
     </div>
 
-    <!-- WhatsApp demo -->
-    <div>
-      <div class="op-demo-label">&#128241; WhatsApp</div>
-      <div class="op-phone">
-        <div class="op-phone-bar">
-          <div class="dot dot-wa"></div>
+    <!-- WhatsApp -->
+    <div class="op-demo-col">
+      <div class="op-demo-label wa">WhatsApp Cloud API</div>
+      <div class="op-phone op-phone-wa">
+        <div class="op-bar op-bar-wa">
+          <div class="op-dot op-dot-wa"></div>
           <div>
-            <div class="name">OdooPilot</div>
-            <div class="sub2 sub2-wa">online</div>
+            <div class="op-bar-name">OdooPilot</div>
+            <div class="op-bar-status wa">online</div>
           </div>
         </div>
         <div class="op-chat">
-          <div class="op-msg op-msg-u-wa">How many overdue invoices?</div>
-          <div class="op-msg op-msg-b-wa">
-            <strong>7 overdue invoices</strong> totalling <strong>EUR 14,320</strong><br>
-            Oldest: Acme Corp — 42 days
+          <div class="op-msg op-msg-user-wa">What tasks are due today?</div>
+          <div class="op-msg op-msg-bot-wa">
+            <strong>3 tasks due today:</strong><br>
+            [!] Update product catalogue<br>
+            [-] Review Q2 sales report<br>
+            [-] Onboard new supplier
           </div>
-          <div class="op-msg op-msg-u-wa">Show pending leave requests</div>
-          <div class="op-msg op-msg-b-wa">
-            <strong>2 leave requests</strong> pending approval:<br>
-            &#8226; Jane Smith — Annual Leave (Mon–Wed)<br>
-            &#8226; Bob Lee — Sick Leave (Tue)
-          </div>
-          <div class="op-msg op-msg-u-wa">Approve Jane's leave</div>
-          <div class="op-msg op-msg-b-wa">
-            Approve Annual Leave for Jane Smith (Mon–Wed)?
-            <div class="op-btn-row">
-              <span class="op-btn op-btn-yes">Yes</span>
-              <span class="op-btn op-btn-no">No</span>
+          <div class="op-msg op-msg-user-wa">Approve Jane's leave request</div>
+          <div class="op-msg op-msg-bot-wa">
+            Approve Annual Leave for<br>
+            <strong>Jane Smith</strong> (Mon &ndash; Wed)?
+            <div class="op-confirm-btns">
+              <span class="op-btn-yes">Yes</span>
+              <span class="op-btn-no">No</span>
             </div>
+          </div>
+          <div class="op-msg op-msg-user-wa">Yes</div>
+          <div class="op-msg op-msg-bot-wa">
+            <strong>Done.</strong> Leave approved in Odoo.
           </div>
         </div>
         <div class="op-phone-input">
@@ -304,351 +515,360 @@
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
-<!-- ===========================================================
-     WHAT YOU CAN ASK — 8 DOMAINS
+
+<!-- ============================================================
+     8 BUSINESS DOMAINS
 ============================================================ -->
 <div class="op-section-dark">
-  <h2 class="op-h2">8 Odoo domains — natural language queries, zero training for your team</h2>
-  <p class="op-sub">
-    OdooPilot maps plain-language questions directly to live Odoo ORM queries.
-    No form to fill, no report to configure. Just ask — in Telegram or WhatsApp.
+  <h2 class="op-h2">8 Odoo domains &mdash; natural language, zero training required</h2>
+  <p class="op-lead">
+    OdooPilot maps plain-language questions directly to live Odoo data.
+    No forms to configure, no reports to set up. Just ask &mdash; from Telegram or WhatsApp.
   </p>
 
   <div class="op-grid">
     <div class="op-card">
-      <div class="op-card-icon" style="color:#7c3aed;">&#9989;</div>
+      <div class="op-card-icon">TSK</div>
       <h3>Projects &amp; Tasks</h3>
-      <p>"Show my open tasks" | "What's due this week?" | "Mark task X as done"</p>
+      <p>&ldquo;Show my open tasks&rdquo; &middot; &ldquo;What&rsquo;s due this week?&rdquo; &middot; &ldquo;Mark task X as done&rdquo;</p>
     </div>
     <div class="op-card">
-      <div class="op-card-icon" style="color:#7c3aed;">&#128200;</div>
+      <div class="op-card-icon">CRM</div>
       <h3>CRM &amp; Opportunities</h3>
-      <p>"List my pipeline" | "Move deal to Won" | "Create new lead for Acme Corp"</p>
+      <p>&ldquo;List my pipeline&rdquo; &middot; &ldquo;Move deal to Won&rdquo; &middot; &ldquo;Create new lead for Acme Corp&rdquo;</p>
     </div>
     <div class="op-card">
-      <div class="op-card-icon" style="color:#7c3aed;">&#128181;</div>
+      <div class="op-card-icon">INV</div>
       <h3>Invoices &amp; Accounting</h3>
-      <p>"Show overdue invoices" | "Total outstanding balance" | "Oldest unpaid bill"</p>
+      <p>&ldquo;Show overdue invoices&rdquo; &middot; &ldquo;Total outstanding balance&rdquo; &middot; &ldquo;Oldest unpaid bill&rdquo;</p>
     </div>
     <div class="op-card">
-      <div class="op-card-icon" style="color:#7c3aed;">&#128203;</div>
+      <div class="op-card-icon">SO</div>
       <h3>Sales Orders</h3>
-      <p>"List draft orders" | "Confirm SO-0042" | "Revenue this month"</p>
+      <p>&ldquo;List draft orders&rdquo; &middot; &ldquo;Confirm SO-0042&rdquo; &middot; &ldquo;Revenue this month&rdquo;</p>
     </div>
     <div class="op-card">
-      <div class="op-card-icon" style="color:#7c3aed;">&#128230;</div>
+      <div class="op-card-icon">STK</div>
       <h3>Inventory &amp; Stock</h3>
-      <p>"Check stock for Widget A" | "Which products are out of stock?"</p>
+      <p>&ldquo;Check stock for Widget A&rdquo; &middot; &ldquo;Which products are out of stock?&rdquo;</p>
     </div>
     <div class="op-card">
-      <div class="op-card-icon" style="color:#7c3aed;">&#128666;</div>
+      <div class="op-card-icon">PO</div>
       <h3>Purchase Orders</h3>
-      <p>"Show pending RFQs" | "Supplier deliveries this week"</p>
+      <p>&ldquo;Show pending RFQs&rdquo; &middot; &ldquo;Supplier deliveries this week&rdquo;</p>
     </div>
     <div class="op-card">
-      <div class="op-card-icon" style="color:#7c3aed;">&#128101;</div>
+      <div class="op-card-icon">HR</div>
       <h3>HR &amp; Employees</h3>
-      <p>"List employees in Sales" | "Who's in the engineering team?" | "Headcount by dept"</p>
+      <p>&ldquo;List employees in Sales&rdquo; &middot; &ldquo;Who&rsquo;s in the engineering team?&rdquo;</p>
     </div>
     <div class="op-card">
-      <div class="op-card-icon" style="color:#7c3aed;">&#127958;</div>
+      <div class="op-card-icon">LVS</div>
       <h3>Leaves &amp; Time Off</h3>
-      <p>"Show pending approvals" | "Approve Jane's leave" | "My leave balance"</p>
+      <p>&ldquo;Show pending approvals&rdquo; &middot; &ldquo;Approve Jane&rsquo;s leave&rdquo; &middot; &ldquo;My leave balance&rdquo;</p>
     </div>
   </div>
 </div>
 
-<!-- ===========================================================
-     WRITE ACTIONS WITH CONFIRMATION GATE
+
+<!-- ============================================================
+     WRITE ACTIONS
 ============================================================ -->
 <div class="op-section">
-  <h2 class="op-h2">Not just read-only — take real Odoo actions, safely</h2>
-  <p class="op-sub">
-    The only free Odoo AI chatbot that lets you <em>write back</em> to Odoo directly from
-    Telegram or WhatsApp — with an inline Yes/No confirmation before every mutation.
-    Every action is audit-logged. No accidental changes. No privilege escalation.
+  <h2 class="op-h2">Not just read-only &mdash; take real Odoo actions, safely</h2>
+  <p class="op-lead">
+    The only free Odoo AI assistant that lets you <em>write back</em> to Odoo directly from
+    Telegram or WhatsApp. Every mutating action triggers an inline Yes / No confirmation
+    before touching any record. No accidental changes. No privilege escalation.
   </p>
 
   <ul class="op-action-list">
     <li>Mark project tasks as done</li>
     <li>Confirm draft sale orders</li>
     <li>Approve employee leave requests</li>
-    <li>Move CRM leads to any pipeline stage</li>
+    <li>Move CRM opportunities to any stage</li>
     <li>Create new CRM leads / opportunities</li>
     <li>More write tools added every release</li>
   </ul>
 
-  <div class="op-alert" style="margin-top: 20px;">
-    <strong>Safety-first AI agent design:</strong> Every write action triggers an inline keyboard
-    (Yes / No) in Telegram or interactive button in WhatsApp before touching any Odoo record.
-    Declined actions are still recorded in the immutable audit log. Users can only act on records
-    they already have access to in Odoo — the AI inherits Odoo's standard security model.
+  <div class="op-alert">
+    <strong>Safety-first design:</strong> Write actions require an explicit inline keyboard
+    (Yes / No) in Telegram or an interactive button reply in WhatsApp. Declined actions are
+    still recorded in the immutable audit log. Each user&rsquo;s AI session inherits their
+    standard Odoo access rights &mdash; no privilege escalation is possible.
   </div>
 </div>
 
-<!-- ===========================================================
-     MULTI-LANGUAGE SUPPORT  (NEW v17.0.6.0.0)
+
+<!-- ============================================================
+     MULTI-LANGUAGE  (NEW v17.0.6)
 ============================================================ -->
 <div class="op-section-dark">
-  <h2 class="op-h2">Multi-language AI replies <span class="op-new-badge">NEW v17.0.6</span></h2>
-  <p class="op-sub">
+  <h2 class="op-h2 op-h2-new">
+    Multi-language AI replies <span class="op-new">NEW v17.0.6</span>
+  </h2>
+  <p class="op-lead">
     Each user sets their preferred reply language with a single bot command.
-    OdooPilot responds in the right language from that point on — no admin config needed.
-    Supports 15 languages out of the box.
+    OdooPilot instructs the LLM to always respond in that language &mdash;
+    no admin configuration required. Supports 15 languages out of the box.
   </p>
 
   <div class="op-lang-grid">
-    <div class="op-lang"><span class="flag">&#127468;&#127463;</span>English<br><span class="code">/language en</span></div>
-    <div class="op-lang"><span class="flag">&#127467;&#127479;</span>French<br><span class="code">/language fr</span></div>
-    <div class="op-lang"><span class="flag">&#127466;&#127480;</span>Spanish<br><span class="code">/language es</span></div>
-    <div class="op-lang"><span class="flag">&#127465;&#127466;</span>German<br><span class="code">/language de</span></div>
-    <div class="op-lang"><span class="flag">&#127470;&#127481;</span>Italian<br><span class="code">/language it</span></div>
-    <div class="op-lang"><span class="flag">&#127477;&#127481;</span>Portuguese<br><span class="code">/language pt</span></div>
-    <div class="op-lang"><span class="flag">&#127475;&#127473;</span>Dutch<br><span class="code">/language nl</span></div>
-    <div class="op-lang"><span class="flag">&#127480;&#127462;</span>Arabic<br><span class="code">/language ar</span></div>
-    <div class="op-lang"><span class="flag">&#127464;&#127475;</span>Chinese<br><span class="code">/language zh</span></div>
-    <div class="op-lang"><span class="flag">&#127471;&#127477;</span>Japanese<br><span class="code">/language ja</span></div>
-    <div class="op-lang"><span class="flag">&#127472;&#127479;</span>Korean<br><span class="code">/language ko</span></div>
-    <div class="op-lang"><span class="flag">&#127479;&#127482;</span>Russian<br><span class="code">/language ru</span></div>
-    <div class="op-lang"><span class="flag">&#127481;&#127479;</span>Turkish<br><span class="code">/language tr</span></div>
-    <div class="op-lang"><span class="flag">&#127477;&#127473;</span>Polish<br><span class="code">/language pl</span></div>
-    <div class="op-lang"><span class="flag">&#127470;&#127475;</span>Hindi<br><span class="code">/language hi</span></div>
+    <div class="op-lang"><span class="lc">en</span><span class="ln">English</span></div>
+    <div class="op-lang"><span class="lc">fr</span><span class="ln">French</span></div>
+    <div class="op-lang"><span class="lc">es</span><span class="ln">Spanish</span></div>
+    <div class="op-lang"><span class="lc">de</span><span class="ln">German</span></div>
+    <div class="op-lang"><span class="lc">it</span><span class="ln">Italian</span></div>
+    <div class="op-lang"><span class="lc">pt</span><span class="ln">Portuguese</span></div>
+    <div class="op-lang"><span class="lc">nl</span><span class="ln">Dutch</span></div>
+    <div class="op-lang"><span class="lc">ar</span><span class="ln">Arabic</span></div>
+    <div class="op-lang"><span class="lc">zh</span><span class="ln">Chinese</span></div>
+    <div class="op-lang"><span class="lc">ja</span><span class="ln">Japanese</span></div>
+    <div class="op-lang"><span class="lc">ko</span><span class="ln">Korean</span></div>
+    <div class="op-lang"><span class="lc">ru</span><span class="ln">Russian</span></div>
+    <div class="op-lang"><span class="lc">tr</span><span class="ln">Turkish</span></div>
+    <div class="op-lang"><span class="lc">pl</span><span class="ln">Polish</span></div>
+    <div class="op-lang"><span class="lc">hi</span><span class="ln">Hindi</span></div>
   </div>
 
-  <div class="op-alert op-alert-green" style="margin-top:8px;">
-    <strong>How it works:</strong> Send <code>/language fr</code> in Telegram or WhatsApp.
+  <div class="op-alert op-alert-green">
+    <strong>How it works:</strong> Send <span class="op-inline-code">/language fr</span> in Telegram or WhatsApp.
     OdooPilot saves your preference in Odoo and replies in French from that turn onward.
-    Send <code>/language auto</code> to revert to auto-detect (matches whatever language you write in).
-    Admins can also set language per identity in the Odoo backend.
+    Send <span class="op-inline-code">/language auto</span> to revert to auto-detect.
+    Administrators can also set the language per user in the Odoo backend under
+    Settings &rarr; OdooPilot &rarr; User Identities.
   </div>
 </div>
 
-<!-- ===========================================================
+
+<!-- ============================================================
      PROACTIVE NOTIFICATIONS
 ============================================================ -->
 <div class="op-section">
-  <h2 class="op-h2">Proactive push alerts — no polling required</h2>
-  <p class="op-sub">
-    OdooPilot doesn't wait for you to ask. It proactively pushes important Odoo updates
-    to each user's Telegram or WhatsApp at the right time every day — via Odoo scheduled actions.
+  <h2 class="op-h2">Proactive push alerts &mdash; no polling required</h2>
+  <p class="op-lead">
+    OdooPilot doesn&rsquo;t wait for users to ask. It proactively delivers important updates
+    to each user&rsquo;s Telegram or WhatsApp every morning via Odoo scheduled actions.
   </p>
 
   <div class="op-notif">
-    <strong>Good morning, Sarah! &#128075;</strong><br><br>
+    <strong>Good morning, Sarah!</strong><br><br>
     You have <strong>2 overdue</strong> and <strong>3 due today</strong>:<br>
-    &#9888;&#65039; Update product catalogue [E-Commerce]<br>
-    &#9888;&#65039; Q1 invoice reconciliation [Finance]<br>
-    &#128197; Supplier call — Acme Corp<br>
-    &#128197; Review new hire onboarding<br>
-    &#128197; Ship pending orders (3 items)<br><br>
-    <em>Reply with a question or action — e.g. "mark the first task done"</em>
+    [!] Update product catalogue &mdash; E-Commerce &mdash; overdue<br>
+    [!] Q1 invoice reconciliation &mdash; Finance &mdash; overdue<br>
+    [-] Supplier call &mdash; Acme Corp<br>
+    [-] Review new hire onboarding<br>
+    [-] Ship pending orders (3 items)<br><br>
+    <em>Reply with a question or action &mdash; e.g. &ldquo;mark the first task done&rdquo;</em>
   </div>
 
-  <div class="op-notif" style="border-left-color: #0ea5e9; margin-top: 10px;">
-    <strong>&#128203; Overdue Invoice Alert</strong><br><br>
-    <strong>7 invoices</strong> overdue, totalling <strong>EUR 14,320</strong>.<br>
-    Oldest: 42 days — Acme Corp (EUR 3,200).<br>
-    &#8226; INV/2024/0031 — Beta Ltd — EUR 2,100 (due 15 Mar)<br>
-    &#8226; INV/2024/0028 — Gamma AG — EUR 4,800 (due 12 Mar)<br>
-    ... and 5 more<br><br>
-    <em>Reply "show overdue invoices" for the full list.</em>
+  <div class="op-notif op-notif-blue">
+    <strong>Overdue Invoice Alert</strong><br><br>
+    <strong>7 invoices</strong> overdue, totalling <strong>EUR 14,320</strong>.
+    Oldest: 42 days &mdash; Acme Corp (EUR 3,200).<br>
+    &bull; INV/2024/0031 &mdash; Beta Ltd &mdash; EUR 2,100 (due 15 Mar)<br>
+    &bull; INV/2024/0028 &mdash; Gamma AG &mdash; EUR 4,800 (due 12 Mar)<br>
+    &hellip; and 5 more<br><br>
+    <em>Reply &ldquo;show overdue invoices&rdquo; for the full list.</em>
   </div>
 
-  <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-    <div class="op-card">
-      <div class="op-card-icon" style="color:#7c3aed;">&#9728;&#65039;</div>
-      <h3>Daily task digest — 08:00 UTC</h3>
-      <p>Each linked user receives their overdue + today's tasks every morning via Telegram or WhatsApp. Skipped when nothing is due — no noise.</p>
+  <div class="op-grid op-mt">
+    <div class="op-card op-card-accent">
+      <div class="op-card-icon">AM</div>
+      <h3>Daily task digest &mdash; 08:00 UTC</h3>
+      <p>Each linked user receives their overdue + today&rsquo;s tasks every morning
+      via Telegram or WhatsApp. Skipped automatically when nothing is due &mdash; no noise.</p>
     </div>
-    <div class="op-card">
-      <div class="op-card-icon" style="color:#7c3aed;">&#128176;</div>
-      <h3>Overdue invoice alerts — 09:00 UTC</h3>
-      <p>Users with accounting access get a daily overdue invoice summary. Automatically skips users without the Accounting group — no configuration needed.</p>
+    <div class="op-card op-card-accent">
+      <div class="op-card-icon">INV</div>
+      <h3>Overdue invoice alerts &mdash; 09:00 UTC</h3>
+      <p>Users with accounting access receive a daily overdue invoice summary.
+      Automatically skipped for users without the Accounting group.</p>
     </div>
   </div>
 </div>
 
-<!-- ===========================================================
+
+<!-- ============================================================
      LLM PROVIDERS
 ============================================================ -->
 <div class="op-section-dark">
-  <h2 class="op-h2">Choose your AI engine — Claude, ChatGPT / GPT-4, Groq, or Ollama</h2>
-  <p class="op-sub">
-    OdooPilot works with all major LLM providers. Your API key, your data, no middleman.
-    Switch provider at any time from Odoo Settings. Or run 100% locally with Ollama.
+  <h2 class="op-h2">Choose your AI engine &mdash; bring your own key</h2>
+  <p class="op-lead">
+    OdooPilot supports all major LLM providers. Your API key, your data, no middleman.
+    Switch providers at any time from Odoo Settings. No SDK dependencies &mdash;
+    provider APIs are called directly via Python <span class="op-inline-code">requests</span>.
   </p>
 
   <div class="op-llm-row">
     <div class="op-llm">
-      <div style="font-size:1.6em; margin-bottom:6px;">&#129302;</div>
+      <div class="op-llm-logo" style="background:#f3f0ff; color:#7c3aed;">CLU</div>
       <div class="op-llm-name">Anthropic Claude</div>
-      <div class="op-llm-model">claude-3-5-haiku (fast)</div>
-      <div class="op-llm-model">claude-opus-4 | claude-sonnet-4</div>
+      <div class="op-llm-models">
+        claude-3-5-haiku &middot; claude-opus-4<br>claude-sonnet-4
+      </div>
     </div>
     <div class="op-llm">
-      <div style="font-size:1.6em; margin-bottom:6px;">&#129504;</div>
+      <div class="op-llm-logo" style="background:#f0fdf4; color:#15803d;">GPT</div>
       <div class="op-llm-name">OpenAI ChatGPT</div>
-      <div class="op-llm-model">gpt-4o-mini (default)</div>
-      <div class="op-llm-model">gpt-4o | gpt-4-turbo</div>
+      <div class="op-llm-models">
+        gpt-4o-mini &middot; gpt-4o<br>gpt-4-turbo
+      </div>
     </div>
     <div class="op-llm">
-      <div style="font-size:1.6em; margin-bottom:6px;">&#9889;</div>
+      <div class="op-llm-logo" style="background:#fff7ed; color:#c2410c;">GRQ</div>
       <div class="op-llm-name">Groq</div>
-      <div class="op-llm-model">llama-3.3-70b (default)</div>
+      <div class="op-llm-models">llama-3.3-70b-versatile</div>
       <div class="op-llm-free">Free tier available</div>
     </div>
     <div class="op-llm">
-      <div style="font-size:1.6em; margin-bottom:6px;">&#127968;</div>
-      <div class="op-llm-name">Ollama / Local AI</div>
-      <div class="op-llm-model">Any OpenAI-compatible endpoint</div>
-      <div class="op-llm-model">100% private, no API cost</div>
+      <div class="op-llm-logo" style="background:#f1f5f9; color:#475569;">LCL</div>
+      <div class="op-llm-name">Ollama / Local</div>
+      <div class="op-llm-models">Any OpenAI-compatible<br>endpoint</div>
+      <div class="op-llm-local">100% private</div>
     </div>
   </div>
 
   <div class="op-alert">
-    <strong>Your keys, your data.</strong> API keys are stored in Odoo's system parameters
-    and never leave your server. OdooPilot has no cloud backend — it is just an Odoo addon.
-    No SDK dependencies: provider APIs are called directly via Python <code>requests</code>.
+    <strong>Your keys. Your data. Your server.</strong> API keys are stored in Odoo&rsquo;s
+    system parameters and never leave your server. OdooPilot has no cloud backend &mdash;
+    it is a standalone Odoo addon. For complete data privacy, use Ollama for a fully
+    local AI deployment.
   </div>
 </div>
 
-<!-- ===========================================================
-     COMPETITOR COMPARISON
+
+<!-- ============================================================
+     COMPARISON TABLE
 ============================================================ -->
 <div class="op-section">
   <h2 class="op-h2">How OdooPilot compares</h2>
-  <p class="op-sub">
-    The only free, open-source Odoo AI agent with dual-channel support (Telegram + WhatsApp),
-    write-action capability, multi-LLM flexibility, and proactive push notifications.
+  <p class="op-lead">
+    The only free, open-source Odoo AI agent with dual-channel support, write-action
+    capability, multi-language replies, and proactive push notifications.
   </p>
 
-  <div style="overflow-x:auto;">
+  <div style="overflow-x: auto;">
     <table class="op-table">
       <thead>
         <tr>
           <th>Feature</th>
-          <th style="color:#7c3aed;">&#9733; OdooPilot</th>
-          <th>Paid AI Copilot A<br><small style="font-weight:400;color:#94a3b8;">~EUR 256</small></th>
-          <th>Paid AI Chatbot B<br><small style="font-weight:400;color:#94a3b8;">~EUR 200</small></th>
-          <th>Odoo AI Analytics C<br><small style="font-weight:400;color:#94a3b8;">~EUR 355</small></th>
+          <th class="op-hl-h">OdooPilot</th>
+          <th>Paid AI Copilot<br><small style="font-weight:400;">~EUR 256</small></th>
+          <th>Paid AI Chatbot<br><small style="font-weight:400;">~EUR 200</small></th>
+          <th>AI Analytics<br><small style="font-weight:400;">~EUR 355</small></th>
         </tr>
       </thead>
       <tbody>
-        <tr class="op-hl">
-          <td><strong>Price</strong></td>
-          <td><strong>Free forever (LGPL-3)</strong></td>
+        <tr class="op-hl-row">
+          <td>Price</td>
+          <td class="op-yes">Free (LGPL-3)</td>
           <td>EUR 256 one-time</td>
           <td>EUR 200 one-time</td>
           <td>EUR 355 one-time</td>
         </tr>
         <tr>
           <td>Odoo 17 Community</td>
-          <td class="check">&#10003; Yes — no Enterprise needed</td>
-          <td class="partial">~ Mixed</td>
-          <td class="partial">~ Mixed</td>
-          <td class="partial">~ Mixed</td>
+          <td class="op-yes">&#10003; Yes</td>
+          <td class="op-part">&#8764; Mixed</td>
+          <td class="op-part">&#8764; Mixed</td>
+          <td class="op-part">&#8764; Mixed</td>
         </tr>
         <tr>
-          <td>Telegram integration</td>
-          <td class="check">&#10003; Native bot</td>
-          <td class="cross">&#10007; No</td>
-          <td class="cross">&#10007; No</td>
-          <td class="cross">&#10007; No</td>
+          <td>Telegram bot</td>
+          <td class="op-yes">&#10003; Native</td>
+          <td class="op-no">&#10007; No</td>
+          <td class="op-no">&#10007; No</td>
+          <td class="op-no">&#10007; No</td>
         </tr>
         <tr>
-          <td>WhatsApp integration</td>
-          <td class="check">&#10003; Cloud API</td>
-          <td class="cross">&#10007; No</td>
-          <td class="check">&#10003; Yes</td>
-          <td class="cross">&#10007; No</td>
+          <td>WhatsApp bot</td>
+          <td class="op-yes">&#10003; Cloud API</td>
+          <td class="op-no">&#10007; No</td>
+          <td class="op-yes">&#10003; Yes</td>
+          <td class="op-no">&#10007; No</td>
         </tr>
         <tr>
-          <td>Write actions (confirm orders, etc.)</td>
-          <td class="check">&#10003; 5 write tools</td>
-          <td class="cross">&#10007; Read-only</td>
-          <td class="cross">&#10007; Read-only</td>
-          <td class="cross">&#10007; Read-only</td>
+          <td>Write actions (confirm orders, approve leaves)</td>
+          <td class="op-yes">&#10003; 5 write tools</td>
+          <td class="op-no">&#10007; Read-only</td>
+          <td class="op-no">&#10007; Read-only</td>
+          <td class="op-no">&#10007; Read-only</td>
         </tr>
         <tr>
           <td>Proactive push notifications</td>
-          <td class="check">&#10003; Tasks + invoices daily</td>
-          <td class="cross">&#10007; No</td>
-          <td class="cross">&#10007; No</td>
-          <td class="cross">&#10007; No</td>
+          <td class="op-yes">&#10003; Tasks + invoices</td>
+          <td class="op-no">&#10007; No</td>
+          <td class="op-no">&#10007; No</td>
+          <td class="op-no">&#10007; No</td>
         </tr>
         <tr>
-          <td>Multi-LLM (Claude, GPT-4, Groq)</td>
-          <td class="check">&#10003; 4+ providers</td>
-          <td class="partial">~ OpenAI + Gemini</td>
-          <td class="partial">~ OpenAI only</td>
-          <td class="partial">~ OpenAI + Gemini</td>
+          <td>Multi-LLM (Claude, GPT-4, Groq, Ollama)</td>
+          <td class="op-yes">&#10003; 4+ providers</td>
+          <td class="op-part">&#8764; OpenAI + Gemini</td>
+          <td class="op-part">&#8764; OpenAI only</td>
+          <td class="op-part">&#8764; OpenAI + Gemini</td>
         </tr>
         <tr>
           <td>Multi-language replies (15 languages)</td>
-          <td class="check">&#10003; /language command</td>
-          <td class="cross">&#10007; No</td>
-          <td class="cross">&#10007; No</td>
-          <td class="cross">&#10007; No</td>
+          <td class="op-yes">&#10003; /language command</td>
+          <td class="op-no">&#10007; No</td>
+          <td class="op-no">&#10007; No</td>
+          <td class="op-no">&#10007; No</td>
         </tr>
         <tr>
-          <td>Self-hosted — no external service</td>
-          <td class="check">&#10003; Pure Odoo addon</td>
-          <td class="partial">~ May require cloud</td>
-          <td class="partial">~ May require cloud</td>
-          <td class="partial">~ May require cloud</td>
+          <td>Self-hosted &mdash; no external service</td>
+          <td class="op-yes">&#10003; Pure Odoo addon</td>
+          <td class="op-part">&#8764; May need cloud</td>
+          <td class="op-part">&#8764; May need cloud</td>
+          <td class="op-part">&#8764; May need cloud</td>
         </tr>
         <tr>
           <td>Confirmation gate for write actions</td>
-          <td class="check">&#10003; Inline Yes/No</td>
-          <td class="cross">&#10007; N/A (no write)</td>
-          <td class="cross">&#10007; N/A (no write)</td>
-          <td class="cross">&#10007; N/A (no write)</td>
+          <td class="op-yes">&#10003; Inline Yes / No</td>
+          <td class="op-no">&#10007; N/A</td>
+          <td class="op-no">&#10007; N/A</td>
+          <td class="op-no">&#10007; N/A</td>
         </tr>
         <tr>
-          <td>Full audit trail</td>
-          <td class="check">&#10003; Immutable log</td>
-          <td class="partial">~ Basic</td>
-          <td class="cross">&#10007; No</td>
-          <td class="partial">~ Basic</td>
+          <td>Immutable audit trail</td>
+          <td class="op-yes">&#10003; Full log</td>
+          <td class="op-part">&#8764; Basic</td>
+          <td class="op-no">&#10007; No</td>
+          <td class="op-part">&#8764; Basic</td>
         </tr>
         <tr>
           <td>Open-source license</td>
-          <td class="check">&#10003; LGPL-3</td>
-          <td class="cross">&#10007; OPL proprietary</td>
-          <td class="cross">&#10007; OPL proprietary</td>
-          <td class="cross">&#10007; OPL proprietary</td>
-        </tr>
-        <tr>
-          <td>Domains covered</td>
-          <td class="check">&#10003; 8 domains</td>
-          <td class="partial">~ 3–4</td>
-          <td class="partial">~ 2–3</td>
-          <td class="partial">~ Analytics only</td>
+          <td class="op-yes">&#10003; LGPL-3</td>
+          <td class="op-no">&#10007; OPL</td>
+          <td class="op-no">&#10007; OPL</td>
+          <td class="op-no">&#10007; OPL</td>
         </tr>
         <tr>
           <td>Employee-facing (not customer-facing)</td>
-          <td class="check">&#10003; Employee AI agent</td>
-          <td class="partial">~ Both</td>
-          <td class="cross">&#10007; Customer-facing</td>
-          <td class="cross">&#10007; Customer-facing</td>
+          <td class="op-yes">&#10003; Employee AI agent</td>
+          <td class="op-part">&#8764; Both</td>
+          <td class="op-no">&#10007; Customer-facing</td>
+          <td class="op-no">&#10007; Customer-facing</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- ===========================================================
-     ARCHITECTURE — HOW IT WORKS
+
+<!-- ============================================================
+     HOW IT WORKS
 ============================================================ -->
 <div class="op-section-dark">
-  <h2 class="op-h2">Everything runs inside Odoo — zero external services</h2>
-  <p class="op-sub">
-    Unlike SaaS AI integrations or modules that require a separate Python service,
-    OdooPilot is a single self-contained Odoo addon. No extra server, no Docker,
-    no subscription, no data sent to a middleman cloud.
+  <h2 class="op-h2">Everything runs inside Odoo &mdash; zero external services</h2>
+  <p class="op-lead">
+    Unlike SaaS AI integrations, OdooPilot is a single self-contained Odoo addon.
+    No separate server, no Docker container, no subscription, no data sent to a middleman.
   </p>
 
   <div class="op-steps">
@@ -656,173 +876,215 @@
       <div class="op-step-num">1</div>
       <h3>Webhook delivery</h3>
       <p>User sends a Telegram or WhatsApp message. The platform calls your Odoo webhook
-      endpoint with HMAC or token validation. Processed asynchronously in a background thread.</p>
+      with token/HMAC validation. Processed asynchronously in a background thread.</p>
     </div>
     <div class="op-step">
       <div class="op-step-num">2</div>
       <h3>Identity &amp; session lookup</h3>
-      <p>Odoo matches the chat ID to the linked Odoo user. The AI agent runs as that user —
-      inheriting their Odoo access rights automatically. No privilege escalation possible.</p>
+      <p>Odoo matches the chat ID to the linked Odoo user. The AI agent runs as that user,
+      inheriting their Odoo access rights automatically.</p>
     </div>
     <div class="op-step">
       <div class="op-step-num">3</div>
       <h3>Agentic LLM tool loop</h3>
-      <p>The question is sent to your chosen LLM (Claude / GPT-4 / Groq). The LLM selects the
-      right Odoo ORM tools in a multi-turn agent loop. Read tools execute immediately; write
-      tools pause for inline confirmation.</p>
+      <p>The question is sent to your chosen LLM. It selects the right Odoo ORM tools
+      in a multi-turn agent loop. Read tools execute immediately; write tools pause for
+      inline confirmation.</p>
     </div>
     <div class="op-step">
       <div class="op-step-num">4</div>
       <h3>Reply + audit log</h3>
-      <p>The answer is sent back to Telegram or WhatsApp. Every tool call is recorded in the
-      immutable OdooPilot audit log — user, tool, args, result, timestamp.</p>
+      <p>The answer is sent back to the user. Every tool call is recorded in the immutable
+      OdooPilot audit log: user, tool, arguments, result, and timestamp.</p>
     </div>
   </div>
 
-  <div class="op-alert" style="margin-top: 20px;">
-    <strong>Security model:</strong> Each user's bot session inherits their Odoo access rights.
-    A salesperson cannot query HR data they wouldn't see in the Odoo UI. A regular user cannot
-    see another user's invoices. Write actions require explicit inline confirmation before any
-    Odoo record is modified. API keys are stored in Odoo's system parameters, never exposed.
+  <div class="op-alert op-mt">
+    <strong>Security model:</strong> Each user&rsquo;s session inherits their Odoo access rights.
+    A salesperson cannot query HR data they wouldn&rsquo;t see in the Odoo UI. Write actions
+    require explicit confirmation before any record is modified. API keys are stored in
+    Odoo system parameters &mdash; never exposed or transmitted to third parties.
   </div>
 </div>
 
-<!-- ===========================================================
+
+<!-- ============================================================
      5-MINUTE SETUP
 ============================================================ -->
 <div class="op-section">
   <h2 class="op-h2">Up and running in 5 minutes</h2>
-  <p class="op-sub">No server to configure. No Docker. No extra Python packages. No infrastructure.</p>
+  <p class="op-lead">No extra server. No Docker. No additional Python packages. No infrastructure.</p>
 
-  <div class="op-steps" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+  <div class="op-steps">
     <div class="op-step" style="border-left-color: #0ea5e9;">
-      <div class="op-step-num" style="color:#0ea5e9;">1</div>
+      <div class="op-step-num" style="color: #0369a1;">1</div>
       <h3>Install the addon</h3>
-      <p>Copy <code>odoopilot/</code> into your Odoo addons path and run <code>-u odoopilot</code>,
-      or install directly from the Odoo App Store. No extra pip packages required.</p>
+      <p>Copy <span class="op-inline-code">odoopilot/</span> into your Odoo addons path and
+      run <span class="op-inline-code">-u odoopilot</span>, or install from the Odoo App Store.
+      No extra pip packages required.</p>
     </div>
     <div class="op-step" style="border-left-color: #0ea5e9;">
-      <div class="op-step-num" style="color:#0ea5e9;">2</div>
+      <div class="op-step-num" style="color: #0369a1;">2</div>
       <h3>Create your bot</h3>
-      <p>For Telegram: message <strong>@BotFather</strong> &#8594; <code>/newbot</code> &#8594; copy token.
-      For WhatsApp: create a Meta app and note your Phone Number ID and Access Token.</p>
+      <p><strong>Telegram:</strong> message @BotFather &rarr; /newbot &rarr; copy token.<br>
+      <strong>WhatsApp:</strong> create a Meta app, note your Phone Number ID and Access Token.</p>
     </div>
     <div class="op-step" style="border-left-color: #0ea5e9;">
-      <div class="op-step-num" style="color:#0ea5e9;">3</div>
+      <div class="op-step-num" style="color: #0369a1;">3</div>
       <h3>Add your LLM key</h3>
-      <p>Get an API key from <strong>Anthropic</strong>, <strong>OpenAI</strong>, or
-      <strong>Groq</strong>. Groq's free tier is enough to start — no credit card needed.</p>
+      <p>Get a key from <strong>Anthropic</strong>, <strong>OpenAI</strong>, or
+      <strong>Groq</strong>. Groq&rsquo;s free tier requires no credit card &mdash;
+      ideal for getting started.</p>
     </div>
     <div class="op-step" style="border-left-color: #0ea5e9;">
-      <div class="op-step-num" style="color:#0ea5e9;">4</div>
+      <div class="op-step-num" style="color: #0369a1;">4</div>
       <h3>Paste &amp; activate</h3>
-      <p>Go to <strong>Settings &#8594; OdooPilot</strong>. Paste bot credentials and LLM key,
-      click <em>"Register Webhook"</em>. Done — start chatting immediately.</p>
+      <p>Go to <strong>Settings &rarr; OdooPilot</strong>. Enter your bot credentials and LLM key,
+      then click <strong>Register Webhook</strong>. Start chatting immediately.</p>
     </div>
   </div>
 
-  <div style="margin-top:20px; background:#fff; border-radius:10px; padding:18px 20px; border:1px solid #e2e8f0;">
-    <strong>Team onboarding in under 10 minutes:</strong> Each employee sends <code>/link</code>
-    to the bot, taps the one-time magic link while logged into Odoo, and their account is linked.
-    The whole team is live without any IT intervention.
+  <div class="op-alert op-alert-green op-mt">
+    <strong>Team onboarding in under 10 minutes:</strong> Each employee sends
+    <span class="op-inline-code">/link</span> to the bot, clicks the one-time magic link
+    while logged into Odoo, and their account is linked. No IT intervention required.
   </div>
 </div>
 
-<!-- ===========================================================
+
+<!-- ============================================================
      FAQ
 ============================================================ -->
 <div class="op-section-dark">
   <h2 class="op-h2">Frequently asked questions</h2>
+
   <ul class="op-faq">
     <li>
       <div class="q">Does this work with Odoo 17 Community Edition?</div>
-      <div class="a">Yes. OdooPilot was built specifically for Odoo 17 Community. It does not require Odoo Enterprise. It depends only on <code>mail</code>, <code>base_setup</code>, and <code>web</code> — modules that ship with every Odoo install.</div>
+      <div class="a">Yes. OdooPilot is built specifically for Odoo 17 Community and requires no Enterprise licence.
+      It depends only on <span class="op-inline-code">mail</span>, <span class="op-inline-code">base_setup</span>,
+      and <span class="op-inline-code">web</span> &mdash; modules included in every Odoo install.</div>
     </li>
     <li>
-      <div class="q">Does it work on Odoo Online / Odoo.sh?</div>
-      <div class="a">Odoo.sh: yes — it is a standard addon, installs like any other. Odoo Online (odoo.com SaaS): unfortunately not, because Odoo Online does not allow custom addon installation. OdooPilot requires a self-hosted or Odoo.sh instance that is reachable from the internet for webhook delivery.</div>
+      <div class="q">Does it work on Odoo.sh or Odoo Online?</div>
+      <div class="a"><strong>Odoo.sh:</strong> yes &mdash; install like any standard addon.
+      <strong>Odoo Online (odoo.com SaaS):</strong> not supported, as Odoo Online does not allow
+      custom addon installation. OdooPilot requires a self-hosted or Odoo.sh instance accessible
+      from the internet for webhook delivery.</div>
     </li>
     <li>
       <div class="q">Which messaging channels are supported?</div>
-      <div class="a">Both <strong>Telegram</strong> (via Bot API webhook) and <strong>WhatsApp</strong> (via Meta's WhatsApp Cloud API) are supported with full feature parity — including the /link identity flow, write-action confirmations, and proactive push notifications. Both channels can be active simultaneously.</div>
+      <div class="a">Both <strong>Telegram</strong> (Bot API webhook) and <strong>WhatsApp</strong>
+      (Meta WhatsApp Cloud API) are supported with full feature parity &mdash; including the /link
+      identity flow, write-action confirmations, proactive notifications, and multi-language support.
+      Both channels can be active simultaneously.</div>
     </li>
     <li>
       <div class="q">Which AI / LLM providers are supported?</div>
-      <div class="a"><strong>Anthropic Claude</strong> (claude-3-5-haiku, claude-opus-4, claude-sonnet-4), <strong>OpenAI ChatGPT / GPT-4</strong> (gpt-4o, gpt-4o-mini, gpt-4-turbo), <strong>Groq</strong> (llama-3.3-70b — free tier), and <strong>any OpenAI-compatible endpoint</strong> including Ollama for fully local/private AI. No SDK dependencies — provider APIs are called via raw <code>requests</code>.</div>
+      <div class="a"><strong>Anthropic Claude</strong> (claude-3-5-haiku, claude-opus-4, claude-sonnet-4),
+      <strong>OpenAI ChatGPT / GPT-4</strong> (gpt-4o, gpt-4o-mini, gpt-4-turbo),
+      <strong>Groq</strong> (llama-3.3-70b-versatile &mdash; free tier), and
+      <strong>any OpenAI-compatible endpoint</strong> including Ollama for a fully local,
+      private AI deployment. No SDKs required.</div>
     </li>
     <li>
       <div class="q">How does multi-language support work?</div>
-      <div class="a">Each user can send <code>/language fr</code> (or any supported ISO 639-1 code) in Telegram or WhatsApp to set their preferred reply language. OdooPilot stores the preference in the Odoo identity record and instructs the LLM to always reply in that language. Send <code>/language auto</code> to revert to auto-detect. Admins can set language per user in the Odoo backend (Settings &#8594; OdooPilot &#8594; User Identities).</div>
+      <div class="a">Send <span class="op-inline-code">/language fr</span> in Telegram or WhatsApp
+      to set French as your reply language. OdooPilot stores the preference in the Odoo identity
+      record and instructs the LLM to always respond in that language. Send
+      <span class="op-inline-code">/language auto</span> to revert to auto-detect.
+      Administrators can set language per user in the Odoo backend.</div>
     </li>
     <li>
-      <div class="q">Do I need all Odoo apps installed?</div>
-      <div class="a">No. OdooPilot gracefully detects which modules are installed. If you don't have CRM, the CRM tools are silently skipped. If you don't have HR, leave tools won't appear. Only tools relevant to your installed apps are active — no errors, no configuration required.</div>
+      <div class="q">Do I need all Odoo modules installed?</div>
+      <div class="a">No. OdooPilot detects which modules are installed and activates only the
+      relevant tools. No CRM installed? CRM tools are silently skipped. No HR module?
+      Leave tools are hidden. No errors &mdash; no manual configuration required.</div>
     </li>
     <li>
       <div class="q">Is my Odoo data sent to a third party?</div>
-      <div class="a">Only the user's question and the Odoo data retrieved by the AI tools are sent to your chosen LLM provider (Anthropic, OpenAI, or Groq). Nothing is sent to OdooPilot's servers — because there aren't any. OdooPilot is a standalone Odoo addon with zero cloud backend. For full privacy, use Ollama (local LLM) — then no data leaves your server at all.</div>
+      <div class="a">Only the user&rsquo;s question and the Odoo data retrieved by the AI tools
+      are sent to your chosen LLM provider. Nothing is sent to OdooPilot &mdash; because there
+      are no OdooPilot servers. For complete data privacy, use Ollama: then no data leaves
+      your server at all.</div>
     </li>
     <li>
-      <div class="q">Can users access data they shouldn't see?</div>
-      <div class="a">No. The AI agent runs as the linked Odoo user and inherits their Odoo access rights from Odoo's standard security model. A salesperson cannot see HR records they wouldn't see in the Odoo UI. A linked employee cannot see another employee's private data.</div>
-    </li>
-    <li>
-      <div class="q">Which LLM is recommended for production?</div>
-      <div class="a">For the best accuracy and speed, <strong>Anthropic Claude 3.5 Haiku</strong> (~$0.001 per conversation). For zero API cost, <strong>Groq free tier</strong> (Llama 3.3 70B) works well. For complete data privacy, <strong>Ollama</strong> runs a local model — no data leaves your server.</div>
+      <div class="q">Which LLM is recommended for production use?</div>
+      <div class="a"><strong>Anthropic Claude 3.5 Haiku</strong> offers the best balance of
+      speed and accuracy (~$0.001 per conversation). For zero API cost, <strong>Groq&rsquo;s
+      free tier</strong> (Llama 3.3 70B) works well. For complete data privacy,
+      <strong>Ollama</strong> with a local model means no data leaves your server.</div>
     </li>
     <li>
       <div class="q">Can I add custom tools for my own Odoo models?</div>
-      <div class="a">Yes. The tool registry in <code>services/tools.py</code> is designed to be extended. Add a function, register it in <code>TOOL_DEFINITIONS</code>, and it's immediately available in the AI agent. The module is fully open-source (LGPL-3) — fork and customise freely.</div>
+      <div class="a">Yes. The tool registry in <span class="op-inline-code">services/tools.py</span>
+      is designed to be extended. Add a function, register it in
+      <span class="op-inline-code">TOOL_DEFINITIONS</span>, and it is immediately available
+      in the AI agent. The module is fully open-source (LGPL-3) &mdash; fork and customise freely.</div>
     </li>
   </ul>
 </div>
 
-<!-- ===========================================================
-     SPONSOR SECTION
+
+<!-- ============================================================
+     SPONSOR
 ============================================================ -->
 <div class="op-sponsor">
-  <div style="font-size:2.2em; margin-bottom:12px;">&#9829;</div>
-  <h2>OdooPilot is free because of sponsors</h2>
+  <div style="font-size: 2em; margin-bottom: 10px;">&hearts;</div>
+  <h2>OdooPilot is free &mdash; powered by sponsors</h2>
   <p>
-    This is a solo open-source project — no VC funding, no SaaS revenue, no enterprise tier.
+    Solo open-source project &mdash; no VC funding, no SaaS revenue, no enterprise tier.
     If OdooPilot saves your team time every day, please consider sponsoring.
-    Even $5/month helps keep the project alive and growing.
+    Even $5 / month helps keep the project alive and growing.
   </p>
 
   <div class="op-tiers">
     <div class="op-tier">
-      <div style="font-size:1.4em; margin-bottom:6px;">&#9749;</div>
       <div class="price">$5 / mo</div>
       <div class="role">Supporter</div>
-      <div class="desc">Name in README | warm fuzzy feeling</div>
+      <div class="desc">Name in README &middot; warm fuzzy feeling</div>
     </div>
     <div class="op-tier popular">
-      <div style="font-size:1.4em; margin-bottom:6px;">&#128640;</div>
       <div class="price">$25 / mo</div>
-      <div class="role">&#9733; Backer — POPULAR</div>
-      <div class="desc">Priority bug fixes | shout-out in release notes</div>
+      <div class="role">&#9733; Backer &mdash; Popular</div>
+      <div class="desc">Priority bug fixes &middot; shout-out in release notes</div>
     </div>
     <div class="op-tier">
-      <div style="font-size:1.4em; margin-bottom:6px;">&#127970;</div>
       <div class="price">$100 / mo</div>
       <div class="role">Patron</div>
-      <div class="desc">Logo in README | feature request priority</div>
+      <div class="desc">Logo in README &middot; feature request priority</div>
     </div>
   </div>
 
-  <a href="https://github.com/sponsors/arunrajiah" class="op-sponsor-btn">&#9829; Sponsor on GitHub</a>
-  <p style="font-size:.8em; color:#64748b; margin-top:14px;">Cancel anytime | No lock-in | Managed via GitHub Sponsors</p>
+  <a href="https://github.com/sponsors/arunrajiah" class="op-sponsor-btn">&hearts; Sponsor on GitHub</a>
+  <p class="op-sponsor-note">Cancel anytime &middot; No lock-in &middot; Managed via GitHub Sponsors</p>
 </div>
 
-<!-- ===========================================================
-     FOOTER LINKS
+
+<!-- ============================================================
+     FOOTER
 ============================================================ -->
-<div style="text-align:center; padding:32px 0 12px; color:#94a3b8; font-size:.88em;">
-  <p style="margin:0 0 14px;">LGPL-3 open-source | Odoo AI agent | Telegram bot | WhatsApp bot | Multi-LLM | Built for the Odoo Community</p>
-  <a href="https://github.com/arunrajiah/odoopilot" style="display:inline-block;background:#24292f;color:#fff;padding:9px 22px;border-radius:6px;text-decoration:none;font-weight:600;margin:4px;font-size:.9em;">GitHub</a>
-  <a href="https://github.com/arunrajiah/odoopilot/discussions" style="display:inline-block;background:#5865f2;color:#fff;padding:9px 22px;border-radius:6px;text-decoration:none;font-weight:600;margin:4px;font-size:.9em;">Discussions</a>
-  <a href="https://github.com/arunrajiah/odoopilot/issues" style="display:inline-block;background:#e67e22;color:#fff;padding:9px 22px;border-radius:6px;text-decoration:none;font-weight:600;margin:4px;font-size:.9em;">Report Issue</a>
-  <a href="https://github.com/arunrajiah/odoopilot/blob/main/CHANGELOG.md" style="display:inline-block;background:#374151;color:#fff;padding:9px 22px;border-radius:6px;text-decoration:none;font-weight:600;margin:4px;font-size:.9em;">Changelog</a>
+<div style="text-align: center; padding: 32px 0 12px; color: #94a3b8; font-size: 0.88em;">
+  <p style="margin: 0 0 16px; color: #64748b;">
+    LGPL-3 open-source &middot; Odoo AI agent &middot; Telegram &amp; WhatsApp &middot;
+    Multi-LLM &middot; Built for the Odoo Community
+  </p>
+  <a href="https://github.com/arunrajiah/odoopilot"
+     style="display: inline-block; background: #24292f; color: #fff; padding: 9px 22px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 4px; font-size: 0.9em;">
+    GitHub
+  </a>
+  <a href="https://github.com/arunrajiah/odoopilot/discussions"
+     style="display: inline-block; background: #5865f2; color: #fff; padding: 9px 22px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 4px; font-size: 0.9em;">
+    Discussions
+  </a>
+  <a href="https://github.com/arunrajiah/odoopilot/issues"
+     style="display: inline-block; background: #e67e22; color: #fff; padding: 9px 22px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 4px; font-size: 0.9em;">
+    Report Issue
+  </a>
+  <a href="https://github.com/arunrajiah/odoopilot/blob/main/CHANGELOG.md"
+     style="display: inline-block; background: #374151; color: #fff; padding: 9px 22px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 4px; font-size: 0.9em;">
+    Changelog
+  </a>
 </div>
 
 </div>

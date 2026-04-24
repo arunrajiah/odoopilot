@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #0a0d1a;
+  }
+
+  /* ── Grid background ── */
+  .bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(135deg, #0f172a 0%, #1a1040 45%, #0a1628 100%);
+  }
+  .bg::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  /* Glow orbs */
+  .orb1 {
+    position: absolute; width: 380px; height: 380px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,.28) 0%, transparent 70%);
+    top: -80px; left: -60px;
+  }
+  .orb2 {
+    position: absolute; width: 280px; height: 280px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(37,211,102,.18) 0%, transparent 70%);
+    bottom: -60px; right: 340px;
+  }
+  .orb3 {
+    position: absolute; width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(14,165,233,.15) 0%, transparent 70%);
+    top: 60px; right: 160px;
+  }
+
+  /* ── Layout ── */
+  .layout {
+    position: relative; z-index: 10;
+    display: flex; height: 630px;
+    padding: 0 52px 0 56px;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* ── LEFT PANEL ── */
+  .left {
+    flex: 0 0 520px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    padding-right: 32px;
+  }
+
+  .logo-row {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 24px;
+  }
+  .logo-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; box-shadow: 0 8px 24px rgba(124,58,237,.45);
+  }
+  .logo-text {
+    font-size: 2.1em; font-weight: 800;
+    color: #fff; letter-spacing: -0.5px;
+  }
+
+  .tagline {
+    font-size: 1.18em; font-weight: 700; color: #fff;
+    line-height: 1.35; margin-bottom: 8px;
+  }
+  .tagline span.tg  { color: #5fb3f5; }
+  .tagline span.wa  { color: #25d366; }
+
+  .sub-tagline {
+    font-size: .83em; color: #94a3b8;
+    margin-bottom: 22px; line-height: 1.5;
+  }
+
+  /* Feature bullets */
+  .features { margin-bottom: 26px; display: flex; flex-direction: column; gap: 8px; }
+  .feat {
+    display: flex; align-items: center; gap: 10px;
+    font-size: .88em; color: #cbd5e1;
+  }
+  .feat-arrow { color: #7c3aed; font-weight: 700; font-size: 1em; }
+  .feat strong { color: #e2e8f0; }
+
+  /* LLM pill row */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+  .pill {
+    padding: 5px 13px; border-radius: 99px;
+    font-size: .76em; font-weight: 700; letter-spacing: .2px;
+  }
+  .pill-claude  { background: rgba(168,85,247,.18); color: #d8b4fe; border: 1px solid rgba(168,85,247,.35); }
+  .pill-gpt     { background: rgba(74,222,128,.12);  color: #86efac;  border: 1px solid rgba(74,222,128,.3); }
+  .pill-groq    { background: rgba(251,146,60,.12);  color: #fdba74;  border: 1px solid rgba(251,146,60,.3); }
+  .pill-ollama  { background: rgba(14,165,233,.12);  color: #7dd3fc;  border: 1px solid rgba(14,165,233,.3); }
+
+  /* Badge row */
+  .badge-row { display: flex; gap: 8px; align-items: center; }
+  .badge {
+    padding: 5px 12px; border-radius: 6px;
+    font-size: .74em; font-weight: 700;
+  }
+  .badge-free { background: #166534; color: #4ade80; }
+  .badge-lgpl { background: #1e1b4b; color: #a5b4fc; border: 1px solid rgba(165,180,252,.3); }
+  .badge-ce   { background: #422006; color: #fed7aa; }
+  .badge-tg   { background: #1a3a5c; color: #5fb3f5; }
+  .badge-wa   { background: #064e3b; color: #34d399; }
+  .badge-ml   { background: #4a1d96; color: #c4b5fd; }
+
+  /* ── RIGHT PANEL — dual phone mockups ── */
+  .right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding-left: 12px;
+  }
+
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .phone-label {
+    font-size: .72em; font-weight: 700; letter-spacing: .6px;
+    text-transform: uppercase;
+  }
+  .phone-label.tg { color: #5fb3f5; }
+  .phone-label.wa { color: #25d366; }
+
+  .phone {
+    width: 236px;
+    background: #1a1a2e;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,.55);
+  }
+  .phone-tg { border: 1px solid #2d3a6b; }
+  .phone-wa { border: 1px solid #1a3a2a; }
+
+  .phone-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+  }
+  .phone-bar.tg-bar { background: #1e2a3b; }
+  .phone-bar.wa-bar { background: #1b2b22; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot-tg { background: #5fb3f5; }
+  .dot-wa { background: #25d366; }
+  .bar-name { color: #fff; font-size: .78em; font-weight: 600; }
+  .bar-status { font-size: .65em; }
+  .bar-status.tg { color: #5fb3f5; }
+  .bar-status.wa { color: #25d366; }
+
+  .chat { background: #0d1117; padding: 10px 9px; display: flex; flex-direction: column; gap: 6px; }
+
+  .msg { max-width: 86%; padding: 7px 10px; border-radius: 11px; font-size: .72em; line-height: 1.45; }
+  .msg-u    { align-self: flex-end; background: #2b5278; color: #fff; border-radius: 11px 11px 2px 11px; }
+  .msg-u-wa { align-self: flex-end; background: #005c4b; color: #fff; border-radius: 11px 11px 2px 11px; }
+  .msg-b    { align-self: flex-start; background: #1a2535; color: #d1dbe8; border-radius: 11px 11px 11px 2px; }
+  .msg-b-wa { align-self: flex-start; background: #1a2e22; color: #d1dbe8; border-radius: 11px 11px 11px 2px; }
+  .msg-b strong    { color: #7dd3fc; }
+  .msg-b-wa strong { color: #4ade80; }
+  .btn-row { display: flex; gap: 5px; margin-top: 4px; }
+  .btn { padding: 4px 10px; border-radius: 5px; font-size: .75em; font-weight: 600; }
+  .btn-yes { background: #166534; color: #4ade80; }
+  .btn-no  { background: #7f1d1d; color: #f87171; }
+
+  .phone-input { padding: 8px 10px; }
+  .phone-input-inner {
+    background: #17212b; border-radius: 14px; padding: 6px 11px;
+    color: #4a6080; font-size: .68em;
+  }
+
+  /* ── STATS column ── */
+  .stats {
+    display: flex; flex-direction: column; gap: 8px;
+    flex: 0 0 auto;
+  }
+  .stat {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 12px; padding: 12px 16px;
+    text-align: center; min-width: 108px;
+  }
+  .stat .num { font-size: 1.65em; font-weight: 800; color: #a78bfa; line-height: 1; }
+  .stat .lbl { font-size: .65em; color: #94a3b8; margin-top: 4px; line-height: 1.3; }
+</style>
+</head>
+<body>
+<div class="bg">
+  <div class="orb1"></div>
+  <div class="orb2"></div>
+  <div class="orb3"></div>
+</div>
+
+<div class="layout">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="logo-row">
+      <div class="logo-icon">🤖</div>
+      <div class="logo-text">OdooPilot</div>
+    </div>
+
+    <div class="tagline">
+      Your Odoo ERP — answerable in<br>
+      <span class="tg">Telegram</span> &amp; <span class="wa">WhatsApp</span>
+    </div>
+    <div class="sub-tagline">
+      Claude AI &nbsp;|&nbsp; GPT-4 &nbsp;|&nbsp; Groq &nbsp;|&nbsp; Ollama &nbsp;|&nbsp; 100% self-hosted
+    </div>
+
+    <div class="features">
+      <div class="feat"><span class="feat-arrow">→</span> Natural language — no training, no forms</div>
+      <div class="feat"><span class="feat-arrow">→</span> Read &amp; write: tasks, sales, invoices, HR</div>
+      <div class="feat"><span class="feat-arrow">→</span> Daily push alerts — Telegram <strong>&amp; WhatsApp</strong></div>
+      <div class="feat"><span class="feat-arrow">→</span> <strong>15 languages</strong> · /language command</div>
+      <div class="feat"><span class="feat-arrow">→</span> Full audit trail · LGPL-3 · 100% free</div>
+    </div>
+
+    <div class="pill-row">
+      <span class="pill pill-claude">Claude</span>
+      <span class="pill pill-gpt">GPT-4o</span>
+      <span class="pill pill-groq">Groq</span>
+      <span class="pill pill-ollama">Ollama</span>
+    </div>
+
+    <div class="badge-row">
+      <span class="badge badge-free">FREE</span>
+      <span class="badge badge-lgpl">LGPL-3</span>
+      <span class="badge badge-ce">Odoo 17 Community</span>
+      <span class="badge badge-tg">✈ Telegram</span>
+      <span class="badge badge-wa">📱 WhatsApp</span>
+      <span class="badge badge-ml">🌐 15 Languages</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: Dual phones -->
+  <div class="right">
+
+    <!-- Telegram phone -->
+    <div class="phone-wrap">
+      <div class="phone-label tg">✈ Telegram</div>
+      <div class="phone phone-tg">
+        <div class="phone-bar tg-bar">
+          <div class="dot dot-tg"></div>
+          <div>
+            <div class="bar-name">OdooPilot Bot</div>
+            <div class="bar-status tg">online</div>
+          </div>
+        </div>
+        <div class="chat">
+          <div class="msg msg-u">Show my overdue invoices</div>
+          <div class="msg msg-b">
+            <strong>7 overdue invoices</strong><br>
+            Total: EUR 14,320<br>Oldest: 42 days
+          </div>
+          <div class="msg msg-u">Confirm order SO-0042</div>
+          <div class="msg msg-b">
+            Confirm SO-0042<br>for Acme Corp (EUR 4,800)?
+            <div class="btn-row">
+              <span class="btn btn-yes">Yes</span>
+              <span class="btn btn-no">No</span>
+            </div>
+          </div>
+          <div class="msg msg-u">Yes</div>
+          <div class="msg msg-b">✅ <strong>SO-0042 confirmed!</strong></div>
+        </div>
+        <div class="phone-input">
+          <div class="phone-input-inner">Ask anything...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WhatsApp phone -->
+    <div class="phone-wrap">
+      <div class="phone-label wa">📱 WhatsApp</div>
+      <div class="phone phone-wa">
+        <div class="phone-bar wa-bar">
+          <div class="dot dot-wa"></div>
+          <div>
+            <div class="bar-name">OdooPilot</div>
+            <div class="bar-status wa">online</div>
+          </div>
+        </div>
+        <div class="chat">
+          <div class="msg msg-u-wa">What tasks are due today?</div>
+          <div class="msg msg-b-wa">
+            <strong>3 tasks due today:</strong><br>
+            ⚠️ Update catalogue<br>
+            📅 Review Q2 report<br>
+            📅 Onboard supplier
+          </div>
+          <div class="msg msg-u-wa">Approve Jane's leave</div>
+          <div class="msg msg-b-wa">
+            Approve Annual Leave<br>for Jane Smith (Mon–Wed)?
+            <div class="btn-row">
+              <span class="btn btn-yes">Yes</span>
+              <span class="btn btn-no">No</span>
+            </div>
+          </div>
+          <div class="msg msg-u-wa">Yes</div>
+          <div class="msg msg-b-wa">✅ <strong>Leave approved!</strong></div>
+        </div>
+        <div class="phone-input">
+          <div class="phone-input-inner">Message OdooPilot...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats column -->
+    <div class="stats">
+      <div class="stat"><div class="num">8</div><div class="lbl">Business<br>domains</div></div>
+      <div class="stat"><div class="num">2</div><div class="lbl">Channels<br>TG + WA</div></div>
+      <div class="stat"><div class="num">4+</div><div class="lbl">LLM<br>providers</div></div>
+      <div class="stat"><div class="num">15</div><div class="lbl">Languages<br>supported</div></div>
+      <div class="stat"><div class="num">0€</div><div class="lbl">Cost to<br>install</div></div>
+    </div>
+
+  </div><!-- /right -->
+</div><!-- /layout -->
+</body>
+</html>
