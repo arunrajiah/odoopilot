@@ -46,6 +46,27 @@ class ResConfigSettings(models.TransientModel):
         help="Leave blank to use provider default: claude-3-5-haiku-20241022 / gpt-4o-mini / llama-3.1-70b-versatile",
     )
 
+    # WhatsApp
+    odoopilot_whatsapp_enabled = fields.Boolean(
+        string="WhatsApp Enabled",
+        config_parameter="odoopilot.whatsapp_enabled",
+    )
+    odoopilot_whatsapp_phone_number_id = fields.Char(
+        string="Phone Number ID",
+        config_parameter="odoopilot.whatsapp_phone_number_id",
+        help="From Meta Developer console → WhatsApp → API Setup.",
+    )
+    odoopilot_whatsapp_access_token = fields.Char(
+        string="Access Token",
+        config_parameter="odoopilot.whatsapp_access_token",
+        help="Permanent system user token or temporary test token from Meta.",
+    )
+    odoopilot_whatsapp_verify_token = fields.Char(
+        string="Verify Token",
+        config_parameter="odoopilot.whatsapp_verify_token",
+        help="Any random string you choose — paste the same value in the Meta webhook config.",
+    )
+
     # Notifications
     odoopilot_notify_task_digest = fields.Boolean(
         string="Daily task digest",
@@ -100,6 +121,42 @@ class ResConfigSettings(models.TransientModel):
         raise UserError(
             _(f"Telegram error: {data.get('description', 'Unknown error')}")
         )
+
+    def action_test_whatsapp_connection(self):
+        """Verify the WhatsApp phone number ID and access token via Graph API."""
+        phone_number_id = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("odoopilot.whatsapp_phone_number_id")
+        )
+        access_token = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("odoopilot.whatsapp_access_token")
+        )
+        if not phone_number_id or not access_token:
+            raise UserError(
+                _("Please save the Phone Number ID and Access Token first.")
+            )
+        resp = requests.get(
+            f"https://graph.facebook.com/v19.0/{phone_number_id}",
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=10,
+        )
+        data = resp.json()
+        if resp.status_code == 200 and data.get("id"):
+            display = data.get("display_phone_number", phone_number_id)
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Connected!"),
+                    "message": f"WhatsApp number: {display}",
+                    "type": "success",
+                },
+            }
+        error = data.get("error", {}).get("message", "Unknown error")
+        raise UserError(_(f"WhatsApp API error: {error}"))
 
     def action_test_telegram_connection(self):
         """Test bot token by calling getMe."""

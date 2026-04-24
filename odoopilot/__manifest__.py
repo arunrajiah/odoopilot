@@ -1,7 +1,7 @@
 {
     "name": "OdooPilot — AI Telegram Bot for Odoo",
     "summary": "Chat with your Odoo ERP via Telegram using Claude AI, GPT-4 or Groq. Natural language queries, write actions, push alerts. Free & open-source.",
-    "version": "17.0.4.0.0",
+    "version": "17.0.5.0.0",
     "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",

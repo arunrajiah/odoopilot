@@ -6,49 +6,61 @@ import logging
 from datetime import date
 
 from .telegram import TelegramClient
+from .whatsapp import WhatsAppClient
 
 _logger = logging.getLogger(__name__)
 
 
-def _get_telegram_client(env) -> TelegramClient | None:
-    """Return a TelegramClient if the bot is configured and enabled, else None."""
+def _get_client_for_identity(env, identity):
+    """Return the right messaging client for the given identity's channel, or None."""
     cfg = env["ir.config_parameter"].sudo()
-    if not cfg.get_param("odoopilot.telegram_enabled"):
-        return None
-    token = cfg.get_param("odoopilot.telegram_bot_token")
-    if not token:
-        return None
-    return TelegramClient(token)
+    channel = identity.channel
+
+    if channel == "telegram":
+        if not cfg.get_param("odoopilot.telegram_enabled"):
+            return None
+        token = cfg.get_param("odoopilot.telegram_bot_token")
+        return TelegramClient(token) if token else None
+
+    if channel == "whatsapp":
+        if not cfg.get_param("odoopilot.whatsapp_enabled"):
+            return None
+        phone_number_id = cfg.get_param("odoopilot.whatsapp_phone_number_id")
+        access_token = cfg.get_param("odoopilot.whatsapp_access_token")
+        return (
+            WhatsAppClient(phone_number_id, access_token)
+            if phone_number_id and access_token
+            else None
+        )
+
+    return None
 
 
 def send_task_digest(env) -> int:
-    """Send a daily task digest to every linked Telegram user who has tasks due today or overdue.
+    """Send a daily task digest to every linked user who has tasks due today or overdue.
 
+    Supports both Telegram and WhatsApp channels.
     Returns the number of users notified.
     """
     cfg = env["ir.config_parameter"].sudo()
     if not cfg.get_param("odoopilot.notify_task_digest"):
         return 0
 
-    tg = _get_telegram_client(env)
-    if not tg:
+    if "project.task" not in env.registry:
+        _logger.info("OdooPilot task digest skipped: Project module not installed")
         return 0
 
     today = date.today()
     today_str = today.strftime("%Y-%m-%d")
     notified = 0
 
-    identities = (
-        env["odoopilot.identity"]
-        .sudo()
-        .search([("channel", "=", "telegram"), ("active", "=", True)])
-    )
-
-    if "project.task" not in env.registry:
-        _logger.info("OdooPilot task digest skipped: Project module not installed")
-        return 0
+    identities = env["odoopilot.identity"].sudo().search([("active", "=", True)])
 
     for identity in identities:
+        client = _get_client_for_identity(env, identity)
+        if not client:
+            continue
+
         try:
             user_env = env(user=identity.user_id.id)
             tasks = user_env["project.task"].search(
@@ -89,7 +101,7 @@ def send_task_digest(env) -> int:
                 + "\n".join(lines)
                 + "\n\nReply with a question or action, e.g. <i>mark task X as done</i>."
             )
-            tg.send_message(identity.chat_id, msg)
+            client.send_message(identity.chat_id, msg)
             notified += 1
         except Exception:
             _logger.exception(
@@ -103,21 +115,14 @@ def send_task_digest(env) -> int:
 
 
 def send_invoice_alerts(env) -> int:
-    """Send overdue invoice alerts to linked Telegram users who have accounting access.
+    """Send overdue invoice alerts to linked users who have accounting access.
 
-    Only sends if the user has at least one overdue invoice to report.
+    Supports both Telegram and WhatsApp channels.
     Returns the number of users notified.
     """
     cfg = env["ir.config_parameter"].sudo()
     if not cfg.get_param("odoopilot.notify_invoice_alerts"):
         return 0
-
-    tg = _get_telegram_client(env)
-    if not tg:
-        return 0
-
-    today_str = date.today().strftime("%Y-%m-%d")
-    notified = 0
 
     if "account.move" not in env.registry:
         _logger.info(
@@ -125,19 +130,21 @@ def send_invoice_alerts(env) -> int:
         )
         return 0
 
-    identities = (
-        env["odoopilot.identity"]
-        .sudo()
-        .search([("channel", "=", "telegram"), ("active", "=", True)])
-    )
+    today_str = date.today().strftime("%Y-%m-%d")
+    notified = 0
+
+    identities = env["odoopilot.identity"].sudo().search([("active", "=", True)])
 
     for identity in identities:
+        client = _get_client_for_identity(env, identity)
+        if not client:
+            continue
+
         try:
             user_env = env(user=identity.user_id.id)
 
-            # Only proceed if the user can read account.move
-            if (
-                not user_env["res.users"]
+            if not (
+                user_env["res.users"]
                 .browse(identity.user_id.id)
                 .has_group("account.group_account_invoice")
             ):
@@ -169,9 +176,8 @@ def send_invoice_alerts(env) -> int:
                 f" (due {i.invoice_date_due})"
                 for i in invoices[:5]
             ]
-            more = len(invoices) - 5
-            if more > 0:
-                lines.append(f"  … and {more} more")
+            if len(invoices) > 5:
+                lines.append(f"  … and {len(invoices) - 5} more")
 
             msg = (
                 f"<b>📋 Overdue Invoice Alert</b>\n\n"
@@ -181,7 +187,7 @@ def send_invoice_alerts(env) -> int:
                 + "\n".join(lines)
                 + "\n\nReply <i>show overdue invoices</i> for the full list."
             )
-            tg.send_message(identity.chat_id, msg)
+            client.send_message(identity.chat_id, msg)
             notified += 1
         except Exception:
             _logger.exception(

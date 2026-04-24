@@ -5,6 +5,29 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [17.0.5.0.0] — 2026-04-23
+
+### Added — WhatsApp Cloud API channel
+
+- **`services/whatsapp.py`** — `WhatsAppClient`: `send_message`, `send_confirmation` (interactive buttons), `mark_read`
+- **`GET /odoopilot/webhook/whatsapp`** — hub.challenge verification endpoint for Meta webhook registration
+- **`POST /odoopilot/webhook/whatsapp`** — receive and dispatch WhatsApp updates asynchronously
+- Full `/link` flow for WhatsApp: one-time token → magic link → identity created → welcome message sent back via WhatsApp
+- `/start` and `/link` commands via WhatsApp
+- Yes/No confirmation via WhatsApp interactive button replies (`button_reply`)
+- Incoming messages marked as read automatically
+- Settings: `whatsapp_enabled`, `whatsapp_phone_number_id`, `whatsapp_access_token`, `whatsapp_verify_token`
+- **Test connection** action button in Settings verifies phone number ID + access token via Graph API
+- Proactive notifications (`send_task_digest`, `send_invoice_alerts`) now send to WhatsApp identities as well as Telegram
+- `_get_client_for_identity()` helper in notifications — dispatches to right client per channel
+
+### Changed
+
+- `notifications.py` no longer hardcodes `channel="telegram"` — now queries all active identities and selects the right client
+- Notification functions doc-strings updated to mention both channels
+
+---
+
 ## [17.0.4.0.0] — 2026-04-23
 
 ### Added
@@ -95,6 +118,6 @@ The project has been restructured from a two-component system (FastAPI service +
 |---------|--------|-------------|
 | **17.0.3.0.0** | ✅ Released | New write tools · get_my_leaves · 72h session TTL · human-readable confirmations · per-tool audit log |
 | **17.0.4.0.0** | ✅ Released | Proactive notifications — daily task digest (08:00 UTC) · overdue invoice alerts (09:00 UTC) |
-| **17.0.5.0.0** | Q3 2026 | WhatsApp Cloud API channel |
-| **17.0.6.0.0** | Q4 2026 | Multi-language support · per-user language preference |
+| **17.0.5.0.0** | ✅ Released | WhatsApp Cloud API — full channel parity with Telegram |
+| **17.0.6.0.0** | 🔜 Next | Multi-language support · per-user language preference |
 | **18.0.1.0.0** | Q4 2026 | Odoo 18 port · OCA submission |

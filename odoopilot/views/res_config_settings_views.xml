@@ -36,6 +36,34 @@
                             </div>
                         </div>
 
+                        <!-- WhatsApp -->
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="odoopilot_whatsapp_enabled"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="odoopilot_whatsapp_enabled" string="Enable WhatsApp"/>
+                                <div class="text-muted">Activate the WhatsApp Cloud API bot.</div>
+                                <div class="content-group" invisible="not odoopilot_whatsapp_enabled">
+                                    <div class="mt8">
+                                        <field name="odoopilot_whatsapp_phone_number_id" string="Phone Number ID" placeholder="123456789012345"/>
+                                    </div>
+                                    <div class="mt4">
+                                        <field name="odoopilot_whatsapp_access_token" string="Access Token" widget="password" placeholder="EAABxx..."/>
+                                    </div>
+                                    <div class="mt4">
+                                        <field name="odoopilot_whatsapp_verify_token" string="Verify Token" widget="password" placeholder="any random string"/>
+                                    </div>
+                                    <div class="mt8">
+                                        <button name="action_test_whatsapp_connection" type="object" string="Test connection" class="btn btn-secondary btn-sm"/>
+                                    </div>
+                                    <div class="text-muted mt4">
+                                        Set the webhook URL in Meta Developer console to <code>YOUR_ODOO_URL/odoopilot/webhook/whatsapp</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- LLM -->
                         <div class="col-12 col-lg-6 o_setting_box">
                             <div class="o_setting_left_pane"/>

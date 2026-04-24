@@ -1,1 +1,1 @@
-from . import agent, llm, notifications, telegram, tools  # noqa: F401
+from . import agent, llm, notifications, telegram, tools, whatsapp  # noqa: F401
