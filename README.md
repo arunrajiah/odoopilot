@@ -1,6 +1,6 @@
 # OdooPilot
 
-**AI assistant for Odoo — query and act on your business data from Telegram, in plain language.**
+**Free, open-source AI agent for Odoo — query live ERP data and take real actions via Telegram and WhatsApp, in plain language.**
 
 ```
 You:        "What tasks are assigned to me today?"
@@ -11,7 +11,9 @@ You:        "Mark the first one as done."
 OdooPilot:  "✅ Update product catalogue marked as done in Odoo."
 ```
 
-No external service to host. No per-seat SaaS fees. Everything runs inside your Odoo instance.
+No external service to host. No per-seat SaaS fees. Everything runs inside your Odoo instance.  
+Powered by **Claude AI**, **ChatGPT / GPT-4**, **Groq** (free tier), or **Ollama** (100% local).  
+Works on **Telegram** and **WhatsApp**. Supports **15 languages**. LGPL-3 open-source.
 
 ---
 
@@ -19,12 +21,18 @@ No external service to host. No per-seat SaaS fees. Everything runs inside your 
 
 | | OdooPilot | Paid chatbot modules | OCA mail_gateway |
 |---|---|---|---|
-| Open-source | ✅ LGPL-3 | ❌ | ✅ |
+| Open-source | ✅ LGPL-3 | ❌ OPL | ✅ |
+| Price | ✅ Free | ❌ EUR 150–360 | ✅ Free |
 | All-in-one Odoo addon | ✅ | ❌ external service | — |
-| Employee-facing AI | ✅ | ❌ customer-facing | — |
-| Multi-provider LLM | ✅ Anthropic / OpenAI / Groq | ❌ OpenAI only | — |
-| Telegram | ✅ | rarely | ✅ transport only |
-| Odoo Community | ✅ | mixed | ✅ |
+| Employee-facing AI agent | ✅ | ❌ customer-facing | — |
+| Multi-provider LLM (Claude, GPT-4, Groq, Ollama) | ✅ | ❌ OpenAI only | — |
+| Telegram | ✅ native bot | rarely | ✅ transport only |
+| WhatsApp | ✅ Cloud API | rarely | ❌ |
+| Write actions with confirmation | ✅ 5 write tools | ❌ read-only | — |
+| Proactive push notifications | ✅ tasks + invoices | ❌ | — |
+| Multi-language (15 languages) | ✅ /language command | ❌ | — |
+| Full audit trail | ✅ immutable log | ~ basic | — |
+| Odoo 17 Community | ✅ | mixed | ✅ |
 | No extra infrastructure | ✅ | ❌ | ✅ |
 
 ---
