@@ -126,9 +126,7 @@ class LLMClient:
 
         if "choices" not in data or not data["choices"]:
             error = data.get("error", {})
-            raise RuntimeError(
-                error.get("message", "LLM API returned no choices")
-            )
+            raise RuntimeError(error.get("message", "LLM API returned no choices"))
         choice = data["choices"][0]
         msg = choice["message"]
         text = msg.get("content") or ""

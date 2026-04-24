@@ -38,4 +38,3 @@ class OdooPilotIdentity(models.Model):
     def _cron_invoice_alerts(self):
         """Cron entry point: send overdue invoice alerts to linked users with accounting access."""
         notifications.send_invoice_alerts(self.env)
-

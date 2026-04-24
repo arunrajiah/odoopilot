@@ -162,8 +162,10 @@ class OdooPilotController(http.Controller):
     def _cleanup_expired_link_tokens(self, env):
         """Remove all expired OdooPilot link tokens from ir.config_parameter."""
         now = int(time.time())
-        params = env["ir.config_parameter"].sudo().search(
-            [("key", "like", "odoopilot.link_token.")]
+        params = (
+            env["ir.config_parameter"]
+            .sudo()
+            .search([("key", "like", "odoopilot.link_token.")])
         )
         for param in params:
             try:

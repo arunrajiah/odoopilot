@@ -382,7 +382,9 @@ def get_stock_products(env, name=None, low_stock_only=False, limit=10, **_):
     products = env["product.product"].search(domain, limit=int(limit))
     if not products:
         return "No products found."
-    lines = [f"- {p.display_name} — {p.qty_available} {p.uom_id.name}" for p in products]
+    lines = [
+        f"- {p.display_name} — {p.qty_available} {p.uom_id.name}" for p in products
+    ]
     return f"Products ({len(lines)}):\n" + "\n".join(lines)
 
 
