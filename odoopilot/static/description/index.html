@@ -1,1528 +1,644 @@
-<!-- OdooPilot v17.0.6.0.0 | Odoo App Store Listing
-     SEO Keywords: Odoo AI chatbot, Odoo AI agent, Odoo AI copilot, Odoo AI assistant,
-     Telegram bot Odoo, WhatsApp bot Odoo, ChatGPT Odoo, Claude AI Odoo, GPT-4 Odoo,
-     Groq Odoo, natural language ERP, Odoo NLQ, Odoo chatbot free, Odoo copilot,
-     Odoo 17 AI, Odoo 17 Community AI, free AI Odoo, ERP chatbot open source,
-     Odoo AI assistant employee, Odoo automation, Odoo push notifications,
-     Odoo audit log, multi-LLM Odoo, multi-language Odoo bot, Odoo write actions,
-     Odoo Telegram integration, Odoo WhatsApp integration, self-hosted Odoo AI,
-     on-premise Odoo AI, LGPL Odoo AI, open source Odoo chatbot, agentic AI Odoo,
-     Odoo LLM integration, Odoo conversational AI, Odoo business intelligence chatbot
+<!-- OdooPilot v17.0 | Odoo App Store Listing
+     Keywords: Odoo AI chatbot, Odoo Telegram bot, Odoo WhatsApp bot, Odoo AI agent,
+     Odoo AI copilot, Odoo AI assistant, ChatGPT Odoo, Claude AI Odoo, GPT-4 Odoo,
+     Groq Odoo, natural language ERP, Odoo NLQ, free AI Odoo, open source Odoo chatbot,
+     Odoo 17 AI, Odoo 17 Community AI, ERP chatbot open source, self-hosted Odoo AI,
+     on-premise Odoo AI, LGPL Odoo AI, agentic AI Odoo, Odoo LLM integration,
+     Odoo write actions, Odoo proactive notifications, multi-LLM Odoo
 -->
-<style>
-/* -- Reset & Base -- */
-.op { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      color: #1e293b; line-height: 1.6; max-width: 960px; margin: 0 auto; }
-.op * { box-sizing: border-box; }
+<div style="max-width:900px; margin:0 auto; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1e293b; line-height:1.6;">
 
-/* -- Hero -- */
-.op-hero {
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #0c1a3a 100%);
-  border-radius: 18px; padding: 60px 44px 52px; text-align: center; margin-bottom: 0;
-}
-.op-badge-row { margin-bottom: 26px; display: -webkit-flex; display: flex;
-  flex-wrap: wrap; justify-content: center; gap: 6px; }
-.op-badge {
-  display: inline-block; padding: 5px 14px; border-radius: 99px;
-  font-size: 0.78em; font-weight: 700; letter-spacing: 0.3px;
-}
-.op-b-free { background: #dcfce7; color: #15803d; }
-.op-b-lgpl { background: #e0e7ff; color: #4338ca; }
-.op-b-ce   { background: #fef9c3; color: #854d0e; }
-.op-b-tg   { background: #dbeafe; color: #1e40af; }
-.op-b-wa   { background: #dcfce7; color: #166534; }
-.op-b-ml   { background: #fce7f3; color: #9d174d; }
-.op-hero h1 {
-  font-size: 3.2em; font-weight: 800; color: #fff;
-  margin: 0 0 16px; letter-spacing: -1.5px; line-height: 1.1;
-}
-.op-hero-tagline {
-  font-size: 1.15em; color: #cbd5e1; max-width: 660px;
-  margin: 0 auto 12px; line-height: 1.65;
-}
-.op-hero-tagline strong { color: #fff; }
-.op-hero-providers {
-  font-size: 0.88em; color: #64748b; margin: 0 auto 32px; max-width: 560px;
-}
-.op-hero-providers span { color: #a78bfa; font-weight: 600; }
-.op-cta-row { display: -webkit-flex; display: flex;
-  flex-wrap: wrap; justify-content: center; gap: 10px; }
-.op-cta {
-  display: inline-block; padding: 14px 34px; border-radius: 9px;
-  font-weight: 700; font-size: 0.96em; text-decoration: none;
-}
-.op-cta-primary   { background: #7c3aed; color: #fff; }
-.op-cta-secondary {
-  background: rgba(255,255,255,0.08); color: #c4b5fd;
-  border: 1.5px solid rgba(255,255,255,0.18);
-}
+<!-- ===== HERO ===== -->
+<div style="background:#1e1b4b; border-radius:14px; padding:50px 40px 44px; text-align:center; margin-bottom:20px;">
 
-/* -- Hero price comparison -- */
-.op-hero-price-row {
-  display: -webkit-flex; display: flex;
-  align-items: center; justify-content: center; gap: 14px;
-  flex-wrap: wrap; margin: 24px auto 18px; max-width: 520px;
-}
-.op-hero-price-card {
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 12px; padding: 14px 22px; text-align: center; flex: 1 1 180px;
-}
-.op-hero-price-card-free {
-  background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.35);
-}
-.op-hero-price-label { font-size: 0.72em; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.op-hero-price-num { font-size: 1.5em; font-weight: 800; color: #fff; line-height: 1; margin-bottom: 4px; }
-.op-hero-price-card-free .op-hero-price-num { color: #4ade80; }
-.op-hero-price-sub { font-size: 0.68em; color: #64748b; }
-.op-hero-price-card-free .op-hero-price-sub { color: #86efac; }
-.op-hero-price-vs { font-size: 0.9em; font-weight: 800; color: #475569; flex-shrink: 0; }
-
-/* -- Differentiator grid -- */
-.op-diff-wrap {
-  padding: 32px 0 20px;
-}
-.op-diff-grid {
-  display: -webkit-flex; display: flex;
-  flex-wrap: wrap; gap: 14px;
-}
-.op-diff-card {
-  background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
-  padding: 26px 22px; flex: 1 1 200px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-  border-top: 3px solid #7c3aed;
-}
-.op-diff-card:nth-child(1) { border-top-color: #15803d; }
-.op-diff-card:nth-child(2) { border-top-color: #7c3aed; }
-.op-diff-card:nth-child(3) { border-top-color: #0891b2; }
-.op-diff-card:nth-child(4) { border-top-color: #b45309; }
-.op-diff-card h3 { font-size: 0.97em; font-weight: 800; color: #0f172a; margin: 0 0 8px; }
-.op-diff-card p  { font-size: 0.85em; color: #475569; margin: 0; line-height: 1.6; }
-
-/* -- Channel strip -- */
-.op-channels {
-  display: -webkit-flex; display: flex;
-  gap: 14px; justify-content: center; flex-wrap: wrap;
-  padding: 20px 0;
-}
-.op-ch {
-  display: -webkit-flex; display: flex;
-  align-items: center; gap: 12px;
-  background: #fff; border-radius: 12px; padding: 14px 26px;
-  font-weight: 700; font-size: 0.95em;
-  box-shadow: 0 2px 14px rgba(0,0,0,0.07);
-  flex: 1 1 220px; max-width: 300px;
-}
-.op-ch-icon {
-  width: 40px; height: 40px; border-radius: 50%;
-  display: -webkit-flex; display: flex;
-  align-items: center; justify-content: center;
-  font-size: 0.72em; font-weight: 800; letter-spacing: 0.5px;
-  flex-shrink: 0;
-}
-.op-ch-tg .op-ch-icon { background: #2b7fbe; color: #fff; }
-.op-ch-wa .op-ch-icon { background: #25d366; color: #fff; }
-.op-ch-tg { border: 1.5px solid #bfdbfe; color: #1e40af; }
-.op-ch-wa { border: 1.5px solid #bbf7d0; color: #166534; }
-.op-ch-body { display: -webkit-flex; display: flex; flex-direction: column; }
-.op-ch-title { font-weight: 700; }
-.op-ch-sub { font-size: 0.74em; color: #64748b; font-weight: 400; margin-top: 2px; }
-
-/* -- Stats bar -- */
-.op-stats-wrap {
-  background: #f8fafc; border-radius: 14px; padding: 32px 24px; margin: 4px 0;
-}
-.op-stats-label {
-  text-align: center; font-size: 0.78em; font-weight: 700; color: #94a3b8;
-  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px;
-}
-.op-stats {
-  display: -webkit-flex; display: flex;
-  flex-wrap: wrap; gap: 12px; justify-content: center;
-}
-.op-stat {
-  text-align: center; background: #fff; border-radius: 12px;
-  padding: 20px 16px; border: 1px solid #e2e8f0;
-  flex: 1 1 110px; max-width: 150px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.op-stat .num { font-size: 2em; font-weight: 800; color: #7c3aed; line-height: 1; }
-.op-stat .lbl { font-size: 0.76em; color: #64748b; margin-top: 6px; line-height: 1.35; }
-
-/* -- Zero Risk strip -- */
-.op-zerorisk {
-  display: -webkit-flex; display: flex;
-  flex-wrap: wrap; align-items: center; justify-content: center;
-  gap: 6px 0; background: #f0fdf4;
-  border: 1px solid #bbf7d0; border-radius: 12px;
-  padding: 14px 20px; margin: 12px 0;
-}
-.op-zr-item {
-  display: -webkit-flex; display: flex;
-  align-items: center; gap: 6px;
-  font-size: 0.84em; font-weight: 600; color: #15803d;
-  padding: 4px 14px;
-}
-.op-zr-icon { font-size: 1em; color: #16a34a; font-weight: 800; }
-.op-zr-div { width: 1px; height: 20px; background: #bbf7d0; flex-shrink: 0; }
-
-/* -- Section layout -- */
-.op-section { padding: 48px 0 32px; }
-.op-section-alt {
-  background: #f8fafc; border-radius: 16px;
-  padding: 44px 36px; margin: 8px 0;
-}
-.op-h2 {
-  font-size: 1.8em; font-weight: 800; color: #0f172a;
-  text-align: center; margin: 0 0 10px; line-height: 1.25;
-}
-.op-new-badge {
-  display: inline-block; background: #7c3aed; color: #fff;
-  font-size: 0.42em; font-weight: 700; padding: 3px 10px;
-  border-radius: 99px; vertical-align: middle; margin-left: 10px;
-  letter-spacing: 0.5px; position: relative; top: -5px;
-}
-.op-lead {
-  text-align: center; color: #475569; font-size: 1.05em;
-  margin: 0 auto 36px; max-width: 680px; line-height: 1.7;
-}
-
-/* -- Circle icons -- */
-.op-circle {
-  width: 46px; height: 46px; border-radius: 50%;
-  display: -webkit-flex; display: flex;
-  align-items: center; justify-content: center;
-  font-size: 0.8em; font-weight: 800; color: #fff;
-  flex-shrink: 0; margin-bottom: 14px;
-}
-
-/* -- Feature tags -- */
-.op-tags { display: -webkit-flex; display: flex;
-  flex-wrap: wrap; gap: 5px; margin-top: 12px; }
-.op-tag {
-  display: inline-block; padding: 3px 10px; border-radius: 99px;
-  font-size: 0.76em; font-weight: 600;
-  background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
-}
-
-/* -- Demo phones -- */
-.op-demo-row {
-  display: -webkit-flex; display: flex;
-  gap: 24px; justify-content: center; flex-wrap: wrap;
-}
-.op-demo-col { flex: 0 0 290px; max-width: 290px; }
-.op-demo-label {
-  text-align: center; font-size: 0.76em; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px;
-  padding: 5px 0; border-radius: 6px;
-}
-.op-demo-label.tg { color: #2b7fbe; background: #eff6ff; }
-.op-demo-label.wa { color: #128c7e; background: #f0fdf4; }
-.op-phone {
-  border-radius: 22px; overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.32);
-}
-.op-phone-tg { background: #1a1a2e; border: 1.5px solid #2d3a6b; }
-.op-phone-wa { background: #111b21; border: 1.5px solid #1a3a2a; }
-.op-bar {
-  display: -webkit-flex; display: flex;
-  align-items: center; gap: 9px; padding: 10px 14px;
-}
-.op-bar-tg { background: #1e2a3b; }
-.op-bar-wa { background: #1f2c34; }
-.op-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.op-dot-tg { background: #5fb3f5; }
-.op-dot-wa { background: #25d366; }
-.op-bar-name { color: #fff; font-size: 0.82em; font-weight: 600; }
-.op-bar-status { font-size: 0.68em; margin-top: 1px; }
-.op-bar-status.tg { color: #5fb3f5; }
-.op-bar-status.wa { color: #25d366; }
-.op-chat {
-  background: #0d1117; padding: 12px 10px;
-  display: -webkit-flex; display: flex;
-  flex-direction: column; gap: 7px;
-}
-.op-chat-wa { background: #0b141a; }
-.op-msg {
-  max-width: 86%; padding: 8px 11px;
-  border-radius: 12px; font-size: 0.79em; line-height: 1.45;
-}
-.op-msg-user-tg {
-  align-self: flex-end; background: #2b5278; color: #fff;
-  border-radius: 12px 12px 2px 12px;
-}
-.op-msg-user-wa {
-  align-self: flex-end; background: #005c4b; color: #fff;
-  border-radius: 12px 12px 2px 12px;
-}
-.op-msg-bot-tg {
-  align-self: flex-start; background: #1a2535; color: #d1dbe8;
-  border-radius: 12px 12px 12px 2px;
-}
-.op-msg-bot-wa {
-  align-self: flex-start; background: #202c33; color: #d1dbe8;
-  border-radius: 12px 12px 12px 2px;
-}
-.op-msg-bot-tg strong { color: #7dd3fc; }
-.op-msg-bot-wa strong { color: #4ade80; }
-.op-confirm-btns { display: -webkit-flex; display: flex; gap: 6px; margin-top: 7px; }
-.op-btn-yes { background: #166534; color: #4ade80; padding: 4px 12px; border-radius: 5px; font-size: 0.82em; font-weight: 700; }
-.op-btn-no  { background: #7f1d1d; color: #f87171; padding: 4px 12px; border-radius: 5px; font-size: 0.82em; font-weight: 700; }
-.op-phone-input { padding: 8px 10px; background: #0d1117; }
-.op-phone-input-wa { background: #0b141a; }
-.op-phone-input-inner {
-  background: #17212b; border-radius: 18px;
-  padding: 7px 14px; color: #4a6080; font-size: 0.74em;
-}
-
-/* -- 3-col card grid -- */
-.op-grid3 {
-  display: -webkit-flex; display: flex;
-  flex-wrap: wrap; gap: 16px;
-}
-.op-grid3 .op-card { flex: 1 1 240px; }
-
-/* -- Card base -- */
-.op-card {
-  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
-  padding: 24px 20px; flex: 1 1 200px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  transition: border-color 0.2s;
-}
-.op-card:hover { border-color: #c4b5fd; box-shadow: 0 4px 18px rgba(124,58,237,0.1); }
-.op-card h3 { font-size: 0.97em; font-weight: 700; color: #0f172a; margin: 0 0 8px; }
-.op-card p  { font-size: 0.88em; color: #64748b; margin: 0; line-height: 1.6; }
-
-/* -- Write actions card strip -- */
-.op-write-strip {
-  display: -webkit-flex; display: flex;
-  flex-wrap: wrap; gap: 14px;
-}
-.op-write-card {
-  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
-  padding: 22px 18px; flex: 1 1 150px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-.op-write-card:hover { border-color: #c4b5fd; }
-.op-write-card h3 { font-size: 0.9em; font-weight: 700; color: #0f172a; margin: 0 0 6px; }
-.op-write-card p  { font-size: 0.83em; color: #64748b; margin: 0 0 10px; line-height: 1.55; }
-
-/* -- Safety alert -- */
-.op-alert {
-  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px;
-  padding: 16px 20px; font-size: 0.92em; color: #1e40af; margin: 16px 0; line-height: 1.6;
-}
-.op-alert strong { color: #1d4ed8; }
-.op-alert-green  { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
-.op-alert-green strong  { color: #15803d; }
-.op-alert-purple { background: #faf5ff; border-color: #e9d5ff; color: #6b21a8; }
-.op-alert-purple strong { color: #7c3aed; }
-.op-inline-code {
-  background: #f1f5f9; color: #7c3aed; padding: 1px 6px;
-  border-radius: 4px; font-family: monospace; font-size: 0.9em;
-}
-
-/* -- Language grid -- */
-.op-lang-grid {
-  display: -webkit-flex; display: flex;
-  flex-wrap: wrap; gap: 8px; margin: 20px 0;
-}
-.op-lang {
-  background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
-  padding: 10px 14px; font-size: 0.85em; text-align: center;
-  flex: 1 1 100px; min-width: 96px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-.op-lang .lc {
-  display: inline-block; background: #7c3aed; color: #fff;
-  font-size: 0.72em; font-weight: 700; padding: 2px 8px;
-  border-radius: 4px; font-family: monospace; margin-bottom: 5px;
-}
-.op-lang .ln { display: block; color: #374151; font-weight: 600; font-size: 0.9em; }
-
-/* -- Notification mockups -- */
-.op-notif {
-  background: #fff; border-radius: 10px; padding: 18px 22px;
-  margin: 12px 0; border-left: 4px solid #7c3aed; font-size: 0.9em;
-  line-height: 1.65; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-  border: 1px solid #e2e8f0; border-left-width: 4px; border-left-color: #7c3aed;
-}
-.op-notif strong { color: #4c1d95; }
-.op-notif-blue { border-left-color: #0ea5e9; }
-.op-notif-blue strong { color: #0369a1; }
-.op-notif-header {
-  font-size: 0.76em; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.6px; color: #94a3b8; margin-bottom: 8px;
-}
-
-/* -- LLM providers -- */
-.op-llm-row {
-  display: -webkit-flex; display: flex;
-  flex-wrap: wrap; gap: 14px; justify-content: center; margin: 24px 0;
-}
-.op-llm {
-  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
-  padding: 22px 20px; text-align: center; flex: 1 1 160px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-.op-llm:hover { border-color: #c4b5fd; }
-.op-llm-logo {
-  width: 46px; height: 46px; border-radius: 50%; margin: 0 auto 12px;
-  display: -webkit-flex; display: flex;
-  align-items: center; justify-content: center;
-  font-size: 0.72em; font-weight: 800; letter-spacing: 0.3px;
-}
-.op-llm-name { font-weight: 700; font-size: 0.97em; color: #0f172a; margin-bottom: 5px; }
-.op-llm-models { font-size: 0.78em; color: #64748b; line-height: 1.55; }
-.op-llm-pill {
-  display: inline-block; font-size: 0.72em; font-weight: 700;
-  padding: 2px 10px; border-radius: 99px; margin-top: 8px;
-}
-.op-llm-free  { background: #dcfce7; color: #166534; }
-.op-llm-local { background: #f3f4f6; color: #374151; }
-
-/* -- Comparison table -- */
-.op-table-wrap { overflow-x: auto; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-.op-table { width: 100%; border-collapse: collapse; font-size: 0.87em; min-width: 560px; }
-.op-table th {
-  background: #f1f5f9; padding: 12px 14px; text-align: left;
-  font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0;
-  white-space: nowrap;
-}
-.op-table th.op-hl-h { background: #f5f3ff; color: #6d28d9; }
-.op-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #374151; vertical-align: middle; }
-.op-table tr:last-child td { border-bottom: none; }
-.op-table tr:nth-child(even) td { background: #f8fafc; }
-.op-table .op-hl-col { background: #faf5ff !important; }
-.op-yes { color: #15803d; font-weight: 700; }
-.op-no  { color: #dc2626; }
-.op-part { color: #d97706; }
-
-/* -- How it works steps -- */
-.op-steps {
-  display: -webkit-flex; display: flex;
-  flex-wrap: wrap; gap: 16px;
-}
-.op-step {
-  background: #fff; border-radius: 12px; padding: 24px 20px;
-  flex: 1 1 200px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-  border: 1px solid #e2e8f0;
-}
-.op-step:hover { border-color: #c4b5fd; }
-.op-step-num {
-  width: 40px; height: 40px; border-radius: 50%;
-  display: -webkit-flex; display: flex;
-  align-items: center; justify-content: center;
-  font-size: 1.1em; font-weight: 800; color: #fff;
-  margin-bottom: 14px;
-}
-.op-step h3 { font-size: 0.95em; font-weight: 700; color: #0f172a; margin: 0 0 6px; }
-.op-step p  { font-size: 0.86em; color: #64748b; margin: 0; line-height: 1.6; }
-
-/* -- FAQ -- */
-.op-faq { list-style: none; margin: 0; padding: 0; }
-.op-faq li {
-  border-bottom: 1px solid #e2e8f0; padding: 20px 0;
-  display: -webkit-flex; display: flex; gap: 14px; align-items: flex-start;
-}
-.op-faq li:last-child { border-bottom: none; }
-.op-faq-q-icon {
-  width: 28px; height: 28px; border-radius: 50%; background: #f1f5f9;
-  color: #7c3aed; font-weight: 800; font-size: 0.85em;
-  display: -webkit-flex; display: flex;
-  align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 1px;
-}
-.op-faq-body { flex: 1; }
-.op-faq .q { font-weight: 700; color: #0f172a; margin-bottom: 8px; font-size: 0.97em; }
-.op-faq .a { color: #64748b; font-size: 0.9em; line-height: 1.7; }
-
-/* -- Resources section -- */
-.op-resources {
-  background: linear-gradient(135deg, #0f766e, #0e7490);
-  border-radius: 16px; padding: 44px 36px; margin: 8px 0;
-}
-.op-resources h2 { color: #fff; font-size: 1.8em; font-weight: 800; text-align: center; margin: 0 0 10px; }
-.op-resources .op-lead { color: #99f6e4; }
-.op-res-cols {
-  display: -webkit-flex; display: flex;
-  flex-wrap: wrap; gap: 20px;
-}
-.op-res-col {
-  flex: 1 1 200px; background: rgba(255,255,255,0.08);
-  border-radius: 12px; padding: 22px 20px;
-  border: 1px solid rgba(255,255,255,0.12);
-}
-.op-res-col h3 { color: #fff; font-size: 0.95em; font-weight: 700; margin: 0 0 14px; }
-.op-res-link {
-  display: block; color: #99f6e4; font-size: 0.88em;
-  text-decoration: none; padding: 5px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  font-weight: 500;
-}
-.op-res-link:last-child { border-bottom: none; }
-.op-res-link:hover { color: #fff; }
-.op-res-arrow { color: #5eead4; font-size: 0.8em; margin-right: 5px; }
-.op-res-meta { font-size: 0.82em; color: #5eead4; margin-top: 12px; line-height: 1.6; }
-
-/* -- Sponsor -- */
-.op-sponsor {
-  background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
-  border-radius: 16px; padding: 56px 36px; text-align: center;
-}
-.op-sponsor-heart {
-  width: 56px; height: 56px; border-radius: 50%; background: rgba(168,85,247,0.15);
-  border: 2px solid #7c3aed; display: -webkit-flex; display: flex;
-  align-items: center; justify-content: center;
-  font-size: 1.5em; margin: 0 auto 18px; color: #c084fc;
-}
-.op-sponsor h2 { color: #fff; font-size: 1.65em; font-weight: 800; margin: 0 0 12px; }
-.op-sponsor-lead { color: #94a3b8; max-width: 520px; margin: 0 auto 32px; line-height: 1.75; font-size: 0.97em; }
-.op-tiers {
-  display: -webkit-flex; display: flex;
-  flex-wrap: wrap; gap: 14px; max-width: 560px; margin: 0 auto 32px;
-  justify-content: center;
-}
-.op-tier {
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 12px; padding: 24px 18px; flex: 1 1 150px; text-align: center;
-}
-.op-tier.popular { border-color: #a855f7; background: rgba(168,85,247,0.12); }
-.op-tier .price { font-size: 1.25em; font-weight: 800; color: #fff; margin-bottom: 4px; }
-.op-tier .role  { font-size: 0.73em; color: #a855f7; font-weight: 700; margin: 6px 0 10px; text-transform: uppercase; letter-spacing: 0.6px; }
-.op-tier .desc  { font-size: 0.8em; color: #94a3b8; line-height: 1.55; }
-.op-sponsor-btn {
-  display: inline-block; background: #a855f7; color: #fff;
-  padding: 15px 44px; border-radius: 9px; font-weight: 700;
-  font-size: 1em; text-decoration: none;
-}
-.op-sponsor-btn:hover { background: #9333ea; }
-.op-sponsor-note { font-size: 0.78em; color: #475569; margin-top: 14px; }
-
-/* -- Utility -- */
-.op-mt { margin-top: 20px; }
-.op-mt8 { margin-top: 8px; }
-.op-text-center { text-align: center; }
-.op-divider { border: none; border-top: 1px solid #f1f5f9; margin: 6px 0; }
-</style>
-
-<div class="op">
-
-<!-- ============================================================
-     HERO
-============================================================ -->
-<div class="op-hero">
-  <div class="op-badge-row">
-    <span class="op-badge op-b-free">100% FREE</span>
-    <span class="op-badge op-b-lgpl">LGPL-3 Open Source</span>
-    <span class="op-badge op-b-ce">Odoo 17 Community</span>
-    <span class="op-badge op-b-tg">Telegram</span>
-    <span class="op-badge op-b-wa">WhatsApp</span>
-    <span class="op-badge op-b-ml">15 Languages</span>
+  <div style="margin-bottom:22px;">
+    <span style="display:inline-block; background:#dcfce7; color:#15803d; padding:5px 14px; border-radius:99px; font-size:0.78em; font-weight:700; margin:3px;">100% FREE</span>
+    <span style="display:inline-block; background:#e0e7ff; color:#4338ca; padding:5px 14px; border-radius:99px; font-size:0.78em; font-weight:700; margin:3px;">LGPL-3 Open Source</span>
+    <span style="display:inline-block; background:#fef9c3; color:#854d0e; padding:5px 14px; border-radius:99px; font-size:0.78em; font-weight:700; margin:3px;">Odoo 17 Community</span>
+    <span style="display:inline-block; background:#dbeafe; color:#1e40af; padding:5px 14px; border-radius:99px; font-size:0.78em; font-weight:700; margin:3px;">Telegram</span>
+    <span style="display:inline-block; background:#dcfce7; color:#166534; padding:5px 14px; border-radius:99px; font-size:0.78em; font-weight:700; margin:3px;">WhatsApp</span>
+    <span style="display:inline-block; background:#fce7f3; color:#9d174d; padding:5px 14px; border-radius:99px; font-size:0.78em; font-weight:700; margin:3px;">15 Languages</span>
   </div>
 
-  <h1>OdooPilot</h1>
+  <h1 style="color:#fff; font-size:3em; font-weight:800; margin:0 0 16px; letter-spacing:-1px; line-height:1.1;">OdooPilot</h1>
 
-  <p class="op-hero-tagline">
-    Query live Odoo data and take real actions via <strong>Telegram</strong> and <strong>WhatsApp</strong>
+  <p style="color:#cbd5e1; font-size:1.1em; margin:0 auto 24px; max-width:660px; line-height:1.65;">
+    Query live Odoo data and take real actions via <strong style="color:#fff;">Telegram</strong> and <strong style="color:#fff;">WhatsApp</strong>
     &mdash; in plain language, with a safety confirmation before every write.<br>
     Completely free. Self-hosted. No cloud dependency. No SaaS fees. Ever.
   </p>
 
-  <div class="op-hero-price-row">
-    <div class="op-hero-price-card">
-      <div class="op-hero-price-label">Other AI Odoo apps</div>
-      <div class="op-hero-price-num">EUR 200 &ndash; 355</div>
-      <div class="op-hero-price-sub">one-time &middot; read-only &middot; no WhatsApp</div>
-    </div>
-    <div class="op-hero-price-vs">vs</div>
-    <div class="op-hero-price-card op-hero-price-card-free">
-      <div class="op-hero-price-label">OdooPilot</div>
-      <div class="op-hero-price-num">EUR 0</div>
-      <div class="op-hero-price-sub">forever &middot; write actions &middot; TG + WhatsApp</div>
-    </div>
-  </div>
-
-  <p class="op-hero-providers">
-    Powered by &nbsp;
-    <span>Anthropic Claude</span> &nbsp;&middot;&nbsp;
-    <span>OpenAI GPT-4</span> &nbsp;&middot;&nbsp;
-    <span>Groq (free tier)</span> &nbsp;&middot;&nbsp;
-    <span>Ollama (local AI)</span>
-  </p>
-
-  <div class="op-cta-row">
-    <a href="https://github.com/arunrajiah/odoopilot" class="op-cta op-cta-primary">&#9654; View on GitHub</a>
-    <a href="https://github.com/sponsors/arunrajiah" class="op-cta op-cta-secondary">&hearts; Sponsor this project</a>
-  </div>
-</div>
-
-
-<!-- -- Channel strip -- -->
-<div class="op-channels">
-  <div class="op-ch op-ch-tg">
-    <div class="op-ch-icon">TG</div>
-    <div class="op-ch-body">
-      <div class="op-ch-title">Telegram Bot</div>
-      <div class="op-ch-sub">Native webhook &middot; inline keyboards</div>
-    </div>
-  </div>
-  <div class="op-ch op-ch-wa">
-    <div class="op-ch-icon">WA</div>
-    <div class="op-ch-body">
-      <div class="op-ch-title">WhatsApp Cloud API</div>
-      <div class="op-ch-sub">Meta Cloud API &middot; interactive buttons</div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================
-     DIFFERENTIATORS -- why OdooPilot wins
-============================================================ -->
-<div class="op-diff-wrap">
-  <div class="op-diff-grid">
-
-    <div class="op-diff-card">
-      <div class="op-circle" style="background:#15803d; margin-bottom:12px;">&#10003;</div>
-      <h3>100% Free &mdash; forever</h3>
-      <p>No purchase, no subscription, no vendor lock-in. Competitors charge EUR 200&ndash;355 for read-only access to a single channel. OdooPilot is LGPL-3 open-source &mdash; install, fork, customise freely.</p>
-    </div>
-
-    <div class="op-diff-card">
-      <div class="op-circle" style="background:#7c3aed; margin-bottom:12px;">&#9654;</div>
-      <h3>Write actions, not just queries</h3>
-      <p>Every competing free Odoo AI tool is read-only. OdooPilot can confirm sale orders, approve leaves, move CRM stages, and create leads &mdash; with a mandatory Yes&thinsp;/&thinsp;No safety gate before any record changes.</p>
-    </div>
-
-    <div class="op-diff-card">
-      <div class="op-circle" style="background:#0891b2; margin-bottom:12px;">2</div>
-      <h3>Both channels: TG &amp; WhatsApp</h3>
-      <p>Telegram Bot and WhatsApp Cloud API &mdash; full feature parity on both. No other free Odoo AI app supports even one external channel. Your team uses whichever app they already have.</p>
-    </div>
-
-    <div class="op-diff-card">
-      <div class="op-circle" style="background:#b45309; margin-bottom:12px;">&#9632;</div>
-      <h3>Your data stays on your server</h3>
-      <p>Pure Odoo addon. No Docker, no separate Python service, no cloud backend. API keys never leave your server. Run Ollama for 100% local AI &mdash; zero data leaves your infrastructure.</p>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- -- Stats bar -- -->
-<div class="op-stats-wrap">
-  <div class="op-stats-label">At a Glance</div>
-  <div class="op-stats">
-    <div class="op-stat"><div class="num">8</div><div class="lbl">Business<br>Domains</div></div>
-    <div class="op-stat"><div class="num">2</div><div class="lbl">Channels:<br>TG + WA</div></div>
-    <div class="op-stat"><div class="num">4+</div><div class="lbl">LLM Providers<br>incl. local AI</div></div>
-    <div class="op-stat"><div class="num">15</div><div class="lbl">Languages<br>supported</div></div>
-    <div class="op-stat"><div class="num">5 min</div><div class="lbl">From install<br>to first chat</div></div>
-    <div class="op-stat"><div class="num">EUR 0</div><div class="lbl">SaaS cost<br>forever</div></div>
-  </div>
-</div>
-
-
-<!-- Zero Risk strip -->
-<div class="op-zerorisk">
-  <div class="op-zr-item"><span class="op-zr-icon">&#10003;</span> No credit card required</div>
-  <div class="op-zr-div"></div>
-  <div class="op-zr-item"><span class="op-zr-icon">&#10003;</span> No SaaS subscription</div>
-  <div class="op-zr-div"></div>
-  <div class="op-zr-item"><span class="op-zr-icon">&#10003;</span> No vendor lock-in &mdash; LGPL-3</div>
-  <div class="op-zr-div"></div>
-  <div class="op-zr-item"><span class="op-zr-icon">&#10003;</span> No data leaves your server</div>
-  <div class="op-zr-div"></div>
-  <div class="op-zr-item"><span class="op-zr-icon">&#10003;</span> 5-minute install</div>
-</div>
-
-
-<!-- ============================================================
-     DEMO CONVERSATIONS
-============================================================ -->
-<div class="op-section">
-  <h2 class="op-h2">Your Odoo ERP &mdash; answerable on any channel</h2>
-  <p class="op-lead">
-    Type a question in Telegram or WhatsApp. OdooPilot reads your live Odoo data and replies
-    in seconds. Write actions &mdash; like confirming a sale order or approving a leave &mdash;
-    require your explicit Yes / No approval before touching any record.
-  </p>
-
-  <div class="op-demo-row">
-
-    <!-- Telegram phone mockup -->
-    <div class="op-demo-col">
-      <div class="op-demo-label tg">Telegram Bot</div>
-      <div class="op-phone op-phone-tg">
-        <div class="op-bar op-bar-tg">
-          <div class="op-dot op-dot-tg"></div>
-          <div>
-            <div class="op-bar-name">OdooPilot Bot</div>
-            <div class="op-bar-status tg">online</div>
-          </div>
-        </div>
-        <div class="op-chat">
-          <div class="op-msg op-msg-user-tg">Show my overdue invoices</div>
-          <div class="op-msg op-msg-bot-tg">
-            <strong>7 overdue invoices</strong><br>
-            Total: EUR 14,320<br>
-            Oldest: Acme Corp &mdash; 42 days
-          </div>
-          <div class="op-msg op-msg-user-tg">Confirm sale order SO-0042</div>
-          <div class="op-msg op-msg-bot-tg">
-            Confirm <strong>SO-0042</strong><br>
-            Acme Corp &mdash; EUR 4,800?
-            <div class="op-confirm-btns">
-              <span class="op-btn-yes">&#10003; Yes</span>
-              <span class="op-btn-no">&#10007; No</span>
-            </div>
-          </div>
-          <div class="op-msg op-msg-user-tg">Yes</div>
-          <div class="op-msg op-msg-bot-tg">
-            <strong>Done.</strong> SO-0042 confirmed in Odoo.
-          </div>
-        </div>
-        <div class="op-phone-input">
-          <div class="op-phone-input-inner">Ask anything about your Odoo&hellip;</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- WhatsApp phone mockup -->
-    <div class="op-demo-col">
-      <div class="op-demo-label wa">WhatsApp Cloud API</div>
-      <div class="op-phone op-phone-wa">
-        <div class="op-bar op-bar-wa">
-          <div class="op-dot op-dot-wa"></div>
-          <div>
-            <div class="op-bar-name">OdooPilot</div>
-            <div class="op-bar-status wa">online</div>
-          </div>
-        </div>
-        <div class="op-chat op-chat-wa">
-          <div class="op-msg op-msg-user-wa">What tasks are due today?</div>
-          <div class="op-msg op-msg-bot-wa">
-            <strong>3 tasks due today:</strong><br>
-            [!] Update product catalogue<br>
-            [-] Review Q2 sales report<br>
-            [-] Onboard new supplier
-          </div>
-          <div class="op-msg op-msg-user-wa">Approve Jane&rsquo;s leave request</div>
-          <div class="op-msg op-msg-bot-wa">
-            Approve Annual Leave for<br>
-            <strong>Jane Smith</strong> (Mon &ndash; Wed)?
-            <div class="op-confirm-btns">
-              <span class="op-btn-yes">&#10003; Yes</span>
-              <span class="op-btn-no">&#10007; No</span>
-            </div>
-          </div>
-          <div class="op-msg op-msg-user-wa">Yes</div>
-          <div class="op-msg op-msg-bot-wa">
-            <strong>Done.</strong> Leave approved in Odoo.
-          </div>
-        </div>
-        <div class="op-phone-input op-phone-input-wa">
-          <div class="op-phone-input-inner">Message OdooPilot&hellip;</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- ============================================================
-     8 BUSINESS DOMAINS
-============================================================ -->
-<div class="op-section-alt">
-  <h2 class="op-h2">8 Business Domains &mdash; natural language, zero training required</h2>
-  <p class="op-lead">
-    OdooPilot maps plain-language questions directly to live Odoo data.
-    No forms to configure, no reports to build. Just ask &mdash; from Telegram or WhatsApp.
-  </p>
-
-  <div class="op-grid3">
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#7c3aed;">&#10003;</div>
-      <h3>Projects &amp; Tasks</h3>
-      <p>&ldquo;Show my open tasks&rdquo; &middot; &ldquo;What&rsquo;s due this week?&rdquo; &middot; &ldquo;Mark task X as done&rdquo;</p>
-      <div class="op-tags">
-        <span class="op-tag">Natural language</span>
-        <span class="op-tag">Mark done</span>
-        <span class="op-tag">Due dates</span>
-      </div>
-    </div>
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#0891b2;">&#9650;</div>
-      <h3>CRM &amp; Opportunities</h3>
-      <p>&ldquo;List my pipeline&rdquo; &middot; &ldquo;Move deal to Won&rdquo; &middot; &ldquo;Create new lead for Acme Corp&rdquo;</p>
-      <div class="op-tags">
-        <span class="op-tag">Pipeline queries</span>
-        <span class="op-tag">Move stage</span>
-        <span class="op-tag">Create leads</span>
-      </div>
-    </div>
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#16a34a;">$</div>
-      <h3>Invoices &amp; Accounting</h3>
-      <p>&ldquo;Show overdue invoices&rdquo; &middot; &ldquo;Total outstanding balance&rdquo; &middot; &ldquo;Oldest unpaid bill&rdquo;</p>
-      <div class="op-tags">
-        <span class="op-tag">Overdue alerts</span>
-        <span class="op-tag">Balance queries</span>
-      </div>
-    </div>
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#dc2626;">SO</div>
-      <h3>Sales Orders</h3>
-      <p>&ldquo;List draft orders&rdquo; &middot; &ldquo;Confirm SO-0042&rdquo; &middot; &ldquo;Revenue this month&rdquo;</p>
-      <div class="op-tags">
-        <span class="op-tag">Confirm orders</span>
-        <span class="op-tag">Revenue queries</span>
-      </div>
-    </div>
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#d97706;">&#9632;</div>
-      <h3>Inventory &amp; Stock</h3>
-      <p>&ldquo;Check stock for Widget A&rdquo; &middot; &ldquo;Which products are out of stock?&rdquo;</p>
-      <div class="op-tags">
-        <span class="op-tag">Stock levels</span>
-        <span class="op-tag">Out-of-stock</span>
-      </div>
-    </div>
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#0369a1;">PO</div>
-      <h3>Purchase Orders</h3>
-      <p>&ldquo;Show pending RFQs&rdquo; &middot; &ldquo;Supplier deliveries this week&rdquo;</p>
-      <div class="op-tags">
-        <span class="op-tag">RFQ queries</span>
-        <span class="op-tag">Deliveries</span>
-      </div>
-    </div>
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#be185d;">HR</div>
-      <h3>HR &amp; Employees</h3>
-      <p>&ldquo;List employees in Sales&rdquo; &middot; &ldquo;Who&rsquo;s in the engineering team?&rdquo;</p>
-      <div class="op-tags">
-        <span class="op-tag">Team queries</span>
-        <span class="op-tag">Headcount</span>
-      </div>
-    </div>
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#15803d;">&#9786;</div>
-      <h3>Leaves &amp; Time Off</h3>
-      <p>&ldquo;Show pending approvals&rdquo; &middot; &ldquo;Approve Jane&rsquo;s leave&rdquo; &middot; &ldquo;My leave balance&rdquo;</p>
-      <div class="op-tags">
-        <span class="op-tag">Leave approvals</span>
-        <span class="op-tag">Balance</span>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- ============================================================
-     WRITE ACTIONS
-============================================================ -->
-<div class="op-section">
-  <h2 class="op-h2">Not just read-only &mdash; take real Odoo actions, safely</h2>
-  <p class="op-lead">
-    The only free Odoo AI assistant that lets you <em>write back</em> to Odoo directly from
-    Telegram or WhatsApp. Every mutating action triggers an inline Yes / No confirmation
-    before touching any record.
-  </p>
-
-  <div class="op-write-strip">
-
-    <div class="op-write-card">
-      <div class="op-circle" style="background:#7c3aed;">&#10003;</div>
-      <h3>Mark Task Done</h3>
-      <p>Complete any project task directly from chat, without opening Odoo.</p>
-      <div class="op-tags">
-        <span class="op-tag">Write action</span>
-        <span class="op-tag">Yes/No confirm</span>
-      </div>
-    </div>
-
-    <div class="op-write-card">
-      <div class="op-circle" style="background:#16a34a;">SO</div>
-      <h3>Confirm Sale Order</h3>
-      <p>Move draft sales orders to confirmed state with a single chat message.</p>
-      <div class="op-tags">
-        <span class="op-tag">Write action</span>
-        <span class="op-tag">Yes/No confirm</span>
-      </div>
-    </div>
-
-    <div class="op-write-card">
-      <div class="op-circle" style="background:#0891b2;">LV</div>
-      <h3>Approve Leave</h3>
-      <p>Validate or refuse employee leave requests without logging into Odoo.</p>
-      <div class="op-tags">
-        <span class="op-tag">Write action</span>
-        <span class="op-tag">Yes/No confirm</span>
-      </div>
-    </div>
-
-    <div class="op-write-card">
-      <div class="op-circle" style="background:#d97706;">&#9650;</div>
-      <h3>Move CRM Stage</h3>
-      <p>Progress opportunities through your pipeline pipeline from chat.</p>
-      <div class="op-tags">
-        <span class="op-tag">Write action</span>
-        <span class="op-tag">Yes/No confirm</span>
-      </div>
-    </div>
-
-    <div class="op-write-card">
-      <div class="op-circle" style="background:#be185d;">+</div>
-      <h3>Create CRM Lead</h3>
-      <p>Create new leads or opportunities for any contact, directly from a message.</p>
-      <div class="op-tags">
-        <span class="op-tag">Write action</span>
-        <span class="op-tag">Yes/No confirm</span>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="op-alert op-mt">
-    <strong>Safety-first design:</strong> Write actions require an explicit inline keyboard
-    (Yes / No) in Telegram or an interactive button reply in WhatsApp. Declined actions are
-    still recorded in the immutable audit log. Each user&rsquo;s AI session inherits their
-    standard Odoo access rights &mdash; no privilege escalation is possible.
-  </div>
-</div>
-
-
-<!-- ============================================================
-     WHO IS IT FOR?
-============================================================ -->
-<div class="op-section-alt">
-  <h2 class="op-h2">Who is it for?</h2>
-  <p class="op-lead">
-    OdooPilot is built for the employees who live in Telegram and WhatsApp all day &mdash;
-    and shouldn&rsquo;t have to open Odoo just to check a status or approve a request.
-  </p>
-
-  <div class="op-grid3">
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#0891b2;">SO</div>
-      <h3>Sales &amp; Account Managers</h3>
-      <p>On a customer call and need your pipeline or latest invoice status? Ask in Telegram. Confirm the sale order before you hang up &mdash; without touching the laptop.</p>
-      <div class="op-tags">
-        <span class="op-tag">Pipeline queries</span>
-        <span class="op-tag">Confirm orders</span>
-        <span class="op-tag">Create leads</span>
-        <span class="op-tag">Revenue reports</span>
-      </div>
-    </div>
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#16a34a;">HR</div>
-      <h3>HR &amp; Team Managers</h3>
-      <p>Someone messages you about their leave &mdash; check their balance and approve it right from WhatsApp. See who is out this week without logging into Odoo at all.</p>
-      <div class="op-tags">
-        <span class="op-tag">Leave approvals</span>
-        <span class="op-tag">Leave balances</span>
-        <span class="op-tag">Team headcount</span>
-        <span class="op-tag">Task overview</span>
-      </div>
-    </div>
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#dc2626;">$</div>
-      <h3>Finance &amp; Operations</h3>
-      <p>Wake up to an automatic WhatsApp summary of every overdue invoice. Ask for a specific customer balance mid-meeting. Get stock availability before promising a delivery.</p>
-      <div class="op-tags">
-        <span class="op-tag">Invoice alerts (auto)</span>
-        <span class="op-tag">Customer balances</span>
-        <span class="op-tag">Stock queries</span>
-        <span class="op-tag">PO tracking</span>
-      </div>
-    </div>
-
-    <div class="op-card">
-      <div class="op-circle" style="background:#7c3aed;">PM</div>
-      <h3>Project &amp; Operations Leads</h3>
-      <p>Ask what tasks are overdue on any project, mark a task done after a standup, or check supplier delivery status &mdash; all without switching out of your messaging app.</p>
-      <div class="op-tags">
-        <span class="op-tag">Overdue tasks</span>
-        <span class="op-tag">Mark task done</span>
-        <span class="op-tag">Supplier orders</span>
-        <span class="op-tag">Project status</span>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- ============================================================
-     MULTI-LANGUAGE  (NEW v17.0.6)
-============================================================ -->
-<div class="op-section">
-  <h2 class="op-h2">
-    Multi-language AI replies <span class="op-new-badge">NEW v17.0.6</span>
-  </h2>
-  <p class="op-lead">
-    Each user sets their preferred reply language with a single bot command.
-    OdooPilot instructs the LLM to always respond in that language &mdash;
-    no admin configuration required. Supports 15 languages out of the box.
-  </p>
-
-  <div class="op-lang-grid">
-    <div class="op-lang"><span class="lc">en</span><span class="ln">English</span></div>
-    <div class="op-lang"><span class="lc">fr</span><span class="ln">French</span></div>
-    <div class="op-lang"><span class="lc">es</span><span class="ln">Spanish</span></div>
-    <div class="op-lang"><span class="lc">de</span><span class="ln">German</span></div>
-    <div class="op-lang"><span class="lc">it</span><span class="ln">Italian</span></div>
-    <div class="op-lang"><span class="lc">pt</span><span class="ln">Portuguese</span></div>
-    <div class="op-lang"><span class="lc">nl</span><span class="ln">Dutch</span></div>
-    <div class="op-lang"><span class="lc">ar</span><span class="ln">Arabic</span></div>
-    <div class="op-lang"><span class="lc">zh</span><span class="ln">Chinese</span></div>
-    <div class="op-lang"><span class="lc">ja</span><span class="ln">Japanese</span></div>
-    <div class="op-lang"><span class="lc">ko</span><span class="ln">Korean</span></div>
-    <div class="op-lang"><span class="lc">ru</span><span class="ln">Russian</span></div>
-    <div class="op-lang"><span class="lc">tr</span><span class="ln">Turkish</span></div>
-    <div class="op-lang"><span class="lc">pl</span><span class="ln">Polish</span></div>
-    <div class="op-lang"><span class="lc">hi</span><span class="ln">Hindi</span></div>
-  </div>
-
-  <div class="op-alert op-alert-green">
-    <strong>How it works:</strong> Send <span class="op-inline-code">/language fr</span> in Telegram or WhatsApp.
-    OdooPilot saves your preference in Odoo and replies in French from that turn onward.
-    Send <span class="op-inline-code">/language auto</span> to revert to auto-detect.
-    Administrators can also set the language per user in the Odoo backend under
-    Settings &rarr; OdooPilot &rarr; User Identities.
-  </div>
-</div>
-
-
-<!-- ============================================================
-     PROACTIVE PUSH ALERTS
-============================================================ -->
-<div class="op-section-alt">
-  <h2 class="op-h2">Proactive push alerts &mdash; no polling required</h2>
-  <p class="op-lead">
-    OdooPilot doesn&rsquo;t wait for users to ask. It proactively delivers important updates
-    to each user&rsquo;s Telegram or WhatsApp every morning via Odoo scheduled actions.
-  </p>
-
-  <div class="op-notif">
-    <div class="op-notif-header">&#9658; Daily Task Digest &mdash; 08:00 UTC</div>
-    <strong>Good morning, Sarah!</strong><br><br>
-    You have <strong>2 overdue</strong> and <strong>3 due today</strong>:<br>
-    [!] Update product catalogue &mdash; E-Commerce &mdash; overdue<br>
-    [!] Q1 invoice reconciliation &mdash; Finance &mdash; overdue<br>
-    [-] Supplier call &mdash; Acme Corp<br>
-    [-] Review new hire onboarding<br>
-    [-] Ship pending orders (3 items)<br><br>
-    <em>Reply with a question or action &mdash; e.g. &ldquo;mark the first task done&rdquo;</em>
-  </div>
-
-  <div class="op-notif op-notif-blue">
-    <div class="op-notif-header">&#9658; Overdue Invoice Alert &mdash; 09:00 UTC</div>
-    <strong>7 invoices</strong> overdue, totalling <strong>EUR 14,320</strong>.
-    Oldest: 42 days &mdash; Acme Corp (EUR 3,200).<br>
-    &bull; INV/2024/0031 &mdash; Beta Ltd &mdash; EUR 2,100 (due 15 Mar)<br>
-    &bull; INV/2024/0028 &mdash; Gamma AG &mdash; EUR 4,800 (due 12 Mar)<br>
-    &hellip; and 5 more<br><br>
-    <em>Reply &ldquo;show overdue invoices&rdquo; for the full list.</em>
-  </div>
-
-  <div class="op-grid3 op-mt">
-    <div class="op-card">
-      <div class="op-circle" style="background:#7c3aed;">AM</div>
-      <h3>Daily task digest &mdash; 08:00 UTC</h3>
-      <p>Each linked user receives their overdue + today&rsquo;s tasks every morning
-      via Telegram or WhatsApp. Skipped automatically when nothing is due &mdash; no noise.</p>
-    </div>
-    <div class="op-card">
-      <div class="op-circle" style="background:#16a34a;">$</div>
-      <h3>Overdue invoice alerts &mdash; 09:00 UTC</h3>
-      <p>Users with accounting access receive a daily overdue invoice summary.
-      Automatically skipped for users without the Accounting group.</p>
-    </div>
-    <div class="op-card">
-      <div class="op-circle" style="background:#0891b2;">&#9881;</div>
-      <h3>Fully configurable</h3>
-      <p>Scheduled actions are standard Odoo cron jobs &mdash; adjust timing, frequency,
-      or recipients directly from the Odoo Technical menu. No code changes required.</p>
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================
-     LLM PROVIDERS
-============================================================ -->
-<div class="op-section">
-  <h2 class="op-h2">Choose your AI engine &mdash; bring your own key</h2>
-  <p class="op-lead">
-    OdooPilot supports all major LLM providers. Your API key, your data, no middleman.
-    Switch providers at any time from Odoo Settings. No SDK dependencies &mdash;
-    provider APIs are called directly via Python <span class="op-inline-code">requests</span>.
-  </p>
-
-  <div class="op-llm-row">
-    <div class="op-llm">
-      <div class="op-llm-logo" style="background:#f3f0ff; color:#7c3aed;">CLU</div>
-      <div class="op-llm-name">Anthropic Claude</div>
-      <div class="op-llm-models">
-        claude-3-5-haiku<br>claude-sonnet-4<br>claude-opus-4
-      </div>
-    </div>
-    <div class="op-llm">
-      <div class="op-llm-logo" style="background:#f0fdf4; color:#15803d;">GPT</div>
-      <div class="op-llm-name">OpenAI ChatGPT</div>
-      <div class="op-llm-models">
-        gpt-4o-mini<br>gpt-4o<br>gpt-4-turbo
-      </div>
-    </div>
-    <div class="op-llm">
-      <div class="op-llm-logo" style="background:#fff7ed; color:#c2410c;">GRQ</div>
-      <div class="op-llm-name">Groq</div>
-      <div class="op-llm-models">llama-3.3-70b<br>-versatile</div>
-      <div class="op-llm-pill op-llm-free">Free tier available</div>
-    </div>
-    <div class="op-llm">
-      <div class="op-llm-logo" style="background:#f1f5f9; color:#475569;">LCL</div>
-      <div class="op-llm-name">Ollama / Local</div>
-      <div class="op-llm-models">Any OpenAI-compatible<br>endpoint</div>
-      <div class="op-llm-pill op-llm-local">100% private</div>
-    </div>
-  </div>
-
-  <div class="op-alert">
-    <strong>Your keys. Your data. Your server.</strong> API keys are stored in Odoo&rsquo;s
-    system parameters and never leave your server. OdooPilot has no cloud backend &mdash;
-    it is a standalone Odoo addon. For complete data privacy, use Ollama for a fully
-    local AI deployment.
-  </div>
-</div>
-
-
-<!-- ============================================================
-     HOW IT WORKS -- 4 STEPS
-============================================================ -->
-<div class="op-section-alt">
-  <h2 class="op-h2">How It Works &mdash; 4 steps</h2>
-  <p class="op-lead">
-    Unlike SaaS AI integrations, OdooPilot is a single self-contained Odoo addon.
-    No separate server, no Docker container, no subscription, no data sent to a middleman.
-  </p>
-
-  <div class="op-steps">
-    <div class="op-step">
-      <div class="op-step-num" style="background:#7c3aed;">1</div>
-      <h3>Webhook delivery</h3>
-      <p>User sends a Telegram or WhatsApp message. The platform calls your Odoo webhook
-      with token/HMAC validation. Processed asynchronously in a background thread.</p>
-    </div>
-    <div class="op-step">
-      <div class="op-step-num" style="background:#0891b2;">2</div>
-      <h3>Identity &amp; session lookup</h3>
-      <p>Odoo matches the chat ID to the linked Odoo user. The AI agent runs as that user,
-      inheriting their Odoo access rights automatically.</p>
-    </div>
-    <div class="op-step">
-      <div class="op-step-num" style="background:#16a34a;">3</div>
-      <h3>Agentic LLM tool loop</h3>
-      <p>The question is sent to your chosen LLM. It selects the right Odoo ORM tools
-      in a multi-turn agent loop. Read tools execute immediately; write tools pause for
-      inline confirmation.</p>
-    </div>
-    <div class="op-step">
-      <div class="op-step-num" style="background:#dc2626;">4</div>
-      <h3>Reply + audit log</h3>
-      <p>The answer is sent back to the user. Every tool call is recorded in the immutable
-      OdooPilot audit log: user, tool, arguments, result, and timestamp.</p>
-    </div>
-  </div>
-
-  <div class="op-alert op-mt">
-    <strong>Security model:</strong> Each user&rsquo;s session inherits their Odoo access rights.
-    A salesperson cannot query HR data they wouldn&rsquo;t see in the Odoo UI. Write actions
-    require explicit confirmation before any record is modified. API keys are stored in
-    Odoo system parameters &mdash; never exposed or transmitted to third parties.
-  </div>
-</div>
-
-
-<!-- ============================================================
-     5-MINUTE SETUP
-============================================================ -->
-<div class="op-section">
-  <h2 class="op-h2">Up and running in 5 minutes</h2>
-  <p class="op-lead">No extra server. No Docker. No additional Python packages. No infrastructure.</p>
-
-  <div class="op-steps">
-    <div class="op-step">
-      <div class="op-step-num" style="background:#0369a1;">1</div>
-      <h3>Install the addon</h3>
-      <p>Copy <span class="op-inline-code">odoopilot/</span> into your Odoo addons path and
-      run <span class="op-inline-code">-u odoopilot</span>, or install from the Odoo App Store.
-      No extra pip packages required.</p>
-    </div>
-    <div class="op-step">
-      <div class="op-step-num" style="background:#0369a1;">2</div>
-      <h3>Create your bot</h3>
-      <p><strong>Telegram:</strong> message @BotFather &rarr; /newbot &rarr; copy token.<br>
-      <strong>WhatsApp:</strong> create a Meta app, note your Phone Number ID and Access Token.</p>
-    </div>
-    <div class="op-step">
-      <div class="op-step-num" style="background:#0369a1;">3</div>
-      <h3>Add your LLM key</h3>
-      <p>Get a key from <strong>Anthropic</strong>, <strong>OpenAI</strong>, or
-      <strong>Groq</strong>. Groq&rsquo;s free tier requires no credit card &mdash;
-      ideal for getting started.</p>
-    </div>
-    <div class="op-step">
-      <div class="op-step-num" style="background:#0369a1;">4</div>
-      <h3>Paste &amp; activate</h3>
-      <p>Go to <strong>Settings &rarr; OdooPilot</strong>. Enter your bot credentials and LLM key,
-      then click <strong>Register Webhook</strong>. Start chatting immediately.</p>
-    </div>
-  </div>
-
-  <div class="op-alert op-alert-green op-mt">
-    <strong>Team onboarding in under 10 minutes:</strong> Each employee sends
-    <span class="op-inline-code">/link</span> to the bot, clicks the one-time magic link
-    while logged into Odoo, and their account is linked. No IT intervention required.
-  </div>
-</div>
-
-
-<!-- ============================================================
-     COMPARISON TABLE
-============================================================ -->
-<div class="op-section-alt">
-  <h2 class="op-h2">How OdooPilot compares</h2>
-  <p class="op-lead">
-    The only free, open-source Odoo AI agent with dual-channel support, write-action
-    capability, multi-language replies, and proactive push notifications.
-  </p>
-
-  <div class="op-table-wrap">
-    <table class="op-table">
-      <thead>
-        <tr>
-          <th>Feature</th>
-          <th class="op-hl-h">OdooPilot</th>
-          <th>Paid AI Copilot<br><span style="font-weight:400;font-size:0.88em;">~EUR 256</span></th>
-          <th>Paid AI Chatbot<br><span style="font-weight:400;font-size:0.88em;">~EUR 200</span></th>
-          <th>AI Analytics<br><span style="font-weight:400;font-size:0.88em;">~EUR 355</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Price</td>
-          <td class="op-yes op-hl-col">Free (LGPL-3)</td>
-          <td>EUR 256 one-time</td>
-          <td>EUR 200 one-time</td>
-          <td>EUR 355 one-time</td>
-        </tr>
-        <tr>
-          <td>Odoo 17 Community</td>
-          <td class="op-yes op-hl-col">&#10003; Yes</td>
-          <td class="op-part">&#8764; Mixed</td>
-          <td class="op-part">&#8764; Mixed</td>
-          <td class="op-part">&#8764; Mixed</td>
-        </tr>
-        <tr>
-          <td>Telegram bot</td>
-          <td class="op-yes op-hl-col">&#10003; Native</td>
-          <td class="op-no">&#10007; No</td>
-          <td class="op-no">&#10007; No</td>
-          <td class="op-no">&#10007; No</td>
-        </tr>
-        <tr>
-          <td>WhatsApp bot</td>
-          <td class="op-yes op-hl-col">&#10003; Cloud API</td>
-          <td class="op-no">&#10007; No</td>
-          <td class="op-yes">&#10003; Yes</td>
-          <td class="op-no">&#10007; No</td>
-        </tr>
-        <tr>
-          <td>Write actions (confirm orders, approve leaves)</td>
-          <td class="op-yes op-hl-col">&#10003; 5 write tools</td>
-          <td class="op-no">&#10007; Read-only</td>
-          <td class="op-no">&#10007; Read-only</td>
-          <td class="op-no">&#10007; Read-only</td>
-        </tr>
-        <tr>
-          <td>Proactive push notifications</td>
-          <td class="op-yes op-hl-col">&#10003; Tasks + invoices</td>
-          <td class="op-no">&#10007; No</td>
-          <td class="op-no">&#10007; No</td>
-          <td class="op-no">&#10007; No</td>
-        </tr>
-        <tr>
-          <td>Multi-LLM (Claude, GPT-4, Groq, Ollama)</td>
-          <td class="op-yes op-hl-col">&#10003; 4+ providers</td>
-          <td class="op-part">&#8764; OpenAI + Gemini</td>
-          <td class="op-part">&#8764; OpenAI only</td>
-          <td class="op-part">&#8764; OpenAI + Gemini</td>
-        </tr>
-        <tr>
-          <td>Multi-language replies (15 languages)</td>
-          <td class="op-yes op-hl-col">&#10003; /language command</td>
-          <td class="op-no">&#10007; No</td>
-          <td class="op-no">&#10007; No</td>
-          <td class="op-no">&#10007; No</td>
-        </tr>
-        <tr>
-          <td>Self-hosted &mdash; no external service</td>
-          <td class="op-yes op-hl-col">&#10003; Pure Odoo addon</td>
-          <td class="op-part">&#8764; May need cloud</td>
-          <td class="op-part">&#8764; May need cloud</td>
-          <td class="op-part">&#8764; May need cloud</td>
-        </tr>
-        <tr>
-          <td>Confirmation gate for write actions</td>
-          <td class="op-yes op-hl-col">&#10003; Inline Yes / No</td>
-          <td class="op-no">&#10007; N/A</td>
-          <td class="op-no">&#10007; N/A</td>
-          <td class="op-no">&#10007; N/A</td>
-        </tr>
-        <tr>
-          <td>Immutable audit trail</td>
-          <td class="op-yes op-hl-col">&#10003; Full log</td>
-          <td class="op-part">&#8764; Basic</td>
-          <td class="op-no">&#10007; No</td>
-          <td class="op-part">&#8764; Basic</td>
-        </tr>
-        <tr>
-          <td>Open-source license</td>
-          <td class="op-yes op-hl-col">&#10003; LGPL-3</td>
-          <td class="op-no">&#10007; OPL</td>
-          <td class="op-no">&#10007; OPL</td>
-          <td class="op-no">&#10007; OPL</td>
-        </tr>
-        <tr>
-          <td>Employee-facing (not customer-facing)</td>
-          <td class="op-yes op-hl-col">&#10003; Employee AI agent</td>
-          <td class="op-part">&#8764; Both</td>
-          <td class="op-no">&#10007; Customer-facing</td>
-          <td class="op-no">&#10007; Customer-facing</td>
-        </tr>
-      </tbody>
+  <!-- Price Comparison -->
+  <div style="margin:0 auto 24px; max-width:520px;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14); border-radius:12px; padding:16px 22px; text-align:center; vertical-align:top;">
+          <div style="font-size:0.7em; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Other AI Odoo apps</div>
+          <div style="font-size:1.7em; font-weight:800; color:#fff; line-height:1; margin-bottom:5px;">EUR 200&ndash;355</div>
+          <div style="font-size:0.68em; color:#94a3b8;">one-time &middot; read-only &middot; no WhatsApp</div>
+        </td>
+        <td width="50" style="text-align:center; vertical-align:middle; color:#64748b; font-weight:800; font-size:1em; padding:0 10px;">vs</td>
+        <td style="background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.35); border-radius:12px; padding:16px 22px; text-align:center; vertical-align:top;">
+          <div style="font-size:0.7em; color:#86efac; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">OdooPilot</div>
+          <div style="font-size:1.7em; font-weight:800; color:#4ade80; line-height:1; margin-bottom:5px;">EUR 0</div>
+          <div style="font-size:0.68em; color:#86efac;">forever &middot; write actions &middot; TG + WhatsApp</div>
+        </td>
+      </tr>
     </table>
   </div>
-</div>
 
-
-<!-- ============================================================
-     FAQ
-============================================================ -->
-<div class="op-section">
-  <h2 class="op-h2">Frequently Asked Questions</h2>
-  <p class="op-lead">Everything you need to know before installing OdooPilot.</p>
-
-  <ul class="op-faq">
-    <li>
-      <div class="op-faq-q-icon">Q</div>
-      <div class="op-faq-body">
-        <div class="q">Does this work with Odoo 17 Community Edition?</div>
-        <div class="a">Yes. OdooPilot is built specifically for Odoo 17 Community and requires no Enterprise licence.
-        It depends only on <span class="op-inline-code">mail</span>, <span class="op-inline-code">base_setup</span>,
-        and <span class="op-inline-code">web</span> &mdash; modules included in every Odoo install.</div>
-      </div>
-    </li>
-    <li>
-      <div class="op-faq-q-icon">Q</div>
-      <div class="op-faq-body">
-        <div class="q">Does it work on Odoo.sh or Odoo Online?</div>
-        <div class="a"><strong>Odoo.sh:</strong> yes &mdash; install like any standard addon.
-        <strong>Odoo Online (odoo.com SaaS):</strong> not supported, as Odoo Online does not allow
-        custom addon installation. OdooPilot requires a self-hosted or Odoo.sh instance accessible
-        from the internet for webhook delivery.</div>
-      </div>
-    </li>
-    <li>
-      <div class="op-faq-q-icon">Q</div>
-      <div class="op-faq-body">
-        <div class="q">Which messaging channels are supported?</div>
-        <div class="a">Both <strong>Telegram</strong> (Bot API webhook) and <strong>WhatsApp</strong>
-        (Meta WhatsApp Cloud API) are supported with full feature parity &mdash; including the /link
-        identity flow, write-action confirmations, proactive notifications, and multi-language support.
-        Both channels can be active simultaneously.</div>
-      </div>
-    </li>
-    <li>
-      <div class="op-faq-q-icon">Q</div>
-      <div class="op-faq-body">
-        <div class="q">Which AI / LLM providers are supported?</div>
-        <div class="a"><strong>Anthropic Claude</strong> (claude-3-5-haiku, claude-opus-4, claude-sonnet-4),
-        <strong>OpenAI ChatGPT / GPT-4</strong> (gpt-4o, gpt-4o-mini, gpt-4-turbo),
-        <strong>Groq</strong> (llama-3.3-70b-versatile &mdash; free tier), and
-        <strong>any OpenAI-compatible endpoint</strong> including Ollama for a fully local,
-        private AI deployment. No SDKs required.</div>
-      </div>
-    </li>
-    <li>
-      <div class="op-faq-q-icon">Q</div>
-      <div class="op-faq-body">
-        <div class="q">How does multi-language support work?</div>
-        <div class="a">Send <span class="op-inline-code">/language fr</span> in Telegram or WhatsApp
-        to set French as your reply language. OdooPilot stores the preference in the Odoo identity
-        record and instructs the LLM to always respond in that language. Send
-        <span class="op-inline-code">/language auto</span> to revert to auto-detect.
-        Administrators can set language per user in the Odoo backend.</div>
-      </div>
-    </li>
-    <li>
-      <div class="op-faq-q-icon">Q</div>
-      <div class="op-faq-body">
-        <div class="q">Do I need all Odoo modules installed?</div>
-        <div class="a">No. OdooPilot detects which modules are installed and activates only the
-        relevant tools. No CRM installed? CRM tools are silently skipped. No HR module?
-        Leave tools are hidden. No errors &mdash; no manual configuration required.</div>
-      </div>
-    </li>
-    <li>
-      <div class="op-faq-q-icon">Q</div>
-      <div class="op-faq-body">
-        <div class="q">Is my Odoo data sent to a third party?</div>
-        <div class="a">Only the user&rsquo;s question and the Odoo data retrieved by the AI tools
-        are sent to your chosen LLM provider. Nothing is sent to OdooPilot &mdash; because there
-        are no OdooPilot servers. For complete data privacy, use Ollama: then no data leaves
-        your server at all.</div>
-      </div>
-    </li>
-    <li>
-      <div class="op-faq-q-icon">Q</div>
-      <div class="op-faq-body">
-        <div class="q">Which LLM is recommended for production use?</div>
-        <div class="a"><strong>Anthropic Claude 3.5 Haiku</strong> offers the best balance of
-        speed and accuracy (~$0.001 per conversation). For zero API cost, <strong>Groq&rsquo;s
-        free tier</strong> (Llama 3.3 70B) works well. For complete data privacy,
-        <strong>Ollama</strong> with a local model means no data leaves your server.</div>
-      </div>
-    </li>
-    <li>
-      <div class="op-faq-q-icon">Q</div>
-      <div class="op-faq-body">
-        <div class="q">Can I add custom tools for my own Odoo models?</div>
-        <div class="a">Yes. The tool registry in <span class="op-inline-code">services/tools.py</span>
-        is designed to be extended. Add a function, register it in
-        <span class="op-inline-code">TOOL_DEFINITIONS</span>, and it is immediately available
-        in the AI agent. The module is fully open-source (LGPL-3) &mdash; fork and customise freely.</div>
-      </div>
-    </li>
-  </ul>
-</div>
-
-
-<!-- ============================================================
-     RESOURCES & CONTACT
-============================================================ -->
-<div class="op-resources">
-  <h2>Resources &amp; Contact</h2>
-  <p class="op-lead">Everything you need to get started, contribute, or get help.</p>
-
-  <div class="op-res-cols">
-
-    <div class="op-res-col">
-      <h3>&#9654; Documentation</h3>
-      <a href="https://github.com/arunrajiah/odoopilot#readme" class="op-res-link">
-        <span class="op-res-arrow">&rarr;</span> GitHub README
-      </a>
-      <a href="https://github.com/arunrajiah/odoopilot/blob/main/CHANGELOG.md" class="op-res-link">
-        <span class="op-res-arrow">&rarr;</span> CHANGELOG.md
-      </a>
-      <a href="https://github.com/arunrajiah/odoopilot/issues" class="op-res-link">
-        <span class="op-res-arrow">&rarr;</span> GitHub Issues &mdash; Report a bug
-      </a>
-      <a href="https://github.com/arunrajiah/odoopilot/discussions" class="op-res-link">
-        <span class="op-res-arrow">&rarr;</span> GitHub Discussions &mdash; Ask &amp; share
-      </a>
-    </div>
-
-    <div class="op-res-col">
-      <h3>&#9654; Community</h3>
-      <a href="https://github.com/arunrajiah/odoopilot" class="op-res-link">
-        <span class="op-res-arrow">&rarr;</span> github.com/arunrajiah/odoopilot
-      </a>
-      <div class="op-res-meta">
-        License: LGPL-3 &mdash; Free &amp; Open Source<br>
-        Platform: Odoo 17 Community<br>
-        Maintained by Arun Rajiah
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- ============================================================
-     SPONSOR
-============================================================ -->
-<div class="op-sponsor">
-  <div class="op-sponsor-heart">&hearts;</div>
-  <h2>OdooPilot is free &mdash; powered by sponsors</h2>
-  <p class="op-sponsor-lead">
-    Solo open-source project &mdash; no VC funding, no SaaS revenue, no enterprise tier.
-    If OdooPilot saves your team time every day, please consider sponsoring.
-    Even $5 / month helps keep the project alive and growing.
+  <p style="font-size:0.88em; color:#64748b; margin:0 0 28px;">
+    Powered by &nbsp;
+    <span style="color:#a78bfa; font-weight:600;">Anthropic Claude</span> &nbsp;&middot;&nbsp;
+    <span style="color:#a78bfa; font-weight:600;">OpenAI GPT-4o</span> &nbsp;&middot;&nbsp;
+    <span style="color:#a78bfa; font-weight:600;">Groq (free tier)</span> &nbsp;&middot;&nbsp;
+    <span style="color:#a78bfa; font-weight:600;">Ollama (local AI)</span>
   </p>
 
-  <div class="op-tiers">
-    <div class="op-tier">
-      <div class="price">$5 / mo</div>
-      <div class="role">Supporter</div>
-      <div class="desc">Name in README &middot; warm fuzzy feeling</div>
-    </div>
-    <div class="op-tier popular">
-      <div class="price">$25 / mo</div>
-      <div class="role">&#9733; Backer &mdash; Popular</div>
-      <div class="desc">Priority bug fixes &middot; shout-out in release notes</div>
-    </div>
-    <div class="op-tier">
-      <div class="price">$100 / mo</div>
-      <div class="role">Patron</div>
-      <div class="desc">Logo in README &middot; feature request priority</div>
-    </div>
+  <div>
+    <a href="https://github.com/arunrajiah/odoopilot" style="display:inline-block; background:#7c3aed; color:#fff; padding:13px 32px; border-radius:9px; font-weight:700; font-size:0.96em; text-decoration:none; margin:4px;">&#9654; View on GitHub</a>
+    <a href="https://github.com/sponsors/arunrajiah" style="display:inline-block; background:rgba(255,255,255,0.08); color:#c4b5fd; padding:13px 32px; border-radius:9px; font-weight:700; font-size:0.96em; text-decoration:none; margin:4px; border:1px solid rgba(255,255,255,0.18);">&hearts; Sponsor this project</a>
   </div>
 
-  <a href="https://github.com/sponsors/arunrajiah" class="op-sponsor-btn">&hearts; Sponsor on GitHub</a>
-  <p class="op-sponsor-note">Cancel anytime &middot; No lock-in &middot; Managed via GitHub Sponsors</p>
 </div>
 
 
-<!-- -- Footer -- -->
-<div style="text-align:center; padding:28px 0 8px; color:#94a3b8; font-size:0.86em;">
-  <p style="margin:0 0 14px; color:#64748b;">
-    LGPL-3 open-source &middot; Odoo AI agent &middot; Telegram &amp; WhatsApp &middot;
-    Multi-LLM &middot; Built for the Odoo Community
+<!-- ===== CHANNEL STRIP ===== -->
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 24px;">
+  <tr>
+    <td width="50%" style="background:#eff6ff; border:2px solid #bfdbfe; border-radius:12px; padding:18px 24px; vertical-align:middle;">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="vertical-align:middle; padding-right:14px;">
+            <div style="width:44px; height:44px; background:#2b7fbe; border-radius:50%; text-align:center; line-height:44px; color:#fff; font-size:0.72em; font-weight:800;">TG</div>
+          </td>
+          <td style="vertical-align:middle;">
+            <div style="font-weight:700; color:#1e40af; font-size:0.97em;">Telegram Bot</div>
+            <div style="font-size:0.78em; color:#64748b; margin-top:3px;">Native webhook &middot; inline keyboards &middot; button menus</div>
+          </td>
+        </tr>
+      </table>
+    </td>
+    <td width="50%" style="background:#f0fdf4; border:2px solid #bbf7d0; border-radius:12px; padding:18px 24px; vertical-align:middle;">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="vertical-align:middle; padding-right:14px;">
+            <div style="width:44px; height:44px; background:#25d366; border-radius:50%; text-align:center; line-height:44px; color:#fff; font-size:0.72em; font-weight:800;">WA</div>
+          </td>
+          <td style="vertical-align:middle;">
+            <div style="font-weight:700; color:#166534; font-size:0.97em;">WhatsApp Cloud API</div>
+            <div style="font-size:0.78em; color:#64748b; margin-top:3px;">Meta Cloud API &middot; interactive buttons</div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+
+<!-- ===== ZERO-RISK STRIP ===== -->
+<div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:16px 24px; margin:0 0 24px; text-align:center;">
+  <table width="100%" cellpadding="4" cellspacing="0" border="0">
+    <tr>
+      <td style="text-align:center; padding:4px 12px;">
+        <span style="color:#15803d; font-weight:700; font-size:0.9em;">&#10003; No credit card</span>
+      </td>
+      <td style="text-align:center; padding:4px 12px;">
+        <span style="color:#15803d; font-weight:700; font-size:0.9em;">&#10003; No cloud fees</span>
+      </td>
+      <td style="text-align:center; padding:4px 12px;">
+        <span style="color:#15803d; font-weight:700; font-size:0.9em;">&#10003; No vendor lock-in</span>
+      </td>
+      <td style="text-align:center; padding:4px 12px;">
+        <span style="color:#15803d; font-weight:700; font-size:0.9em;">&#10003; No SaaS pricing</span>
+      </td>
+      <td style="text-align:center; padding:4px 12px;">
+        <span style="color:#15803d; font-weight:700; font-size:0.9em;">&#10003; Data stays on your server</span>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<!-- ===== WHY ODOOPILOT WINS ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 4px;">Why OdooPilot wins</h2>
+<p style="color:#64748b; margin:0 0 16px; font-size:0.95em;">Four things no competitor offers together.</p>
+
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 24px;">
+  <tr>
+    <td width="50%" style="background:#fff; border:1px solid #e2e8f0; border-top:3px solid #15803d; border-radius:14px; padding:22px; vertical-align:top;">
+      <div style="width:38px; height:38px; background:#15803d; border-radius:50%; text-align:center; line-height:38px; color:#fff; font-weight:800; font-size:1.1em; margin-bottom:12px;">&#10003;</div>
+      <h3 style="font-size:0.97em; font-weight:800; color:#0f172a; margin:0 0 8px;">100% Free &mdash; forever</h3>
+      <p style="font-size:0.85em; color:#475569; margin:0; line-height:1.6;">No purchase, no subscription, no vendor lock-in. Competitors charge EUR 200&ndash;355 for read-only access to a single channel. OdooPilot is LGPL-3 open-source &mdash; install, fork, customise freely.</p>
+    </td>
+    <td width="50%" style="background:#fff; border:1px solid #e2e8f0; border-top:3px solid #7c3aed; border-radius:14px; padding:22px; vertical-align:top;">
+      <div style="width:38px; height:38px; background:#7c3aed; border-radius:50%; text-align:center; line-height:38px; color:#fff; font-weight:800; font-size:1.1em; margin-bottom:12px;">&#9654;</div>
+      <h3 style="font-size:0.97em; font-weight:800; color:#0f172a; margin:0 0 8px;">Write actions, not just queries</h3>
+      <p style="font-size:0.85em; color:#475569; margin:0; line-height:1.6;">Every competing free Odoo AI tool is read-only. OdooPilot can confirm sale orders, approve leaves, move CRM stages, and create leads &mdash; with a mandatory Yes / No safety gate before any record changes.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="background:#fff; border:1px solid #e2e8f0; border-top:3px solid #0891b2; border-radius:14px; padding:22px; vertical-align:top;">
+      <div style="width:38px; height:38px; background:#0891b2; border-radius:50%; text-align:center; line-height:38px; color:#fff; font-weight:800; font-size:1.1em; margin-bottom:12px;">2</div>
+      <h3 style="font-size:0.97em; font-weight:800; color:#0f172a; margin:0 0 8px;">Both channels: TG &amp; WhatsApp</h3>
+      <p style="font-size:0.85em; color:#475569; margin:0; line-height:1.6;">Most competitors support only Telegram. OdooPilot ships native integrations for both Telegram and WhatsApp Cloud API &mdash; your team uses whichever they already have on their phones.</p>
+    </td>
+    <td width="50%" style="background:#fff; border:1px solid #e2e8f0; border-top:3px solid #b45309; border-radius:14px; padding:22px; vertical-align:top;">
+      <div style="width:38px; height:38px; background:#b45309; border-radius:50%; text-align:center; line-height:38px; color:#fff; font-weight:800; font-size:1.1em; margin-bottom:12px;">&#9632;</div>
+      <h3 style="font-size:0.97em; font-weight:800; color:#0f172a; margin:0 0 8px;">Your data stays on your server</h3>
+      <p style="font-size:0.85em; color:#475569; margin:0; line-height:1.6;">No third-party cloud layer. OdooPilot runs entirely inside your Odoo instance &mdash; your business data never leaves your infrastructure, satisfying even strict data-residency requirements.</p>
+    </td>
+  </tr>
+</table>
+
+
+<!-- ===== STATS ===== -->
+<div style="background:#f8fafc; border-radius:14px; padding:30px 24px; margin:0 0 28px;">
+  <p style="text-align:center; font-size:0.78em; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:1px; margin:0 0 18px;">By the numbers</p>
+  <table width="100%" cellpadding="6" cellspacing="6" border="0">
+    <tr>
+      <td style="text-align:center; background:#fff; border-radius:12px; padding:18px 10px; border:1px solid #e2e8f0;">
+        <div style="font-size:2em; font-weight:800; color:#7c3aed; line-height:1;">8</div>
+        <div style="font-size:0.76em; color:#64748b; margin-top:6px; line-height:1.4;">Business<br>Domains</div>
+      </td>
+      <td style="text-align:center; background:#fff; border-radius:12px; padding:18px 10px; border:1px solid #e2e8f0;">
+        <div style="font-size:2em; font-weight:800; color:#7c3aed; line-height:1;">25+</div>
+        <div style="font-size:0.76em; color:#64748b; margin-top:6px; line-height:1.4;">Intelligent<br>Tools</div>
+      </td>
+      <td style="text-align:center; background:#fff; border-radius:12px; padding:18px 10px; border:1px solid #e2e8f0;">
+        <div style="font-size:2em; font-weight:800; color:#7c3aed; line-height:1;">4</div>
+        <div style="font-size:0.76em; color:#64748b; margin-top:6px; line-height:1.4;">LLM<br>Providers</div>
+      </td>
+      <td style="text-align:center; background:#fff; border-radius:12px; padding:18px 10px; border:1px solid #e2e8f0;">
+        <div style="font-size:2em; font-weight:800; color:#7c3aed; line-height:1;">15</div>
+        <div style="font-size:0.76em; color:#64748b; margin-top:6px; line-height:1.4;">UI<br>Languages</div>
+      </td>
+      <td style="text-align:center; background:#fff; border-radius:12px; padding:18px 10px; border:1px solid #e2e8f0;">
+        <div style="font-size:2em; font-weight:800; color:#7c3aed; line-height:1;">100%</div>
+        <div style="font-size:0.76em; color:#64748b; margin-top:6px; line-height:1.4;">Free &amp;<br>Open Source</div>
+      </td>
+      <td style="text-align:center; background:#fff; border-radius:12px; padding:18px 10px; border:1px solid #e2e8f0;">
+        <div style="font-size:2em; font-weight:800; color:#7c3aed; line-height:1;">0</div>
+        <div style="font-size:0.76em; color:#64748b; margin-top:6px; line-height:1.4;">Cloud<br>Dependencies</div>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<!-- ===== 8 BUSINESS DOMAINS ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 4px;">8 Business domains covered</h2>
+<p style="color:#64748b; margin:0 0 16px; font-size:0.95em;">Ask anything about your live Odoo data &mdash; across every core module.</p>
+
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 8px;">
+  <tr>
+    <td width="25%" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:18px 14px; vertical-align:top;">
+      <div style="font-size:1.3em; margin-bottom:8px;">&#128196;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#166534; margin:0 0 6px;">Sales &amp; CRM</h3>
+      <p style="font-size:0.82em; color:#475569; margin:0; line-height:1.55;">Quotations, orders, pipeline stages, lead creation</p>
+    </td>
+    <td width="25%" style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:18px 14px; vertical-align:top;">
+      <div style="font-size:1.3em; margin-bottom:8px;">&#128179;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#1e40af; margin:0 0 6px;">Invoicing</h3>
+      <p style="font-size:0.82em; color:#475569; margin:0; line-height:1.55;">Invoice status, overdue alerts, payment tracking</p>
+    </td>
+    <td width="25%" style="background:#fefce8; border:1px solid #fef08a; border-radius:12px; padding:18px 14px; vertical-align:top;">
+      <div style="font-size:1.3em; margin-bottom:8px;">&#128101;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#854d0e; margin:0 0 6px;">HR &amp; Leaves</h3>
+      <p style="font-size:0.82em; color:#475569; margin:0; line-height:1.55;">Employee lookup, leave requests, attendance</p>
+    </td>
+    <td width="25%" style="background:#fdf4ff; border:1px solid #e9d5ff; border-radius:12px; padding:18px 14px; vertical-align:top;">
+      <div style="font-size:1.3em; margin-bottom:8px;">&#9989;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#7c3aed; margin:0 0 6px;">Project &amp; Tasks</h3>
+      <p style="font-size:0.82em; color:#475569; margin:0; line-height:1.55;">Task status, deadlines, assignees, stage updates</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="25%" style="background:#fff7ed; border:1px solid #fed7aa; border-radius:12px; padding:18px 14px; vertical-align:top;">
+      <div style="font-size:1.3em; margin-bottom:8px;">&#128230;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#9a3412; margin:0 0 6px;">Inventory</h3>
+      <p style="font-size:0.82em; color:#475569; margin:0; line-height:1.55;">Stock levels, product locations, transfers</p>
+    </td>
+    <td width="25%" style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:18px 14px; vertical-align:top;">
+      <div style="font-size:1.3em; margin-bottom:8px;">&#128722;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#065f46; margin:0 0 6px;">Purchase</h3>
+      <p style="font-size:0.82em; color:#475569; margin:0; line-height:1.55;">PO status, vendor lookup, receipt tracking</p>
+    </td>
+    <td width="25%" style="background:#fff1f2; border:1px solid #fecdd3; border-radius:12px; padding:18px 14px; vertical-align:top;">
+      <div style="font-size:1.3em; margin-bottom:8px;">&#128200;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#be123c; margin:0 0 6px;">Accounting</h3>
+      <p style="font-size:0.82em; color:#475569; margin:0; line-height:1.55;">P&amp;L overview, expense reports, journal entries</p>
+    </td>
+    <td width="25%" style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:18px 14px; vertical-align:top;">
+      <div style="font-size:1.3em; margin-bottom:8px;">&#128241;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#0369a1; margin:0 0 6px;">General Search</h3>
+      <p style="font-size:0.82em; color:#475569; margin:0; line-height:1.55;">Audit log, any record by ID, cross-module queries</p>
+    </td>
+  </tr>
+</table>
+
+
+<!-- ===== WRITE ACTIONS ===== -->
+<div style="background:#fdf4ff; border:1px solid #e9d5ff; border-radius:14px; padding:28px 26px; margin:24px 0;">
+  <h2 style="font-size:1.4em; font-weight:800; color:#6b21a8; margin:0 0 8px;">&#9654; Write actions (with safety confirmation)</h2>
+  <p style="color:#64748b; margin:0 0 16px; font-size:0.9em;">Every write requires your explicit <strong>Yes / No</strong> before executing. No silent changes &mdash; ever.</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td width="50%" style="vertical-align:top; padding-right:20px;">
+        <ul style="margin:0; padding-left:18px; color:#374151; font-size:0.9em; line-height:2;">
+          <li>Confirm or cancel a sale order</li>
+          <li>Approve or refuse a leave request</li>
+          <li>Create a new lead or opportunity</li>
+          <li>Move a CRM opportunity to a new stage</li>
+        </ul>
+      </td>
+      <td width="50%" style="vertical-align:top; padding-left:20px;">
+        <ul style="margin:0; padding-left:18px; color:#374151; font-size:0.9em; line-height:2;">
+          <li>Create and assign a project task</li>
+          <li>Log a note on any record</li>
+          <li>Validate a stock transfer</li>
+          <li>Post an invoice</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<!-- ===== DEMO CONVERSATION ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:28px 0 4px;">See it in action</h2>
+<p style="color:#64748b; margin:0 0 16px; font-size:0.95em;">Real conversations &mdash; Telegram on the left, WhatsApp on the right.</p>
+
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 28px;">
+  <tr>
+    <td width="50%" style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:14px; padding:20px; vertical-align:top;">
+      <div style="font-weight:700; color:#1e40af; font-size:0.85em; margin-bottom:14px;">&#128172; Telegram &mdash; Sales query</div>
+      <!-- User bubble -->
+      <div style="text-align:right; margin-bottom:10px;">
+        <span style="display:inline-block; background:#1d4ed8; color:#fff; padding:9px 14px; border-radius:14px 14px 2px 14px; font-size:0.85em; max-width:80%;">Show me today's confirmed orders</span>
+      </div>
+      <!-- Bot reply -->
+      <div style="text-align:left; margin-bottom:10px;">
+        <span style="display:inline-block; background:#fff; color:#1e293b; padding:9px 14px; border-radius:14px 14px 14px 2px; font-size:0.85em; border:1px solid #e2e8f0; max-width:90%;">
+          <strong>3 confirmed orders today</strong><br>
+          SO/2024-001 &mdash; Acme Corp &mdash; EUR 4,200<br>
+          SO/2024-002 &mdash; Beta Ltd &mdash; EUR 1,850<br>
+          SO/2024-003 &mdash; Gamma Inc &mdash; EUR 920<br>
+          <strong>Total: EUR 6,970</strong>
+        </span>
+      </div>
+      <!-- User bubble -->
+      <div style="text-align:right; margin-bottom:10px;">
+        <span style="display:inline-block; background:#1d4ed8; color:#fff; padding:9px 14px; border-radius:14px 14px 2px 14px; font-size:0.85em; max-width:80%;">Confirm SO/2024-001</span>
+      </div>
+      <!-- Bot reply -->
+      <div style="text-align:left;">
+        <span style="display:inline-block; background:#fff; color:#1e293b; padding:9px 14px; border-radius:14px 14px 14px 2px; font-size:0.85em; border:1px solid #fef08a; max-width:90%;">
+          Confirm sale order <strong>SO/2024-001</strong> for Acme Corp &mdash; EUR 4,200?<br><br>
+          [<strong>Yes, confirm</strong>] &nbsp; [No, cancel]
+        </span>
+      </div>
+    </td>
+    <td width="50%" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:14px; padding:20px; vertical-align:top;">
+      <div style="font-weight:700; color:#166534; font-size:0.85em; margin-bottom:14px;">&#128172; WhatsApp &mdash; Leave approval</div>
+      <!-- User bubble -->
+      <div style="text-align:right; margin-bottom:10px;">
+        <span style="display:inline-block; background:#25d366; color:#fff; padding:9px 14px; border-radius:14px 14px 2px 14px; font-size:0.85em; max-width:80%;">Approve John's leave request</span>
+      </div>
+      <!-- Bot reply -->
+      <div style="text-align:left; margin-bottom:10px;">
+        <span style="display:inline-block; background:#fff; color:#1e293b; padding:9px 14px; border-radius:14px 14px 14px 2px; font-size:0.85em; border:1px solid #e2e8f0; max-width:90%;">
+          Found 1 pending leave for <strong>John Smith</strong><br>
+          Type: Annual Leave<br>
+          Dates: Dec 23 &mdash; Dec 27 (3 days)<br>
+          Approve this leave?
+        </span>
+      </div>
+      <!-- Buttons -->
+      <div style="text-align:left; margin-bottom:10px;">
+        <span style="display:inline-block; background:#dcfce7; color:#166534; padding:8px 16px; border-radius:8px; font-size:0.82em; font-weight:700; border:1px solid #86efac; margin-right:6px;">Yes, approve</span>
+        <span style="display:inline-block; background:#fff1f2; color:#be123c; padding:8px 16px; border-radius:8px; font-size:0.82em; font-weight:700; border:1px solid #fecdd3;">Refuse</span>
+      </div>
+      <!-- User taps Yes -->
+      <div style="text-align:right; margin-bottom:10px;">
+        <span style="display:inline-block; background:#25d366; color:#fff; padding:9px 14px; border-radius:14px 14px 2px 14px; font-size:0.85em; max-width:80%;">Yes, approve</span>
+      </div>
+      <!-- Bot confirmation -->
+      <div style="text-align:left;">
+        <span style="display:inline-block; background:#fff; color:#1e293b; padding:9px 14px; border-radius:14px 14px 14px 2px; font-size:0.85em; border:1px solid #bbf7d0; max-width:90%;">
+          &#10003; <strong>Leave approved!</strong> John has been notified.
+        </span>
+      </div>
+    </td>
+  </tr>
+</table>
+
+
+<!-- ===== PERSONAS ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 4px;">Who is it for?</h2>
+
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 28px;">
+  <tr>
+    <td width="25%" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; vertical-align:top; text-align:center;">
+      <div style="font-size:2em; margin-bottom:10px;">&#128084;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#0f172a; margin:0 0 6px;">Executives</h3>
+      <p style="font-size:0.8em; color:#64748b; margin:0; line-height:1.55;">Get KPI snapshots and approve key actions from WhatsApp without opening Odoo.</p>
+    </td>
+    <td width="25%" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; vertical-align:top; text-align:center;">
+      <div style="font-size:2em; margin-bottom:10px;">&#128188;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#0f172a; margin:0 0 6px;">Sales Reps</h3>
+      <p style="font-size:0.8em; color:#64748b; margin:0; line-height:1.55;">Create leads, check order status, and move pipeline stages from the field &mdash; in your language.</p>
+    </td>
+    <td width="25%" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; vertical-align:top; text-align:center;">
+      <div style="font-size:2em; margin-bottom:10px;">&#128736;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#0f172a; margin:0 0 6px;">Ops &amp; Warehouse</h3>
+      <p style="font-size:0.8em; color:#64748b; margin:0; line-height:1.55;">Check stock, validate transfers, and track deliveries without switching screens.</p>
+    </td>
+    <td width="25%" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; vertical-align:top; text-align:center;">
+      <div style="font-size:2em; margin-bottom:10px;">&#128187;</div>
+      <h3 style="font-size:0.9em; font-weight:800; color:#0f172a; margin:0 0 6px;">Developers</h3>
+      <p style="font-size:0.8em; color:#64748b; margin:0; line-height:1.55;">LGPL-3 codebase. Add custom tools, swap LLM providers, extend with your own logic.</p>
+    </td>
+  </tr>
+</table>
+
+
+<!-- ===== 15 LANGUAGES ===== -->
+<div style="background:#f8fafc; border-radius:14px; padding:28px 24px; margin:0 0 28px;">
+  <h2 style="font-size:1.4em; font-weight:800; color:#0f172a; margin:0 0 6px; text-align:center;">15 Languages</h2>
+  <p style="text-align:center; color:#64748b; margin:0 0 18px; font-size:0.88em;">Bot UI responds in the user's own language. You chat &mdash; OdooPilot understands.</p>
+  <table width="100%" cellpadding="5" cellspacing="5" border="0">
+    <tr>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">English</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Arabic</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">French</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">German</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Spanish</td>
+    </tr>
+    <tr>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Italian</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Portuguese</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Russian</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Chinese</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Japanese</td>
+    </tr>
+    <tr>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Korean</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Hindi</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Turkish</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Dutch</td>
+      <td style="text-align:center; font-size:0.88em; background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:9px 6px;">Polish</td>
+    </tr>
+  </table>
+</div>
+
+
+<!-- ===== PROACTIVE NOTIFICATIONS ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 4px;">Proactive Notifications</h2>
+<p style="color:#64748b; margin:0 0 16px; font-size:0.95em;">OdooPilot pushes critical alerts before you even ask.</p>
+
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 28px;">
+  <tr>
+    <td width="50%" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:22px; vertical-align:top;">
+      <h3 style="font-size:0.95em; font-weight:800; color:#0f172a; margin:0 0 8px;">Daily Task Digest</h3>
+      <p style="font-size:0.85em; color:#475569; margin:0; line-height:1.6;">Sends each linked user their overdue and today's tasks every morning at 08:00 UTC. Never miss a deadline again.</p>
+    </td>
+    <td width="50%" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:22px; vertical-align:top;">
+      <h3 style="font-size:0.95em; font-weight:800; color:#0f172a; margin:0 0 8px;">Overdue Invoice Alerts</h3>
+      <p style="font-size:0.85em; color:#475569; margin:0; line-height:1.6;">Sends accounting users a daily overdue invoice summary at 09:00 UTC. Cash flow visibility without opening Odoo.</p>
+    </td>
+  </tr>
+</table>
+
+
+<!-- ===== LLM PROVIDERS ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 4px;">Your choice of AI engine</h2>
+<p style="color:#64748b; margin:0 0 16px; font-size:0.95em;">Swap providers in Settings &mdash; no code changes required.</p>
+
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 28px;">
+  <tr>
+    <td width="25%" style="text-align:center; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px 14px; vertical-align:top;">
+      <div style="font-size:1.5em; margin-bottom:8px;">&#129302;</div>
+      <div style="font-weight:800; color:#0f172a; font-size:0.92em; margin-bottom:6px;">Anthropic Claude</div>
+      <div style="font-size:0.76em; color:#64748b; line-height:1.5;">claude-3-5-haiku &mdash; best reasoning, low cost</div>
+    </td>
+    <td width="25%" style="text-align:center; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px 14px; vertical-align:top;">
+      <div style="font-size:1.5em; margin-bottom:8px;">&#127774;</div>
+      <div style="font-weight:800; color:#0f172a; font-size:0.92em; margin-bottom:6px;">OpenAI GPT-4o</div>
+      <div style="font-size:0.76em; color:#64748b; line-height:1.5;">gpt-4o-mini default &mdash; proven, widely used</div>
+    </td>
+    <td width="25%" style="text-align:center; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px 14px; vertical-align:top;">
+      <div style="font-size:1.5em; margin-bottom:8px;">&#9889;</div>
+      <div style="font-weight:800; color:#0f172a; font-size:0.92em; margin-bottom:6px;">Groq</div>
+      <div style="font-size:0.76em; color:#64748b; line-height:1.5;">llama-3.3-70b &mdash; ultra-fast, generous free tier</div>
+    </td>
+    <td width="25%" style="text-align:center; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px 14px; vertical-align:top;">
+      <div style="font-size:1.5em; margin-bottom:8px;">&#127968;</div>
+      <div style="font-weight:800; color:#0f172a; font-size:0.92em; margin-bottom:6px;">Ollama (Local)</div>
+      <div style="font-size:0.76em; color:#64748b; line-height:1.5;">100% on-premise, no API cost, total data privacy</div>
+    </td>
+  </tr>
+</table>
+
+
+<!-- ===== HOW IT WORKS ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 4px;">How it works</h2>
+<p style="color:#64748b; margin:0 0 16px; font-size:0.95em;">From message to action in under 3 seconds.</p>
+
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 28px;">
+  <tr>
+    <td width="25%" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:22px 18px; vertical-align:top;">
+      <div style="width:36px; height:36px; background:#6d28d9; border-radius:50%; text-align:center; line-height:36px; color:#fff; font-weight:800; font-size:0.9em; margin-bottom:12px;">1</div>
+      <h3 style="font-size:0.92em; font-weight:700; color:#0f172a; margin:0 0 6px;">Send a message</h3>
+      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">Type naturally in Telegram or WhatsApp. &ldquo;Show me overdue invoices&rdquo; or &ldquo;Approve John's leave.&rdquo;</p>
+    </td>
+    <td width="25%" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:22px 18px; vertical-align:top;">
+      <div style="width:36px; height:36px; background:#7c3aed; border-radius:50%; text-align:center; line-height:36px; color:#fff; font-weight:800; font-size:0.9em; margin-bottom:12px;">2</div>
+      <h3 style="font-size:0.92em; font-weight:700; color:#0f172a; margin:0 0 6px;">LLM understands</h3>
+      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">The LLM parses intent and selects the right Odoo tool. Context-aware &mdash; remembers earlier turns in the conversation.</p>
+    </td>
+    <td width="25%" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:22px 18px; vertical-align:top;">
+      <div style="width:36px; height:36px; background:#8b5cf6; border-radius:50%; text-align:center; line-height:36px; color:#fff; font-weight:800; font-size:0.9em; margin-bottom:12px;">3</div>
+      <h3 style="font-size:0.92em; font-weight:700; color:#0f172a; margin:0 0 6px;">Odoo executes</h3>
+      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">For reads: instant reply. For writes: a clear confirmation prompt appears first. You say Yes or No.</p>
+    </td>
+    <td width="25%" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:22px 18px; vertical-align:top;">
+      <div style="width:36px; height:36px; background:#a78bfa; border-radius:50%; text-align:center; line-height:36px; color:#fff; font-weight:800; font-size:0.9em; margin-bottom:12px;">4</div>
+      <h3 style="font-size:0.92em; font-weight:700; color:#0f172a; margin:0 0 6px;">Result in chat</h3>
+      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">Formatted, human-readable reply arrives in seconds. No app-switching, no Odoo login required.</p>
+    </td>
+  </tr>
+</table>
+
+
+<!-- ===== COMPARISON TABLE ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 4px;">OdooPilot vs. Paid Alternatives</h2>
+<p style="color:#64748b; margin:0 0 16px; font-size:0.95em;">A transparent look at what you get &mdash; and what you pay.</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0; border-radius:12px; border-collapse:collapse; margin:0 0 28px; overflow:hidden;">
+  <tr style="background:#f8fafc;">
+    <th style="text-align:left; padding:14px 16px; font-size:0.85em; font-weight:700; color:#64748b; border-bottom:2px solid #e2e8f0;">Feature</th>
+    <th style="text-align:center; padding:14px 16px; font-size:0.85em; font-weight:700; color:#15803d; border-bottom:2px solid #e2e8f0;">OdooPilot &mdash; FREE</th>
+    <th style="text-align:center; padding:14px 16px; font-size:0.85em; font-weight:700; color:#dc2626; border-bottom:2px solid #e2e8f0;">Competitors &mdash; EUR 200&ndash;355</th>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9;">
+    <td style="padding:12px 16px; font-size:0.88em; color:#374151;">Price</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#15803d; font-weight:700;">&#10003; EUR 0 forever</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#dc2626;">EUR 200&ndash;355 one-time</td>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9; background:#fafafa;">
+    <td style="padding:12px 16px; font-size:0.88em; color:#374151;">Telegram support</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#15803d; font-weight:700;">&#10003;</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#15803d;">&#10003;</td>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9;">
+    <td style="padding:12px 16px; font-size:0.88em; color:#374151;">WhatsApp support</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#15803d; font-weight:700;">&#10003;</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#dc2626;">&#10007; Telegram only</td>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9; background:#fafafa;">
+    <td style="padding:12px 16px; font-size:0.88em; color:#374151;">Write actions (confirm orders, approve leaves)</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#15803d; font-weight:700;">&#10003;</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#dc2626;">&#10007; read-only</td>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9;">
+    <td style="padding:12px 16px; font-size:0.88em; color:#374151;">Proactive notifications</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#15803d; font-weight:700;">&#10003;</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#dc2626;">&#10007;</td>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9; background:#fafafa;">
+    <td style="padding:12px 16px; font-size:0.88em; color:#374151;">Multiple LLM providers</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#15803d; font-weight:700;">&#10003; 4 providers</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#dc2626;">&#10007; OpenAI only</td>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9;">
+    <td style="padding:12px 16px; font-size:0.88em; color:#374151;">Self-hosted / on-premise AI</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#15803d; font-weight:700;">&#10003;</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#dc2626;">&#10007;</td>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9; background:#fafafa;">
+    <td style="padding:12px 16px; font-size:0.88em; color:#374151;">15 UI languages</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#15803d; font-weight:700;">&#10003;</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#dc2626;">&#10007;</td>
+  </tr>
+  <tr>
+    <td style="padding:12px 16px; font-size:0.88em; color:#374151;">Open source (LGPL-3)</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#15803d; font-weight:700;">&#10003;</td>
+    <td style="padding:12px 16px; text-align:center; font-size:0.88em; color:#dc2626;">&#10007;</td>
+  </tr>
+</table>
+
+
+<!-- ===== FAQ ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 16px;">Frequently Asked Questions</h2>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;">
+  <tr>
+    <td style="border-bottom:1px solid #f1f5f9; padding:18px 0;">
+      <p style="font-weight:700; color:#0f172a; margin:0 0 6px; font-size:0.95em;">Is OdooPilot really free?</p>
+      <p style="color:#64748b; margin:0; font-size:0.88em; line-height:1.7;">Yes, 100%. LGPL-3 licence. No in-app purchases, no hidden tiers, no SaaS fees. You only pay for LLM API calls if you choose a paid provider (Claude, OpenAI). Groq's free tier requires no credit card at all.</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="border-bottom:1px solid #f1f5f9; padding:18px 0;">
+      <p style="font-weight:700; color:#0f172a; margin:0 0 6px; font-size:0.95em;">Does it work with Odoo Community?</p>
+      <p style="color:#64748b; margin:0; font-size:0.88em; line-height:1.7;">Yes &mdash; designed and tested on Odoo 17 Community. Enterprise should also work out-of-the-box since OdooPilot uses only standard Odoo APIs.</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="border-bottom:1px solid #f1f5f9; padding:18px 0;">
+      <p style="font-weight:700; color:#0f172a; margin:0 0 6px; font-size:0.95em;">Can I use a local AI model?</p>
+      <p style="color:#64748b; margin:0; font-size:0.88em; line-height:1.7;">Yes. Select &ldquo;Ollama&rdquo; as the provider, point OdooPilot at your local Ollama endpoint, and your Odoo data never leaves your server. Zero API cost.</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="border-bottom:1px solid #f1f5f9; padding:18px 0;">
+      <p style="font-weight:700; color:#0f172a; margin:0 0 6px; font-size:0.95em;">Is it safe to allow write actions?</p>
+      <p style="color:#64748b; margin:0; font-size:0.88em; line-height:1.7;">Every write action triggers a confirmation message with Yes / No buttons before any data is modified. The AI cannot change Odoo records without your explicit approval for each action.</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="border-bottom:1px solid #f1f5f9; padding:18px 0;">
+      <p style="font-weight:700; color:#0f172a; margin:0 0 6px; font-size:0.95em;">Can multiple users connect?</p>
+      <p style="color:#64748b; margin:0; font-size:0.88em; line-height:1.7;">Yes. Each Telegram / WhatsApp user is mapped to an Odoo user. Access is controlled by standard Odoo permissions &mdash; users only see data they are already authorised to see.</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:18px 0;">
+      <p style="font-weight:700; color:#0f172a; margin:0 0 6px; font-size:0.95em;">How long does setup take?</p>
+      <p style="color:#64748b; margin:0; font-size:0.88em; line-height:1.7;">Typically under 15 minutes: install the module, add your bot token, add your LLM API key, click &ldquo;Register webhook&rdquo;. Full step-by-step guide on GitHub.</p>
+    </td>
+  </tr>
+</table>
+
+
+<!-- ===== RESOURCES ===== -->
+<div style="background:#0f766e; border-radius:14px; padding:40px 32px; margin:0 0 24px;">
+  <h2 style="color:#fff; font-size:1.6em; font-weight:800; text-align:center; margin:0 0 8px;">Resources &amp; Documentation</h2>
+  <p style="text-align:center; color:#99f6e4; margin:0 0 24px; font-size:0.9em;">Everything you need to get started and go further.</p>
+  <table width="100%" cellpadding="8" cellspacing="8" border="0">
+    <tr>
+      <td style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); border-radius:10px; padding:20px; vertical-align:top;">
+        <h3 style="color:#fff; font-size:0.92em; font-weight:700; margin:0 0 12px;">Get Started</h3>
+        <a href="https://github.com/arunrajiah/odoopilot" style="display:block; color:#99f6e4; font-size:0.87em; text-decoration:none; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.1);">&rsaquo; GitHub Repository</a>
+        <a href="https://github.com/arunrajiah/odoopilot/blob/main/README.md" style="display:block; color:#99f6e4; font-size:0.87em; text-decoration:none; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.1);">&rsaquo; Installation Guide</a>
+        <a href="https://github.com/arunrajiah/odoopilot/blob/main/CHANGELOG.md" style="display:block; color:#99f6e4; font-size:0.87em; text-decoration:none; padding:5px 0;">&rsaquo; Changelog</a>
+      </td>
+      <td style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); border-radius:10px; padding:20px; vertical-align:top;">
+        <h3 style="color:#fff; font-size:0.92em; font-weight:700; margin:0 0 12px;">Configuration</h3>
+        <a href="https://github.com/arunrajiah/odoopilot/blob/main/README.md#telegram" style="display:block; color:#99f6e4; font-size:0.87em; text-decoration:none; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.1);">&rsaquo; Telegram Setup</a>
+        <a href="https://github.com/arunrajiah/odoopilot/blob/main/README.md#whatsapp" style="display:block; color:#99f6e4; font-size:0.87em; text-decoration:none; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.1);">&rsaquo; WhatsApp Setup</a>
+        <a href="https://github.com/arunrajiah/odoopilot/blob/main/README.md#llm-providers" style="display:block; color:#99f6e4; font-size:0.87em; text-decoration:none; padding:5px 0;">&rsaquo; LLM Provider Config</a>
+      </td>
+      <td style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); border-radius:10px; padding:20px; vertical-align:top;">
+        <h3 style="color:#fff; font-size:0.92em; font-weight:700; margin:0 0 12px;">Community</h3>
+        <a href="https://github.com/arunrajiah/odoopilot/issues" style="display:block; color:#99f6e4; font-size:0.87em; text-decoration:none; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.1);">&rsaquo; Report a Bug</a>
+        <a href="https://github.com/arunrajiah/odoopilot/discussions" style="display:block; color:#99f6e4; font-size:0.87em; text-decoration:none; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.1);">&rsaquo; Discussions</a>
+        <a href="https://github.com/sponsors/arunrajiah" style="display:block; color:#99f6e4; font-size:0.87em; text-decoration:none; padding:5px 0;">&rsaquo; Sponsor on GitHub</a>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<!-- ===== SPONSOR ===== -->
+<div style="background:#1e1b4b; border-radius:14px; padding:50px 36px; text-align:center; margin:0 0 24px;">
+  <div style="width:52px; height:52px; background:rgba(168,85,247,0.15); border:2px solid #7c3aed; border-radius:50%; text-align:center; line-height:52px; font-size:1.4em; margin:0 auto 18px;">&hearts;</div>
+  <h2 style="color:#fff; font-size:1.6em; font-weight:800; margin:0 0 12px;">Support open-source Odoo AI</h2>
+  <p style="color:#94a3b8; max-width:520px; margin:0 auto 28px; line-height:1.75; font-size:0.95em;">OdooPilot is built and maintained by a solo developer. If it saves your team time, a small sponsorship keeps the lights on &mdash; new features, bug fixes, and Odoo version support.</p>
+
+  <table cellpadding="8" cellspacing="8" border="0" style="margin:0 auto 28px;">
+    <tr>
+      <td style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:22px 20px; text-align:center; min-width:130px; vertical-align:top;">
+        <div style="font-size:1.2em; font-weight:800; color:#fff; margin-bottom:4px;">$5/mo</div>
+        <div style="font-size:0.72em; color:#a855f7; font-weight:700; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Supporter</div>
+        <div style="font-size:0.78em; color:#94a3b8; line-height:1.5;">GitHub &amp; README credit</div>
+      </td>
+      <td style="background:rgba(168,85,247,0.12); border:2px solid #a855f7; border-radius:12px; padding:22px 20px; text-align:center; min-width:130px; vertical-align:top;">
+        <div style="font-size:1.2em; font-weight:800; color:#fff; margin-bottom:4px;">$25/mo</div>
+        <div style="font-size:0.72em; color:#a855f7; font-weight:700; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Backer &#9733;</div>
+        <div style="font-size:0.78em; color:#94a3b8; line-height:1.5;">Priority issues &amp; feature votes</div>
+      </td>
+      <td style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:22px 20px; text-align:center; min-width:130px; vertical-align:top;">
+        <div style="font-size:1.2em; font-weight:800; color:#fff; margin-bottom:4px;">$100/mo</div>
+        <div style="font-size:0.72em; color:#a855f7; font-weight:700; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Gold</div>
+        <div style="font-size:0.78em; color:#94a3b8; line-height:1.5;">Logo in README + dedicated support</div>
+      </td>
+    </tr>
+  </table>
+
+  <a href="https://github.com/sponsors/arunrajiah" style="display:inline-block; background:#a855f7; color:#fff; padding:14px 44px; border-radius:9px; font-weight:700; font-size:1em; text-decoration:none;">&hearts; Become a Sponsor on GitHub</a>
+  <p style="font-size:0.78em; color:#475569; margin-top:14px;">One-time contributions also welcome &mdash; any amount keeps the project alive.</p>
+</div>
+
+
+<!-- ===== FOOTER ===== -->
+<div style="text-align:center; padding:18px 0; border-top:1px solid #f1f5f9;">
+  <p style="font-size:0.82em; color:#94a3b8; margin:0;">
+    OdooPilot &mdash; LGPL-3 &mdash; Odoo 17 Community &mdash;
+    <a href="https://github.com/arunrajiah/odoopilot" style="color:#7c3aed; text-decoration:none;">GitHub</a> &mdash;
+    Built with &hearts; by <a href="https://github.com/arunrajiah" style="color:#7c3aed; text-decoration:none;">arunrajiah</a>
   </p>
-  <a href="https://github.com/arunrajiah/odoopilot"
-     style="display:inline-block; background:#24292f; color:#fff; padding:9px 22px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px; font-size:0.88em;">
-    GitHub
-  </a>
-  <a href="https://github.com/arunrajiah/odoopilot/discussions"
-     style="display:inline-block; background:#5865f2; color:#fff; padding:9px 22px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px; font-size:0.88em;">
-    Discussions
-  </a>
-  <a href="https://github.com/arunrajiah/odoopilot/issues"
-     style="display:inline-block; background:#e67e22; color:#fff; padding:9px 22px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px; font-size:0.88em;">
-    Report Issue
-  </a>
-  <a href="https://github.com/arunrajiah/odoopilot/blob/main/CHANGELOG.md"
-     style="display:inline-block; background:#374151; color:#fff; padding:9px 22px; border-radius:6px; text-decoration:none; font-weight:600; margin:4px; font-size:0.88em;">
-    Changelog
-  </a>
 </div>
 
 </div>
