@@ -1,7 +1,9 @@
 from odoo import _, fields, models
 from odoo.exceptions import UserError
-import requests
 import logging
+import secrets
+
+import requests
 
 _logger = logging.getLogger(__name__)
 
@@ -16,9 +18,15 @@ class ResConfigSettings(models.TransientModel):
         help="From @BotFather on Telegram.",
     )
     odoopilot_telegram_webhook_secret = fields.Char(
-        string="Webhook Secret (optional)",
+        string="Webhook Secret (auto-generated)",
         config_parameter="odoopilot.telegram_webhook_secret",
-        help="Random string added as X-Telegram-Bot-Api-Secret-Token header.",
+        help=(
+            "Required. Telegram includes it as the "
+            "X-Telegram-Bot-Api-Secret-Token header on every webhook POST. "
+            "Auto-generated when you click 'Register webhook' if blank. "
+            "Without this, anyone who finds the webhook URL can spoof "
+            "messages from any user."
+        ),
     )
     odoopilot_telegram_enabled = fields.Boolean(
         string="Telegram Enabled",
@@ -66,6 +74,17 @@ class ResConfigSettings(models.TransientModel):
         config_parameter="odoopilot.whatsapp_verify_token",
         help="Any random string you choose — paste the same value in the Meta webhook config.",
     )
+    odoopilot_whatsapp_app_secret = fields.Char(
+        string="App Secret (REQUIRED)",
+        config_parameter="odoopilot.whatsapp_app_secret",
+        help=(
+            "Meta App Secret from App Dashboard -> Settings -> Basic. "
+            "REQUIRED for webhook security: every incoming POST is verified "
+            "with HMAC-SHA256(app_secret, body) against the "
+            "X-Hub-Signature-256 header. Without this, anyone who discovers "
+            "the webhook URL can impersonate any linked WhatsApp user."
+        ),
+    )
 
     # Notifications
     odoopilot_notify_task_digest = fields.Boolean(
@@ -80,28 +99,43 @@ class ResConfigSettings(models.TransientModel):
     )
 
     def action_register_telegram_webhook(self):
-        """Register the Odoo webhook URL with Telegram."""
-        token = (
-            self.env["ir.config_parameter"]
-            .sudo()
-            .get_param("odoopilot.telegram_bot_token")
-        )
+        """Register the Odoo webhook URL with Telegram.
+
+        Security: the webhook secret is mandatory. If none is configured,
+        we auto-generate a 32-byte URL-safe secret here, persist it, and
+        register it with Telegram. The OdooPilot webhook handler then
+        rejects any incoming request whose
+        ``X-Telegram-Bot-Api-Secret-Token`` header does not match.
+        """
+        cfg = self.env["ir.config_parameter"].sudo()
+        token = cfg.get_param("odoopilot.telegram_bot_token")
         if not token:
             raise UserError(_("Please save the Telegram Bot Token first."))
 
-        base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url", "")
+        base_url = cfg.get_param("web.base.url", "")
+        if not base_url:
+            raise UserError(
+                _(
+                    "web.base.url is not configured. Set it under "
+                    "Settings -> Technical -> System Parameters before "
+                    "registering the webhook."
+                )
+            )
         webhook_url = f"{base_url.rstrip('/')}/odoopilot/webhook/telegram"
-        secret = (
-            self.env["ir.config_parameter"]
-            .sudo()
-            .get_param("odoopilot.telegram_webhook_secret")
-            or None
-        )
 
-        payload = {"url": webhook_url, "allowed_updates": ["message", "callback_query"]}
-        if secret:
-            payload["secret_token"] = secret
+        secret = cfg.get_param("odoopilot.telegram_webhook_secret") or ""
+        if not secret:
+            # Auto-generate a strong secret so the webhook is never left
+            # unauthenticated. Telegram's secret_token must match
+            # ``[A-Za-z0-9_-]{1,256}`` and token_urlsafe satisfies that.
+            secret = secrets.token_urlsafe(32)
+            cfg.set_param("odoopilot.telegram_webhook_secret", secret)
 
+        payload = {
+            "url": webhook_url,
+            "allowed_updates": ["message", "callback_query"],
+            "secret_token": secret,
+        }
         resp = requests.post(
             f"https://api.telegram.org/bot{token}/setWebhook",
             json=payload,
@@ -114,12 +148,15 @@ class ResConfigSettings(models.TransientModel):
                 "tag": "display_notification",
                 "params": {
                     "title": _("Webhook registered"),
-                    "message": f"Telegram webhook set to: {webhook_url}",
+                    "message": (
+                        f"Telegram webhook set to: {webhook_url} "
+                        "(secret token configured)."
+                    ),
                     "type": "success",
                 },
             }
         raise UserError(
-            _(f"Telegram error: {data.get('description', 'Unknown error')}")
+            _("Telegram error: %s") % data.get("description", "Unknown error")
         )
 
     def action_test_whatsapp_connection(self):
