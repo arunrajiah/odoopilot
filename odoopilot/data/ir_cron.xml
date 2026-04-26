@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Link-token garbage collection — runs hourly -->
+    <record id="ir_cron_gc_link_tokens" model="ir.cron">
+        <field name="name">OdooPilot: Garbage-collect expired link tokens</field>
+        <field name="model_id" ref="odoopilot.model_odoopilot_link_token"/>
+        <field name="state">code</field>
+        <field name="code">model._gc_expired()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
     <!-- Session garbage collection — runs daily -->
     <record id="ir_cron_gc_sessions" model="ir.cron">
         <field name="name">OdooPilot: Clean up old conversation sessions</field>

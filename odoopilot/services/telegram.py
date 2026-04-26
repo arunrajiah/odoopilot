@@ -26,13 +26,23 @@ class TelegramClient:
             payload["reply_markup"] = reply_markup
         return self._call("sendMessage", payload)
 
-    def send_confirmation(self, chat_id: str, question: str) -> dict:
-        """Send a yes/no inline keyboard for write-action confirmation."""
+    def send_confirmation(
+        self, chat_id: str, question: str, nonce: str = ""
+    ) -> dict:
+        """Send a yes/no inline keyboard for write-action confirmation.
+
+        The ``nonce`` is embedded in the callback_data as ``confirm:yes:<nonce>``
+        so the controller can verify the click is bound to the staged write
+        currently held by the session (defends against prompt-injection swap).
+        Telegram callback_data is capped at 64 bytes — keep nonce short.
+        """
+        yes_payload = f"confirm:yes:{nonce}" if nonce else "confirm:yes"
+        no_payload = f"confirm:no:{nonce}" if nonce else "confirm:no"
         markup = {
             "inline_keyboard": [
                 [
-                    {"text": "Yes", "callback_data": "confirm:yes"},
-                    {"text": "No", "callback_data": "confirm:no"},
+                    {"text": "Yes", "callback_data": yes_payload},
+                    {"text": "No", "callback_data": no_payload},
                 ]
             ]
         }
