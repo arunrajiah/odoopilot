@@ -137,14 +137,16 @@ class OdooPilotAgent:
                 messages.extend(extra)
 
             if write_call:
-                session.sudo().write(
-                    {
-                        "pending_tool": write_call["name"],
-                        "pending_args": json.dumps(write_call["args"]),
-                    }
+                # Stage the write *atomically* with a fresh nonce. The nonce is
+                # embedded in the Yes/No button payload so the confirmation
+                # handler can verify the click is bound to *this* staged write
+                # — defending against prompt-injection that tries to swap the
+                # staged tool between staging and the user clicking Yes.
+                nonce = session.sudo().stage_pending(
+                    write_call["name"], write_call["args"]
                 )
                 question = _fmt_confirmation(write_call["name"], write_call["args"])
-                self.tg.send_confirmation(chat_id, question)
+                self.tg.send_confirmation(chat_id, question, nonce=nonce)
                 return ""  # Pause — wait for user's Yes/No
 
             if not read_results:

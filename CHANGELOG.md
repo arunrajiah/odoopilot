@@ -5,6 +5,88 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [17.0.7.0.0] — 2026-04-26 — Security release
+
+This release fixes four security issues that were raised in a public audit
+on r/Odoo. **All operators running 17.0.6.0.0 or earlier should upgrade
+immediately** and re-register their Telegram webhook (so a secret token
+gets generated). WhatsApp operators must additionally paste their Meta App
+Secret into Settings — the WhatsApp webhook now refuses traffic without it.
+
+### Security — fixed (4)
+
+- **CVE-class — WhatsApp webhook had no signature verification.** Meta
+  signs every webhook POST with `X-Hub-Signature-256: sha256=HMAC(app_secret, body)`.
+  We now require the App Secret in Settings and verify the signature in
+  constant time on every request. Without a valid signature the webhook
+  returns 403 — closing an impersonation hole that allowed any internet
+  attacker who guessed the URL to act as any linked WhatsApp user.
+  *Files:* `services/whatsapp.py:verify_signature`,
+  `controllers/main.py:whatsapp_webhook`,
+  `models/res_config_settings.py:odoopilot_whatsapp_app_secret`.
+
+- **Telegram webhook secret is now mandatory.** The previous design treated
+  the secret as optional, so default deployments accepted unauthenticated
+  POSTs. The `Register webhook` action now auto-generates a 32-byte
+  URL-safe secret and registers it with Telegram. The endpoint rejects
+  any incoming request whose `X-Telegram-Bot-Api-Secret-Token` header is
+  missing or doesn't match.
+  *Files:* `controllers/main.py:telegram_webhook`,
+  `models/res_config_settings.py:action_register_telegram_webhook`.
+
+- **Confirmation callbacks are now bound to a per-write nonce.** The Yes/No
+  inline keyboard previously sent only `confirm:yes`, which meant the
+  pending tool call could be silently swapped between staging and the user's
+  click — for example by a prompt injection living inside a CRM lead's
+  description. Each staged write now gets a fresh `secrets.token_urlsafe(12)`
+  nonce stored on the session row; the nonce is embedded in the button
+  payload (`confirm:yes:<nonce>`), and the controller verifies it in
+  constant time before executing the write. Mismatches are logged and
+  rejected with "This confirmation has expired."
+  *Files:* `models/odoopilot_session.py` (`stage_pending`,
+  `verify_and_consume_nonce`, `pending_nonce` field), `services/agent.py`,
+  `services/telegram.py:send_confirmation`,
+  `services/whatsapp.py:send_confirmation`,
+  `controllers/main.py:_handle_confirmation`,
+  `controllers/main.py:_handle_whatsapp_confirmation`.
+
+- **Magic link tokens are now hashed at rest and one-shot.** Previously
+  raw tokens were stored as `ir.config_parameter` keys, leaking them to
+  anyone with system-parameter read access. The new `odoopilot.link.token`
+  model stores only the SHA-256 digest, deletes the row inside the same
+  transaction that consumes it, and ships an hourly cron to garbage-collect
+  expired entries. Re-issuing a token for the same chat invalidates the
+  previous one.
+  *New file:* `models/odoopilot_link_token.py`.
+  *Migration:* `migrations/17.0.7.0.0/post-migration.py` clears legacy
+  `odoopilot.link_token.*` parameters and any in-flight pending writes.
+
+### Added
+
+- `odoopilot.link.token` model with `issue` / `consume` / `_gc_expired` API
+- Hourly cron `ir_cron_gc_link_tokens` to garbage-collect expired tokens
+- `tests/test_security.py` — regression tests for all four fixes
+  (HMAC verification, nonce rotation, hashed token storage, single-use)
+
+### Changed
+
+- `OdooPilotSession.clear_pending` now also clears `pending_nonce`
+- Telegram and WhatsApp `send_confirmation` accept a `nonce=` kwarg;
+  the nonce is appended to both Yes and No button payloads
+
+### Migration notes
+
+Upgrade flow:
+1. Pull `17.0.7.0.0` and run `-u odoopilot`. The post-migration script
+   clears any in-flight write confirmations (users simply re-ask the bot)
+   and removes legacy link-token system parameters.
+2. Open *Settings → OdooPilot* and click **Register webhook** under
+   Telegram once. A secret token is generated and registered automatically.
+3. For WhatsApp, paste your Meta **App Secret** into the new
+   *App Secret* field. Until this is set, the WhatsApp webhook returns 403.
+
+---
+
 ## [17.0.6.0.0] — 2026-04-24
 
 ### Added — Multi-language support · per-user language preference

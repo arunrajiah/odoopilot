@@ -17,23 +17,17 @@ Works on **Telegram** and **WhatsApp**. Supports **15 languages**. LGPL-3 open-s
 
 ---
 
-## Why OdooPilot?
+## What it does
 
-| | OdooPilot | Paid chatbot modules | OCA mail_gateway |
-|---|---|---|---|
-| Open-source | ✅ LGPL-3 | ❌ OPL | ✅ |
-| Price | ✅ Free | ❌ EUR 150–360 | ✅ Free |
-| All-in-one Odoo addon | ✅ | ❌ external service | — |
-| Employee-facing AI agent | ✅ | ❌ customer-facing | — |
-| Multi-provider LLM (Claude, GPT-4, Groq, Ollama) | ✅ | ❌ OpenAI only | — |
-| Telegram | ✅ native bot | rarely | ✅ transport only |
-| WhatsApp | ✅ Cloud API | rarely | ❌ |
-| Write actions with confirmation | ✅ 5 write tools | ❌ read-only | — |
-| Proactive push notifications | ✅ tasks + invoices | ❌ | — |
-| Multi-language (15 languages) | ✅ /language command | ❌ | — |
-| Full audit trail | ✅ immutable log | ~ basic | — |
-| Odoo 17 Community | ✅ | mixed | ✅ |
-| No extra infrastructure | ✅ | ❌ | ✅ |
+- **Conversational queries on live Odoo data** — Tasks, CRM, Sales, Invoices, Inventory, Purchase, HR, Leaves
+- **Write actions with a confirmation gate** — Yes/No button required before any record changes
+- **Two channels, full parity** — Telegram bot and WhatsApp Cloud API
+- **Choice of LLM** — Anthropic Claude, OpenAI GPT-4o, Groq (free tier), or Ollama (100% local)
+- **15 UI languages** — per-user `/language` command
+- **Proactive notifications** — daily task digest and overdue-invoice alerts
+- **Self-hosted** — pure Odoo addon, runs entirely inside your instance, no separate service
+- **Auditable** — immutable log of every AI action (timestamp, user, tool, args, result)
+- **Open source** — LGPL-3, free to install, fork, and extend
 
 ---
 
@@ -146,15 +140,46 @@ No SDKs installed — OdooPilot calls the provider APIs directly via `requests`,
 
 ---
 
+## Security
+
+OdooPilot is designed so the messaging webhooks cannot be forged and so the
+write-action confirmation cannot be tricked. The current model:
+
+- **Telegram webhook** verifies Telegram's `X-Telegram-Bot-Api-Secret-Token`
+  header on every POST. The secret is auto-generated when you click
+  *Register webhook* in Settings. Requests without a matching secret are
+  rejected with HTTP 403.
+- **WhatsApp webhook** verifies Meta's `X-Hub-Signature-256` header
+  (HMAC-SHA256 of the raw body) on every POST. The Meta App Secret is
+  required in Settings; without it the endpoint refuses all traffic.
+- **Confirmation gate.** Every write tool stages a fresh per-write nonce on
+  the session. The Yes/No button payload carries `confirm:yes:<nonce>`, and
+  the controller verifies it in constant time before executing. A prompt
+  injection that tries to swap the staged tool between "send confirmation"
+  and "user clicks Yes" rotates the nonce and the click is rejected.
+- **Magic-link tokens** are stored as SHA-256 digests, single-use, and
+  expire after one hour. Re-issuing a token for the same chat invalidates
+  the previous one.
+- **User scoping.** The webhook dispatcher resolves the chat to an
+  `odoopilot.identity` and runs the agent under that Odoo user — every
+  query and write is filtered by the user's existing Odoo access rights.
+- **Audit trail.** Every tool call writes an immutable
+  `odoopilot.audit` record (timestamp, user, tool, args, result, success).
+
+If you find a vulnerability, please open a *private* security advisory on
+GitHub or email arunrajiah at gmail. Do not disclose publicly until a fix
+is released.
+
+---
+
 ## Roadmap
 
 | Version | Status | What's in it |
 |---------|--------|--------------|
-| **17.0.2.0.0** | ✅ Released | All-in-one addon · Telegram webhook · 3 LLM providers · 7 domains · magic link identity · audit log |
-| **17.0.3.0.0** | ✅ Released | New write tools (approve leave, update CRM stage, create lead) · get_my_leaves · 72h session TTL · human-readable confirmations · per-tool audit logging |
-| **17.0.4.0.0** | ✅ **Released** | Proactive notifications — daily task digest at 08:00 UTC · overdue invoice alerts at 09:00 UTC · notification toggles in Settings |
-| **17.0.5.0.0** | ✅ **Released** | WhatsApp Cloud API channel — full parity with Telegram (webhook verify, /link flow, agent, Yes/No confirmations, proactive notifications) |
-| **17.0.6.0.0** | ✅ **Released** | Multi-language support · `/language` command · 15 languages · per-user preference stored in identity |
+| **17.0.4.0.0** | ✅ Released | Proactive notifications — daily task digest at 08:00 UTC · overdue invoice alerts at 09:00 UTC |
+| **17.0.5.0.0** | ✅ Released | WhatsApp Cloud API channel — full parity with Telegram (webhook verify, /link flow, agent, Yes/No confirmations, proactive notifications) |
+| **17.0.6.0.0** | ✅ Released | Multi-language support · `/language` command · 15 languages · per-user preference stored in identity |
+| **17.0.7.0.0** | ✅ **Released** | **Security release** — WhatsApp HMAC verification · mandatory Telegram secret · per-write nonce on confirmations · hashed one-shot link tokens · regression tests |
 | **18.0.1.0.0** | 📋 Planned | Odoo 18 port · OCA submission |
 
 ---

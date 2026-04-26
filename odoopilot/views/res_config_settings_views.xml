@@ -23,14 +23,15 @@
                                         <field name="odoopilot_telegram_bot_token" string="Bot Token" widget="password" placeholder="123456789:ABCdef..."/>
                                     </div>
                                     <div class="mt4">
-                                        <field name="odoopilot_telegram_webhook_secret" string="Webhook Secret" widget="password" placeholder="optional random string"/>
+                                        <field name="odoopilot_telegram_webhook_secret" string="Webhook Secret" widget="password" placeholder="auto-generated when you register the webhook"/>
                                     </div>
                                     <div class="mt8">
                                         <button name="action_test_telegram_connection" type="object" string="Test connection" class="btn btn-secondary btn-sm"/>
                                         <button name="action_register_telegram_webhook" type="object" string="Register webhook" class="btn btn-primary btn-sm ms-2"/>
                                     </div>
                                     <div class="text-muted mt4">
-                                        The webhook URL will be set to <code>YOUR_ODOO_URL/odoopilot/webhook/telegram</code>
+                                        The webhook URL will be set to <code>YOUR_ODOO_URL/odoopilot/webhook/telegram</code>.
+                                        A 32-byte secret token is auto-generated and registered with Telegram so the endpoint can verify every incoming request.
                                     </div>
                                 </div>
                             </div>
@@ -54,8 +55,14 @@
                                     <div class="mt4">
                                         <field name="odoopilot_whatsapp_verify_token" string="Verify Token" widget="password" placeholder="any random string"/>
                                     </div>
+                                    <div class="mt4">
+                                        <field name="odoopilot_whatsapp_app_secret" string="App Secret (required for security)" widget="password" placeholder="from Meta App Dashboard -> Settings -> Basic"/>
+                                    </div>
                                     <div class="mt8">
                                         <button name="action_test_whatsapp_connection" type="object" string="Test connection" class="btn btn-secondary btn-sm"/>
+                                    </div>
+                                    <div class="alert alert-warning mt4 p-2" role="alert" style="font-size:0.85em;">
+                                        <strong>App Secret is required.</strong> Every webhook POST is verified with HMAC-SHA256 against the <code>X-Hub-Signature-256</code> header Meta sends. Without it, the webhook rejects all incoming traffic.
                                     </div>
                                     <div class="text-muted mt4">
                                         Set the webhook URL in Meta Developer console to <code>YOUR_ODOO_URL/odoopilot/webhook/whatsapp</code>
