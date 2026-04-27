@@ -34,7 +34,7 @@ def verify_signature(app_secret: str, raw_body: bytes, header_value: str) -> boo
         return False
     if not header_value.startswith("sha256="):
         return False
-    received = header_value[len("sha256="):].strip()
+    received = header_value[len("sha256=") :].strip()
     if not received:
         return False
     expected = hmac.new(
@@ -42,6 +42,7 @@ def verify_signature(app_secret: str, raw_body: bytes, header_value: str) -> boo
     ).hexdigest()
     # Constant-time comparison to avoid timing attacks.
     return hmac.compare_digest(received.lower(), expected.lower())
+
 
 _GRAPH_API_VERSION = "v19.0"
 _MESSAGES_URL = (
