@@ -26,9 +26,7 @@ class TelegramClient:
             payload["reply_markup"] = reply_markup
         return self._call("sendMessage", payload)
 
-    def send_confirmation(
-        self, chat_id: str, question: str, nonce: str = ""
-    ) -> dict:
+    def send_confirmation(self, chat_id: str, question: str, nonce: str = "") -> dict:
         """Send a yes/no inline keyboard for write-action confirmation.
 
         The ``nonce`` is embedded in the callback_data as ``confirm:yes:<nonce>``

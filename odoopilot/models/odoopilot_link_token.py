@@ -67,9 +67,7 @@ class OdooPilotLinkToken(models.Model):
         """
         # Strip any pending tokens for this exact (channel, chat_id) so the
         # latest /link request is the only one that can be redeemed.
-        self.search(
-            [("channel", "=", channel), ("chat_id", "=", chat_id)]
-        ).unlink()
+        self.search([("channel", "=", channel), ("chat_id", "=", chat_id)]).unlink()
 
         raw = secrets.token_urlsafe(32)  # ~43 chars, 256 bits of entropy
         self.create(
@@ -92,9 +90,7 @@ class OdooPilotLinkToken(models.Model):
         """
         if not raw_token:
             return None
-        record = self.search(
-            [("token_digest", "=", _digest(raw_token))], limit=1
-        )
+        record = self.search([("token_digest", "=", _digest(raw_token))], limit=1)
         if not record:
             return None
         payload = {
