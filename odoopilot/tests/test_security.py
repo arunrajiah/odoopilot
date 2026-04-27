@@ -26,9 +26,7 @@ class TestWhatsAppSignatureVerification(TransactionCase):
         super().setUp()
         self.secret = "s3cr3t-app-secret"
         self.body = b'{"object":"whatsapp_business_account","entry":[]}'
-        digest = hmac.new(
-            self.secret.encode(), self.body, hashlib.sha256
-        ).hexdigest()
+        digest = hmac.new(self.secret.encode(), self.body, hashlib.sha256).hexdigest()
         self.valid_header = f"sha256={digest}"
 
     def test_valid_signature_accepted(self):
@@ -41,9 +39,7 @@ class TestWhatsAppSignatureVerification(TransactionCase):
         self.assertFalse(verify_signature("", self.body, self.valid_header))
 
     def test_wrong_secret_rejected(self):
-        self.assertFalse(
-            verify_signature("wrong-secret", self.body, self.valid_header)
-        )
+        self.assertFalse(verify_signature("wrong-secret", self.body, self.valid_header))
 
     def test_tampered_body_rejected(self):
         tampered = self.body + b" "
@@ -51,13 +47,9 @@ class TestWhatsAppSignatureVerification(TransactionCase):
 
     def test_bad_prefix_rejected(self):
         # Header without the required ``sha256=`` prefix must be rejected.
-        digest = hmac.new(
-            self.secret.encode(), self.body, hashlib.sha256
-        ).hexdigest()
+        digest = hmac.new(self.secret.encode(), self.body, hashlib.sha256).hexdigest()
         self.assertFalse(verify_signature(self.secret, self.body, digest))
-        self.assertFalse(
-            verify_signature(self.secret, self.body, f"sha1={digest}")
-        )
+        self.assertFalse(verify_signature(self.secret, self.body, f"sha1={digest}"))
 
     def test_empty_signature_after_prefix_rejected(self):
         self.assertFalse(verify_signature(self.secret, self.body, "sha256="))
