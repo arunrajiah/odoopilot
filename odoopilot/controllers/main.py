@@ -103,16 +103,33 @@ class OdooPilotController(http.Controller):
 
         try:
             with registry.cursor() as cr:
-                env = odoo.api.Environment(cr, odoo.SUPERUSER_ID, {})
-                self._dispatch_update(env, update)
+                # Bootstrap environment runs as SUPERUSER_ID for the unavoidable
+                # privileged lookups (ir.config_parameter, odoopilot.identity,
+                # odoopilot.session, odoopilot.link.token). It MUST NOT be passed
+                # into agent.py code paths that touch business data — those re-
+                # scope to the linked user via ``sudo_env(user=identity.user_id.id)``.
+                sudo_env = odoo.api.Environment(cr, odoo.SUPERUSER_ID, {})
+                self._dispatch_update(sudo_env, update)
         except Exception:
             _logger.exception("OdooPilot: unhandled error processing Telegram update")
 
-    def _dispatch_update(self, env, update):
+    def _dispatch_update(self, sudo_env, update):
+        """Route an inbound Telegram update.
+
+        ``sudo_env`` is the bootstrap superuser environment used ONLY for the
+        privileged lookups needed to authenticate the chat (config params,
+        identity, session, link token). Any work that touches business data
+        — agent loop, tool execution, audit writes — must run in a user-
+        scoped environment created from
+        ``sudo_env(user=identity.user_id.id)``. This naming convention is a
+        defence-in-depth measure: a future contributor adding a new code
+        path is much less likely to forget to re-scope when the parameter
+        is called ``sudo_env`` rather than ``env``.
+        """
         from ..services.telegram import TelegramClient
         from ..services.agent import OdooPilotAgent
 
-        cfg = env["ir.config_parameter"].sudo()
+        cfg = sudo_env["ir.config_parameter"].sudo()
         token = cfg.get_param("odoopilot.telegram_bot_token")
         if not token:
             return
@@ -125,7 +142,7 @@ class OdooPilotController(http.Controller):
             chat_id = str(cq["message"]["chat"]["id"])
             payload = cq.get("data", "")
             tg.answer_callback_query(cq["id"])
-            self._handle_confirmation(env, tg, chat_id, payload)
+            self._handle_confirmation(sudo_env, tg, chat_id, payload)
             return
 
         # Handle regular messages
@@ -138,7 +155,7 @@ class OdooPilotController(http.Controller):
 
         # /link command — generate and send a linking URL
         if text.startswith("/link"):
-            self._handle_link_command(env, tg, chat_id)
+            self._handle_link_command(sudo_env, tg, chat_id)
             return
 
         # /start command
@@ -151,7 +168,7 @@ class OdooPilotController(http.Controller):
             return
 
         # Regular message — check identity and route to agent
-        identity = env["odoopilot.identity"].search(
+        identity = sudo_env["odoopilot.identity"].search(
             [
                 ("channel", "=", "telegram"),
                 ("chat_id", "=", chat_id),
@@ -168,17 +185,24 @@ class OdooPilotController(http.Controller):
 
         # /language command — set or show per-user language preference
         if text.startswith("/language"):
-            self._handle_language_command(env, tg, chat_id, text, identity)
+            self._handle_language_command(sudo_env, tg, chat_id, text, identity)
             return
 
-        # Run agent as the linked user
-        user_env = env(user=identity.user_id.id)
+        # Re-scope to the linked Odoo user for everything that touches
+        # business data. Tools, agent loop, audit writes — all run with
+        # this user's record-rule permissions, never as superuser.
+        user_env = sudo_env(user=identity.user_id.id)
         agent = OdooPilotAgent(user_env, tg, channel="telegram")
         agent.handle_message(chat_id, text)
 
-    def _handle_link_command(self, env, tg, chat_id):
-        """Generate a one-time linking token and send the link to the user."""
-        cfg = env["ir.config_parameter"].sudo()
+    def _handle_link_command(self, sudo_env, tg, chat_id):
+        """Generate a one-time linking token and send the link to the user.
+
+        Runs in ``sudo_env`` because at this point we don't yet know which
+        Odoo user the chat belongs to — the whole purpose of the link flow
+        is to discover that. The token row itself is issued via ``sudo()``.
+        """
+        cfg = sudo_env["ir.config_parameter"].sudo()
         base_url = cfg.get_param("web.base.url", "").rstrip("/")
         if not base_url:
             tg.send_message(
@@ -190,7 +214,7 @@ class OdooPilotController(http.Controller):
 
         # The token's SHA-256 digest is what's stored; the raw token only
         # leaves the server as the URL we send back to this user.
-        raw = env["odoopilot.link.token"].sudo().issue("telegram", chat_id)
+        raw = sudo_env["odoopilot.link.token"].sudo().issue("telegram", chat_id)
         link_url = f"{base_url}/odoopilot/link/start?token={raw}"
         tg.send_message(
             chat_id,
@@ -198,7 +222,7 @@ class OdooPilotController(http.Controller):
             f"(expires in 1 hour, single use):\n\n{link_url}",
         )
 
-    def _handle_language_command(self, env, client, chat_id, text, identity):
+    def _handle_language_command(self, sudo_env, client, chat_id, text, identity):
         """Handle /language command — show or set the per-user language preference."""
         from ..models.odoopilot_identity import LANGUAGE_CHOICES
 
@@ -249,7 +273,7 @@ class OdooPilotController(http.Controller):
             f"Language set to {choices_map[lang_arg]}. I'll reply in {choices_map[lang_arg]} from now on.",
         )
 
-    def _handle_confirmation(self, env, tg, chat_id, payload):
+    def _handle_confirmation(self, sudo_env, tg, chat_id, payload):
         """Handle yes/no confirmation from inline keyboard.
 
         Payload format: ``confirm:yes:<nonce>`` or ``confirm:no:<nonce>``.
@@ -257,10 +281,13 @@ class OdooPilotController(http.Controller):
         on the session row. We require it to match before executing — this
         prevents a prompt-injection attack from swapping the staged tool
         between "send confirmation" and "user clicks Yes".
+
+        Runs identity+session lookup in ``sudo_env``; the agent always runs
+        as the linked user (``sudo_env(user=identity.user_id.id)``).
         """
         from ..services.agent import OdooPilotAgent
 
-        identity = env["odoopilot.identity"].search(
+        identity = sudo_env["odoopilot.identity"].search(
             [
                 ("channel", "=", "telegram"),
                 ("chat_id", "=", chat_id),
@@ -271,7 +298,7 @@ class OdooPilotController(http.Controller):
         if not identity:
             return
 
-        session = env["odoopilot.session"].search(
+        session = sudo_env["odoopilot.session"].search(
             [("channel", "=", "telegram"), ("chat_id", "=", chat_id)], limit=1
         )
 
@@ -311,9 +338,19 @@ class OdooPilotController(http.Controller):
             tool_name = session.pending_tool
             args = json.loads(session.pending_args or "{}")
             session.clear_pending()  # Clear before exec to avoid double-run
-            user_env = env(user=identity.user_id.id)
+            user_env = sudo_env(user=identity.user_id.id)
             agent = OdooPilotAgent(user_env, tg, channel="telegram")
             agent.execute_confirmed(chat_id, tool_name, args)
+            return
+
+        # Defence-in-depth: malformed callback payload. The original code
+        # silently fell through to no-op, which was correct behaviour but
+        # made it harder to spot bugs. Log and explicitly return.
+        _logger.warning(
+            "OdooPilot: ignoring malformed Telegram callback payload for chat %s: %r",
+            chat_id,
+            payload,
+        )
 
     # ------------------------------------------------------------------
     # WhatsApp webhook
@@ -327,15 +364,21 @@ class OdooPilotController(http.Controller):
         csrf=False,
     )
     def whatsapp_verify(self, **kwargs):
-        """WhatsApp Cloud API webhook verification challenge (hub.challenge handshake)."""
+        """WhatsApp Cloud API webhook verification challenge (hub.challenge handshake).
+
+        Uses ``hmac.compare_digest`` for the verify-token comparison even
+        though this token is low-value (only used during webhook setup) and
+        Meta retries quickly: it costs nothing and removes one more place
+        a future timing-attack analysis would need to reason about.
+        """
         mode = request.params.get("hub.mode")
-        token = request.params.get("hub.verify_token")
+        token = request.params.get("hub.verify_token") or ""
         challenge = request.params.get("hub.challenge", "")
 
         cfg = request.env["ir.config_parameter"].sudo()
-        expected = cfg.get_param("odoopilot.whatsapp_verify_token")
+        expected = cfg.get_param("odoopilot.whatsapp_verify_token") or ""
 
-        if mode == "subscribe" and expected and token == expected:
+        if mode == "subscribe" and expected and hmac.compare_digest(token, expected):
             return request.make_response(challenge, status=200)
         return request.make_response("Forbidden", status=403)
 
@@ -421,15 +464,21 @@ class OdooPilotController(http.Controller):
 
         try:
             with registry.cursor() as cr:
-                env = odoo.api.Environment(cr, odoo.SUPERUSER_ID, {})
-                self._dispatch_whatsapp(env, update)
+                # See ``_process_update_async`` for why this is named ``sudo_env``.
+                sudo_env = odoo.api.Environment(cr, odoo.SUPERUSER_ID, {})
+                self._dispatch_whatsapp(sudo_env, update)
         except Exception:
             _logger.exception("OdooPilot: unhandled error processing WhatsApp update")
 
-    def _dispatch_whatsapp(self, env, update):
+    def _dispatch_whatsapp(self, sudo_env, update):
+        """Route an inbound WhatsApp update.
+
+        See ``_dispatch_update`` for the trust-boundary contract on
+        ``sudo_env`` — same rules apply here.
+        """
         from ..services.whatsapp import WhatsAppClient
 
-        cfg = env["ir.config_parameter"].sudo()
+        cfg = sudo_env["ir.config_parameter"].sudo()
         phone_number_id = cfg.get_param("odoopilot.whatsapp_phone_number_id")
         access_token = cfg.get_param("odoopilot.whatsapp_access_token")
         if not phone_number_id or not access_token:
@@ -459,7 +508,7 @@ class OdooPilotController(http.Controller):
                         payload = reply.get("id", "")
                         if payload.startswith("confirm:"):
                             self._handle_whatsapp_confirmation(
-                                env, wa, from_number, payload
+                                sudo_env, wa, from_number, payload
                             )
                         continue
 
@@ -468,14 +517,16 @@ class OdooPilotController(http.Controller):
                         text = msg.get("text", {}).get("body", "").strip()
                         if not text:
                             continue
-                        self._handle_whatsapp_message(env, wa, from_number, text)
+                        self._handle_whatsapp_message(sudo_env, wa, from_number, text)
 
-    def _handle_whatsapp_message(self, env, wa, from_number, text):
+    def _handle_whatsapp_message(self, sudo_env, wa, from_number, text):
         from ..services.agent import OdooPilotAgent
 
         if text.startswith("/link"):
-            raw = env["odoopilot.link.token"].sudo().issue("whatsapp", from_number)
-            base_url = env["ir.config_parameter"].sudo().get_param("web.base.url", "")
+            raw = sudo_env["odoopilot.link.token"].sudo().issue("whatsapp", from_number)
+            base_url = (
+                sudo_env["ir.config_parameter"].sudo().get_param("web.base.url", "")
+            )
             link_url = f"{base_url.rstrip('/')}/odoopilot/link/start?token={raw}"
             wa.send_message(
                 from_number,
@@ -491,7 +542,7 @@ class OdooPilotController(http.Controller):
             )
             return
 
-        identity = env["odoopilot.identity"].search(
+        identity = sudo_env["odoopilot.identity"].search(
             [
                 ("channel", "=", "whatsapp"),
                 ("chat_id", "=", from_number),
@@ -508,18 +559,19 @@ class OdooPilotController(http.Controller):
 
         # /language command
         if text.startswith("/language"):
-            self._handle_language_command(env, wa, from_number, text, identity)
+            self._handle_language_command(sudo_env, wa, from_number, text, identity)
             return
 
-        user_env = env(user=identity.user_id.id)
+        # Re-scope to the linked Odoo user before any business-data access.
+        user_env = sudo_env(user=identity.user_id.id)
         agent = OdooPilotAgent(user_env, wa, channel="whatsapp")
         agent.handle_message(from_number, text)
 
-    def _handle_whatsapp_confirmation(self, env, wa, from_number, payload):
+    def _handle_whatsapp_confirmation(self, sudo_env, wa, from_number, payload):
         """See _handle_confirmation for the security model — same nonce check."""
         from ..services.agent import OdooPilotAgent
 
-        identity = env["odoopilot.identity"].search(
+        identity = sudo_env["odoopilot.identity"].search(
             [
                 ("channel", "=", "whatsapp"),
                 ("chat_id", "=", from_number),
@@ -530,7 +582,7 @@ class OdooPilotController(http.Controller):
         if not identity:
             return
 
-        session = env["odoopilot.session"].search(
+        session = sudo_env["odoopilot.session"].search(
             [("channel", "=", "whatsapp"), ("chat_id", "=", from_number)], limit=1
         )
 
@@ -565,9 +617,18 @@ class OdooPilotController(http.Controller):
             tool_name = session.pending_tool
             args = json.loads(session.pending_args or "{}")
             session.clear_pending()
-            user_env = env(user=identity.user_id.id)
+            user_env = sudo_env(user=identity.user_id.id)
             agent = OdooPilotAgent(user_env, wa, channel="whatsapp")
             agent.execute_confirmed(from_number, tool_name, args)
+            return
+
+        # Malformed payload — log and explicitly no-op. Mirrors the same
+        # defensive branch in ``_handle_confirmation``.
+        _logger.warning(
+            "OdooPilot: ignoring malformed WhatsApp callback payload for %s: %r",
+            from_number,
+            payload,
+        )
 
     # ------------------------------------------------------------------
     # Account linking pages

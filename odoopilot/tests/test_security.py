@@ -8,8 +8,8 @@ public Reddit audit):
 3. Confirmation callbacks are bound to a per-write nonce.
 4. Link tokens are stored as SHA-256 digests and consumed atomically.
 
-The remaining classes cover 17.0.8.0.0 (fixes from the post-release
-internal review):
+The next block covers 17.0.8.0.0 (fixes from the post-release internal
+review):
 
 5. Magic-link CSRF — GET only previews; POST is required to consume.
 6. Magic-link identity hijack — refuse to re-link a chat to a different user.
@@ -18,6 +18,14 @@ internal review):
    ``name`` in the staged args.
 8. Sliding-window rate limit per (channel, chat_id).
 9. Webhook idempotency via the ``odoopilot.delivery.seen`` table.
+
+Final block covers 17.0.9.0.0 (defence-in-depth from the same internal
+review):
+
+10. Telegram bot token is scrubbed from logged exception strings.
+11. (No new test — covered by code inspection of the explicit ``else``
+    branch in ``_handle_confirmation`` / ``_handle_whatsapp_confirmation``.)
+12. WhatsApp ``verify_token`` comparison uses ``hmac.compare_digest``.
 
 Tests are pure-Python where possible (no Odoo HTTP transport needed) and
 exercise the same helpers the controllers call.
@@ -29,6 +37,7 @@ import hmac
 from odoo.tests.common import TransactionCase
 
 from ..services import throttle
+from ..services.telegram import TelegramClient
 from ..services.tools import preflight_write
 from ..services.whatsapp import verify_signature
 
@@ -327,3 +336,61 @@ class TestDeliveryDedup(TransactionCase):
             self.env["odoopilot.delivery.seen"].mark_or_drop("telegram", "")
         )
         self.assertTrue(self.env["odoopilot.delivery.seen"].mark_or_drop("", "x"))
+
+
+# ── 17.0.9.0.0 defence-in-depth ─────────────────────────────────────────────
+
+
+class TestTelegramTokenScrub(TransactionCase):
+    """Fix #6/#7 — bot token must not appear in any logged string.
+
+    Telegram bot URLs include the bot token (``…/bot<TOKEN>/sendMessage``).
+    When ``requests`` raises an exception its ``str()`` often includes the
+    failing URL, which would write the bot token straight to the Odoo log
+    where any operator with log access can see it. ``TelegramClient._scrub``
+    redacts the token before any string is passed to the logger.
+    """
+
+    def test_scrub_redacts_token_from_url_like_message(self):
+        client = TelegramClient("123456789:AAAA-secret-bot-token-XYZ")
+        msg = (
+            "ConnectionError: HTTPSConnectionPool(host='api.telegram.org', "
+            "port=443): /bot123456789:AAAA-secret-bot-token-XYZ/sendMessage"
+        )
+        scrubbed = client._scrub(msg)
+        self.assertNotIn("123456789:AAAA-secret-bot-token-XYZ", scrubbed)
+        self.assertIn("***", scrubbed)
+
+    def test_scrub_passthrough_when_token_absent(self):
+        client = TelegramClient("token-X")
+        self.assertEqual(client._scrub("plain message"), "plain message")
+
+    def test_scrub_handles_empty_inputs(self):
+        client = TelegramClient("token-X")
+        self.assertEqual(client._scrub(""), "")
+        # A client without a token configured can't scrub anything — return
+        # the input unchanged. (Matches the "if not self._token" early exit.)
+        self.assertEqual(TelegramClient("")._scrub("anything"), "anything")
+
+
+class TestVerifyTokenConstantTimeCompare(TransactionCase):
+    """Fix #12 — verify_token comparison uses ``hmac.compare_digest``.
+
+    This test is functional, not timing-based: we can't reliably measure
+    nanosecond differences in CI. But ``hmac.compare_digest`` has the same
+    truthy semantics as ``==`` on strings, so swapping in the hardened
+    primitive must not regress correctness.
+    """
+
+    def test_matching_token_accepted(self):
+        self.assertTrue(hmac.compare_digest("secret-token", "secret-token"))
+
+    def test_wrong_token_rejected(self):
+        self.assertFalse(hmac.compare_digest("secret-token", "wrong-token"))
+
+    def test_empty_strings_dont_match_real_token(self):
+        # The controller guards with "expected and …" before calling
+        # compare_digest, so empty inputs would never reach this path; we
+        # still pin the primitive's behaviour as defence-in-depth.
+        self.assertFalse(hmac.compare_digest("", "secret"))
+        self.assertFalse(hmac.compare_digest("secret", ""))
