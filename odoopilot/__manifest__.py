@@ -1,6 +1,6 @@
 {
-    "name": "OdooPilot — AI Chatbot for Odoo | Telegram & WhatsApp",
-    "summary": "AI agent for Odoo: query & act on live ERP data via Telegram and WhatsApp. Natural language, write actions, push alerts, audit trail. Free & open-source (LGPL-3).",
+    "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
+    "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
     "version": "17.0.9.0.0",
     "development_status": "Beta",
     "category": "Discuss",
@@ -8,18 +8,35 @@
     "author": "OdooPilot Contributors",
     "website": "https://github.com/arunrajiah/odoopilot",
     "description": """
-OdooPilot — AI Chatbot & Agent for Odoo (Telegram + WhatsApp)
-==============================================================
+OdooPilot — Your team uses Odoo, without logging in to Odoo
+============================================================
 
-The free, self-hosted AI assistant that connects your Odoo ERP to Telegram and WhatsApp.
-Ask questions in plain language. Get live Odoo data. Take real actions — all with a
-safety confirmation before every write operation. No external service. No SaaS fees.
+Every Odoo deployment has the same gap: the people who generate the data
+(sales reps in the field, warehouse staff, every employee who occasionally
+needs to apply for leave or log an expense) are not the people sitting at
+desks. They have an Odoo account, but they avoid the Odoo UI for routine
+tasks — so data goes stale, approvals stall, and the ERP under-delivers.
 
-Keywords: Odoo AI chatbot, Odoo AI agent, Odoo AI copilot, Telegram bot Odoo,
+OdooPilot closes that gap. Each employee gets an AI assistant on Telegram
+or WhatsApp that connects to the same Odoo instance, scoped to the same
+record-rule permissions they already have. They apply for leave, approve
+requests, check tasks, update the CRM pipeline, validate stock moves —
+by chatting with a bot in their own language. No Odoo login, no app to
+install, no training.
+
+This is for your internal team — NOT for your customers. Each linked
+chat user must be an Odoo user, and every write is logged in the audit
+trail. The only thing that changes is HOW employees reach Odoo —
+through chat instead of a browser.
+
+Keywords: Odoo employee chatbot, Odoo team assistant, Odoo without login,
+mobile Odoo, Odoo on Telegram, Odoo on WhatsApp, employee self-service Odoo,
+Odoo leave request bot, Odoo approval bot, field sales Odoo, warehouse Odoo,
+Odoo AI chatbot, Odoo AI agent, Odoo AI copilot, Telegram bot Odoo,
 WhatsApp bot Odoo, ChatGPT Odoo, Claude AI Odoo, GPT-4 Odoo, Groq Odoo,
-natural language ERP, Odoo NLQ, Odoo chatbot, Odoo copilot, Odoo 17 AI,
+natural language ERP, Odoo NLQ, Odoo chatbot, Odoo 17 AI,
 Odoo 17 Community AI, free AI Odoo, ERP chatbot, Odoo AI assistant,
-employee chatbot Odoo, Odoo automation, Odoo push notifications, Odoo audit log,
+Odoo automation, Odoo push notifications, Odoo audit log,
 multi-language Odoo bot, Odoo Telegram integration, Odoo WhatsApp integration
 
 Key Features
