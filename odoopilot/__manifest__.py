@@ -1,7 +1,7 @@
 {
     "name": "OdooPilot — AI Chatbot for Odoo | Telegram & WhatsApp",
     "summary": "AI agent for Odoo: query & act on live ERP data via Telegram and WhatsApp. Natural language, write actions, push alerts, audit trail. Free & open-source (LGPL-3).",
-    "version": "17.0.8.0.0",
+    "version": "17.0.9.0.0",
     "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",
