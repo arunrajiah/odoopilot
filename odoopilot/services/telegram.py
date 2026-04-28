@@ -11,13 +11,33 @@ class TelegramClient:
     def __init__(self, token: str):
         self._token = token
 
+    def _scrub(self, message: str) -> str:
+        """Redact the bot token if it appears anywhere in a string.
+
+        Telegram bot URLs include the bot token (``…/bot<TOKEN>/sendMessage``).
+        When ``requests`` raises an exception, its ``str()`` often includes
+        the request URL — which would write the bot token straight to the
+        Odoo log. Scrubbing here catches that case for any path that logs
+        an exception or response we built from the URL.
+        """
+        if not self._token or not message:
+            return message
+        return message.replace(self._token, "***")
+
     def _call(self, method: str, payload: dict) -> dict:
         url = BASE_URL.format(token=self._token, method=method)
         try:
             resp = requests.post(url, json=payload, timeout=15)
             return resp.json()
         except Exception as e:
-            _logger.error("Telegram API error (%s): %s", method, e)
+            # Log only the exception type and a scrubbed message — never the
+            # raw exception, whose ``str()`` may include the bot token URL.
+            _logger.error(
+                "Telegram API error (%s): %s: %s",
+                method,
+                type(e).__name__,
+                self._scrub(str(e)),
+            )
             return {}
 
     def send_message(self, chat_id: str, text: str, reply_markup=None) -> dict:

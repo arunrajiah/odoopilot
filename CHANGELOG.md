@@ -5,6 +5,61 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [17.0.9.0.0] — 2026-04-27 — Defence-in-depth pass
+
+This release closes the four lower-impact findings from the post-17.0.7
+internal review. None of these is independently exploitable in an isolated
+attack scenario — they are hardening / hygiene fixes that remove easy
+mistakes a future contributor could make. **No operator action required;
+upgrade at your convenience.**
+
+### Security — hardened (4)
+
+- **Hygiene — Bot token redaction in logs.** Telegram bot URLs include the
+  bot token (``…/bot<TOKEN>/sendMessage``). When ``requests`` raises an
+  exception its ``str()`` typically includes the failing URL, so the bot
+  token would land in the Odoo log where any operator with log access
+  could see it. ``TelegramClient._scrub`` now redacts the token from any
+  string before it reaches the logger; ``_call`` only logs the scrubbed
+  message and the exception type, never the raw exception.
+  *Files:* ``services/telegram.py``.
+
+- **Hygiene — Constant-time compare for WhatsApp ``verify_token``.** The
+  webhook-verification handshake compared the inbound ``hub.verify_token``
+  with ``==``. Verify tokens are low-value (only used during webhook
+  setup) and Meta retries quickly, so timing leakage was theoretical at
+  best — but the cost of switching to ``hmac.compare_digest`` is zero and
+  it removes one place a future timing-attack analysis would need to
+  reason about.
+  *Files:* ``controllers/main.py:whatsapp_verify``.
+
+- **Defence-in-depth — Trust-boundary rename.** The two ``_dispatch_*``
+  webhook helpers and their downstream ``_handle_*`` helpers received a
+  parameter previously named ``env`` that was actually the bootstrap
+  ``Environment(cr, SUPERUSER_ID, {})``. The agent loop correctly
+  re-scoped to the linked user, but a future contributor adding a new
+  tool path could easily forget. The parameter is now consistently named
+  ``sudo_env`` throughout the dispatch tree, and a docstring on each
+  dispatcher explains the trust boundary: ``sudo_env`` is for unavoidable
+  privileged lookups (config, identity, session, link token); business-
+  data access must use ``sudo_env(user=identity.user_id.id)``.
+  *Files:* ``controllers/main.py``.
+
+- **Defence-in-depth — Defensive ``else`` on malformed callback payloads.**
+  ``_handle_confirmation`` and ``_handle_whatsapp_confirmation`` previously
+  fell through to no-op when the parsed action was neither ``yes`` nor
+  ``no``. Behaviour was correct but silent. They now log the malformed
+  payload at WARNING and return explicitly, which makes it easier to spot
+  bugs (or probe attempts) in the operator's log.
+  *Files:* ``controllers/main.py``.
+
+### Tests
+
+Regression tests for the token-scrub behaviour and ``compare_digest``
+semantics added in ``tests/test_security.py``.
+
+---
+
 ## [17.0.8.0.0] — 2026-04-27 — Security release (follow-up audit)
 
 After shipping `17.0.7.0.0` we ran an internal review to get ahead of any
