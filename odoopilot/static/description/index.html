@@ -42,10 +42,14 @@
 
   <h1 style="color:#0f172a; font-size:3em; font-weight:800; margin:8px 0 14px; letter-spacing:-1px; line-height:1.1;">OdooPilot</h1>
 
-  <p style="color:#475569; font-size:1.15em; margin:0 auto 18px; max-width:680px;">
-    Query live Odoo data and take real actions through <strong style="color:#0f172a;">Telegram</strong> and <strong style="color:#0f172a;">WhatsApp</strong>
-    &mdash; in plain language, with a safety confirmation before every write.<br>
-    Self-hosted Odoo addon. Open source under LGPL-3.
+  <p style="color:#0f172a; font-size:1.35em; font-weight:700; margin:0 auto 14px; max-width:720px; line-height:1.35;">
+    Your team uses Odoo &mdash; <span style="color:#7c3aed;">without logging in to Odoo</span>.
+  </p>
+  <p style="color:#475569; font-size:1.05em; margin:0 auto 18px; max-width:720px;">
+    Employees apply for leave, approve requests, check tasks, update the CRM pipeline, and validate stock moves &mdash;
+    by chatting with a bot on <strong style="color:#0f172a;">Telegram</strong> or <strong style="color:#0f172a;">WhatsApp</strong>, in their own language.
+    No Odoo login, no app to install, no training.<br>
+    <em style="color:#64748b;">For your internal team. Not for your customers.</em>
   </p>
 
   <p style="color:#7c3aed; font-weight:700; font-size:0.95em; margin:18px 0 8px;">
@@ -108,6 +112,58 @@
   &#10003; HMAC-verified webhooks &nbsp;&middot;&nbsp;
   &#10003; Per-write confirmation
 </p>
+
+
+<!-- ===== DAY IN THE LIFE ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 6px; padding-bottom:6px; border-bottom:2px solid #7c3aed;">A day in the life of your team</h2>
+<p style="color:#64748b; margin:0 0 18px; font-size:0.95em;">
+  Every Odoo install has employees who <em>technically</em> have an account but rarely log in &mdash;
+  because the desktop UI is heavyweight for what they actually need to do once a week.
+  OdooPilot meets them where they already are: their phone.
+</p>
+
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 32px;">
+  <tr>
+    <td width="50%" style="border:1px solid #e2e8f0; border-left:4px solid #15803d; border-radius:10px; padding:20px 22px; vertical-align:top;">
+      <h3 style="font-size:0.95em; font-weight:800; color:#15803d; margin:0 0 6px; text-transform:uppercase; letter-spacing:0.4px;">Mira &mdash; new hire</h3>
+      <p style="font-size:0.92em; color:#374151; margin:0 0 6px; font-weight:600;">&ldquo;I need 3 days off next month.&rdquo;</p>
+      <p style="font-size:0.86em; color:#64748b; margin:0; line-height:1.65;">
+        Mira sends a WhatsApp message. OdooPilot checks her balance, files the leave request in Odoo, and tells her HR has been notified. She never opens Odoo. Her manager gets the approval prompt on Telegram seconds later.
+      </p>
+    </td>
+    <td width="50%" style="border:1px solid #e2e8f0; border-left:4px solid #7c3aed; border-radius:10px; padding:20px 22px; vertical-align:top;">
+      <h3 style="font-size:0.95em; font-weight:800; color:#7c3aed; margin:0 0 6px; text-transform:uppercase; letter-spacing:0.4px;">Carlos &mdash; line manager</h3>
+      <p style="font-size:0.92em; color:#374151; margin:0 0 6px; font-weight:600;">&ldquo;Approve Mira&rsquo;s leave.&rdquo;</p>
+      <p style="font-size:0.86em; color:#64748b; margin:0; line-height:1.65;">
+        Carlos taps <strong>Yes, approve</strong> on the inline button while in a meeting. The leave is approved in Odoo, Mira is notified, and the audit log records exactly who did what and when.
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="border:1px solid #e2e8f0; border-left:4px solid #1e40af; border-radius:10px; padding:20px 22px; vertical-align:top;">
+      <h3 style="font-size:0.95em; font-weight:800; color:#1e40af; margin:0 0 6px; text-transform:uppercase; letter-spacing:0.4px;">Aisha &mdash; sales rep on the road</h3>
+      <p style="font-size:0.92em; color:#374151; margin:0 0 6px; font-weight:600;">&ldquo;Move ACME deal to Negotiation, expected EUR 12k.&rdquo;</p>
+      <p style="font-size:0.86em; color:#64748b; margin:0; line-height:1.65;">
+        Right after the customer meeting, before the details fade, Aisha updates the pipeline from her car. The CRM is current; her manager&rsquo;s pipeline review on Monday isn&rsquo;t a fiction.
+      </p>
+    </td>
+    <td width="50%" style="border:1px solid #e2e8f0; border-left:4px solid #b45309; border-radius:10px; padding:20px 22px; vertical-align:top;">
+      <h3 style="font-size:0.95em; font-weight:800; color:#b45309; margin:0 0 6px; text-transform:uppercase; letter-spacing:0.4px;">Jin &mdash; warehouse picker</h3>
+      <p style="font-size:0.92em; color:#374151; margin:0 0 6px; font-weight:600;">&ldquo;Validate transfer WH/OUT/0042.&rdquo;</p>
+      <p style="font-size:0.86em; color:#64748b; margin:0; line-height:1.65;">
+        Jin confirms the picking right at the dock door &mdash; no walk back to the workstation, no re-keying. The stock move posts immediately and downstream invoicing isn&rsquo;t blocked.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<div style="border:1px solid #fde68a; border-left:4px solid #b45309; border-radius:8px; padding:14px 18px; margin:0 0 32px;">
+  <p style="margin:0; font-size:0.92em; color:#78350f;">
+    <strong>What OdooPilot is not:</strong> a chatbot for your customers, a public website widget, or a way to bypass Odoo permissions.
+    Every linked user is an Odoo user, sees only the data they are already authorised to see, and every write is logged in the audit trail.
+    The only thing that changes is <em>how</em> they reach Odoo &mdash; through chat instead of a browser.
+  </p>
+</div>
 
 
 <!-- ===== WHY ODOOPILOT WINS ===== -->
@@ -298,25 +354,63 @@
 
 <!-- ===== PERSONAS ===== -->
 <h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 6px; padding-bottom:6px; border-bottom:2px solid #7c3aed;">Who is it for?</h2>
+<p style="color:#64748b; margin:0 0 18px; font-size:0.95em;">
+  Every employee in your company who has an Odoo account but doesn&rsquo;t want to open Odoo for routine tasks.
+</p>
 
-<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:18px 0 32px;">
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 32px;">
   <tr>
     <td width="25%" style="border:1px solid #e2e8f0; border-radius:10px; padding:18px; vertical-align:top; text-align:center;">
-      <h3 style="font-size:0.95em; font-weight:800; color:#0f172a; margin:0 0 8px;">Executives</h3>
-      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">Get KPI snapshots and approve key actions from WhatsApp without opening Odoo.</p>
+      <h3 style="font-size:0.95em; font-weight:800; color:#0f172a; margin:0 0 8px;">Every employee</h3>
+      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">Apply for leave, log expenses, check their tasks &mdash; from the chat app already open on their phone. No app to install, no password to remember.</p>
     </td>
     <td width="25%" style="border:1px solid #e2e8f0; border-radius:10px; padding:18px; vertical-align:top; text-align:center;">
-      <h3 style="font-size:0.95em; font-weight:800; color:#0f172a; margin:0 0 8px;">Sales Reps</h3>
-      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">Create leads, check order status, and move pipeline stages from the field &mdash; in your language.</p>
+      <h3 style="font-size:0.95em; font-weight:800; color:#0f172a; margin:0 0 8px;">Managers on the move</h3>
+      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">Approve leaves, confirm sale orders, validate transfers &mdash; from a meeting, an airport, or the school run. Inline Yes / No buttons make it one tap.</p>
     </td>
     <td width="25%" style="border:1px solid #e2e8f0; border-radius:10px; padding:18px; vertical-align:top; text-align:center;">
-      <h3 style="font-size:0.95em; font-weight:800; color:#0f172a; margin:0 0 8px;">Ops &amp; Warehouse</h3>
-      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">Check stock, validate transfers, and track deliveries without switching screens.</p>
+      <h3 style="font-size:0.95em; font-weight:800; color:#0f172a; margin:0 0 8px;">Field &amp; warehouse staff</h3>
+      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">Sales reps in the field, drivers between deliveries, pickers on the dock floor &mdash; capture work in Odoo at the moment it happens, not at end of day.</p>
     </td>
     <td width="25%" style="border:1px solid #e2e8f0; border-radius:10px; padding:18px; vertical-align:top; text-align:center;">
-      <h3 style="font-size:0.95em; font-weight:800; color:#0f172a; margin:0 0 8px;">Developers</h3>
-      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">LGPL-3 codebase. Add custom tools, swap LLM providers, extend with your own logic.</p>
+      <h3 style="font-size:0.95em; font-weight:800; color:#0f172a; margin:0 0 8px;">IT &amp; developers</h3>
+      <p style="font-size:0.84em; color:#64748b; margin:0; line-height:1.6;">LGPL-3 codebase. Add custom tools, swap LLM providers, plug into your existing audit trail. Self-hosted &mdash; data never leaves your infrastructure.</p>
     </td>
+  </tr>
+</table>
+
+
+<!-- ===== ADOPTION ANGLE ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 6px; padding-bottom:6px; border-bottom:2px solid #7c3aed;">The Odoo adoption problem &mdash; solved</h2>
+<p style="color:#64748b; margin:0 0 18px; font-size:0.95em;">
+  Most Odoo deployments have the same gap: data is stale because the people who generate the data are not the people sitting at desks.
+  OdooPilot closes that gap.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0; border-radius:10px; border-collapse:collapse; margin:0 0 32px;">
+  <tr style="border-bottom:2px solid #e2e8f0;">
+    <th style="text-align:left; padding:14px 16px; font-size:0.88em; font-weight:800; color:#0f172a;">Without OdooPilot</th>
+    <th style="text-align:left; padding:14px 16px; font-size:0.88em; font-weight:800; color:#7c3aed;">With OdooPilot</th>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9;">
+    <td style="padding:12px 16px; font-size:0.9em; color:#374151;">Sales rep updates the pipeline once a week, in batch, from memory.</td>
+    <td style="padding:12px 16px; font-size:0.9em; color:#15803d;">Pipeline updated within minutes of the meeting, while details are fresh.</td>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9;">
+    <td style="padding:12px 16px; font-size:0.9em; color:#374151;">Employees email HR for leave; HR keys it into Odoo manually.</td>
+    <td style="padding:12px 16px; font-size:0.9em; color:#15803d;">Employee files leave from WhatsApp; manager approves with one tap.</td>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9;">
+    <td style="padding:12px 16px; font-size:0.9em; color:#374151;">Manager waits to be back at a laptop to approve a sale order.</td>
+    <td style="padding:12px 16px; font-size:0.9em; color:#15803d;">Approves from anywhere with internet. The sale doesn&rsquo;t wait for office hours.</td>
+  </tr>
+  <tr style="border-bottom:1px solid #f1f5f9;">
+    <td style="padding:12px 16px; font-size:0.9em; color:#374151;">Warehouse staff write transfers on paper, key them in later.</td>
+    <td style="padding:12px 16px; font-size:0.9em; color:#15803d;">Transfer validated at the dock; downstream invoicing is unblocked.</td>
+  </tr>
+  <tr>
+    <td style="padding:12px 16px; font-size:0.9em; color:#374151;">Non-power-users avoid Odoo &mdash; data quality suffers.</td>
+    <td style="padding:12px 16px; font-size:0.9em; color:#15803d;">Same data, lower friction &mdash; people actually use it, in their language.</td>
   </tr>
 </table>
 
