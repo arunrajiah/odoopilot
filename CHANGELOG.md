@@ -5,6 +5,96 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [17.0.8.0.0] — 2026-04-27 — Security release (follow-up audit)
+
+After shipping `17.0.7.0.0` we ran an internal review to get ahead of any
+issues the original auditor or others might still have. This release fixes
+**three High** and **two Medium** findings from that review. **All
+operators on 17.0.7.0.0 or earlier should upgrade.** No operator action
+is required after upgrade — schema migrations are automatic.
+
+### Security — fixed (5)
+
+- **High — Magic-link CSRF.** The previous `/odoopilot/link/start` endpoint
+  consumed the token on a single GET. An attacker could drop
+  `<img src="…/odoopilot/link/start?token=ATTACKER_TOKEN">` into any record
+  an admin would render (a CRM lead description, a mail comment, a customer
+  note) and the admin's browser would silently link the attacker's chat to
+  the admin's Odoo account. The flow is now two-step: GET renders a
+  CSRF-protected confirmation page; POST (with `csrf_token`) is what
+  consumes the token and writes the identity. Cross-site image GETs no
+  longer cause any state change.
+  *Files:* `controllers/main.py:link_start`, `controllers/main.py:link_confirm`,
+  `views/link_pages.xml:link_confirm`,
+  `models/odoopilot_link_token.py:peek`.
+
+- **High — Identity hijack via stale link.** `link_start` previously
+  overwrote `existing.user_id` on any logged-in visitor presenting a valid
+  token, so a low-privilege user with a token could take over a higher-
+  privilege user's existing chat link. The new code refuses to write when
+  `existing.user_id` is set and differs from the current user — both at the
+  GET preview and at POST commit time (race-safe). The legitimate owner
+  must explicitly unlink first via the Identities admin view.
+  *Files:* `controllers/main.py:link_start`, `controllers/main.py:link_confirm`.
+
+- **High — Wildcard write-target hijack via prompt injection.** Write tools
+  (`mark_task_done`, `confirm_sale_order`, `approve_leave`,
+  `update_crm_stage`, `create_crm_lead`) previously resolved the target
+  with `name ilike <LLM_string>` *at execute time*, while the confirmation
+  prompt only showed the LLM's argument string. A poisoned record (a
+  customer name like `"%"`, a task name with a single space) lured the
+  LLM into supplying a wildcard-y argument, the user clicked Yes thinking
+  they confirmed the LLM's stated record, and the executor mutated a
+  different record entirely. Fix: `services/tools.py:preflight_write`
+  resolves the target *before* staging, stores the resolved `res_id` in
+  `pending_args`, and renders the resolved record's `display_name` in the
+  confirmation prompt. Overly-short and wildcard-only names are rejected
+  outright. CRM-stage lookups are now scoped to the lead's sales team.
+  *Files:* `services/tools.py:preflight_write`,
+  `services/tools.py:_validate_search_term`,
+  `services/agent.py:_run_loop`, all five write executors in
+  `services/tools.py`.
+
+- **Medium — Cost-amplification DoS.** No per-(channel, chat_id) rate limit
+  meant a single linked user could drive arbitrary LLM API spend on the
+  operator's account; the unbounded daemon-thread spawn per delivery also
+  exhausted process resources under flood. New module
+  `services/throttle.py` provides a sliding-window limiter (default 30
+  msgs/hour per chat) and a bounded thread pool (default 8 workers).
+  Configurable via `ir.config_parameter`:
+  `odoopilot.rate_limit_per_hour`, `odoopilot.rate_limit_window_seconds`,
+  `odoopilot.worker_pool_size`. Saturation drops with HTTP 200 so the
+  platform doesn't retry-storm us.
+  *Files:* `services/throttle.py` (new), `controllers/main.py`.
+
+- **Medium — Webhook delivery non-idempotency.** Telegram and WhatsApp both
+  retry deliveries on 5xx and timeouts. Without dedup, a redelivery
+  re-runs the full pipeline — at minimum wasting an LLM call, at worst
+  re-prompting for confirmation of an already-staged write. New model
+  `odoopilot.delivery.seen` records `(channel, external_id)` with a SQL
+  UNIQUE constraint; the controller dedups on Telegram's `update_id` and
+  WhatsApp's per-message `id` before submitting work. An hourly cron
+  garbage-collects rows older than 24h.
+  *Files:* `models/odoopilot_delivery.py` (new), `controllers/main.py`,
+  `data/ir_cron.xml`, `security/ir.model.access.csv`.
+
+### Added
+
+- **`SECURITY.md` and `v17.0.7.0.0` GitHub Release** (already shipped on
+  `2026-04-27` ahead of this changelog entry) — establishes private
+  disclosure via GitHub Security Advisories and documents a one-paragraph
+  threat model.
+- **Regression tests** for every fix above in `tests/test_security.py`.
+
+### Changed
+
+- The five write tools now accept resolved IDs (`task_id`, `order_id`,
+  `leave_id`, `lead_id`+`stage_id`) in addition to the original name
+  arguments. Direct callers (e.g. unit tests) that pass names continue to
+  work; the agent loop uses IDs.
+
+---
+
 ## [17.0.7.0.0] — 2026-04-26 — Security release
 
 This release fixes four security issues that were raised in a public audit

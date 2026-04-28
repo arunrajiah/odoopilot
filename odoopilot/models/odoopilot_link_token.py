@@ -81,6 +81,34 @@ class OdooPilotLinkToken(models.Model):
         return raw
 
     @api.model
+    def peek(self, raw_token: str) -> dict | None:
+        """Look up a token without deleting it. Returns its payload or None.
+
+        Used by the GET handler of the linking flow to render a CSRF-protected
+        confirmation page. The token is consumed only on POST, after the user
+        explicitly confirms the link in their browser. Without this two-step
+        flow, an attacker who tricks a logged-in admin into rendering an
+        ``<img src="…/odoopilot/link/start?token=ATTACKER_TOKEN">`` can silently
+        link the admin's Odoo account to the attacker's chat.
+
+        Returns ``None`` for unknown or expired tokens. Does NOT delete the row.
+        """
+        if not raw_token:
+            return None
+        record = self.search([("token_digest", "=", _digest(raw_token))], limit=1)
+        if not record:
+            return None
+        if int(time.time()) > record.expires_at:
+            # Expired: clean up and pretend it never existed.
+            record.unlink()
+            return None
+        return {
+            "channel": record.channel,
+            "chat_id": record.chat_id,
+            "expires_at": record.expires_at,
+        }
+
+    @api.model
     def consume(self, raw_token: str) -> dict | None:
         """Look up and atomically delete a token. Returns its payload or None.
 

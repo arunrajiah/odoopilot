@@ -5,7 +5,12 @@ from datetime import date
 from odoo import fields
 
 from .llm import LLMClient
-from .tools import TOOL_DEFINITIONS, WRITE_TOOLS, _fmt_confirmation, execute_tool
+from .tools import (
+    TOOL_DEFINITIONS,
+    WRITE_TOOLS,
+    execute_tool,
+    preflight_write,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -137,16 +142,32 @@ class OdooPilotAgent:
                 messages.extend(extra)
 
             if write_call:
-                # Stage the write *atomically* with a fresh nonce. The nonce is
-                # embedded in the Yes/No button payload so the confirmation
-                # handler can verify the click is bound to *this* staged write
-                # — defending against prompt-injection that tries to swap the
-                # staged tool between staging and the user clicking Yes.
-                nonce = session.sudo().stage_pending(
-                    write_call["name"], write_call["args"]
+                # Resolve the write target BEFORE staging. The resolved record
+                # id is what gets stored in pending_args, and the confirmation
+                # prompt shows the resolved record's display_name (not the
+                # LLM's argument string). This prevents a prompt-injection
+                # attack where a poisoned record lures the LLM into supplying
+                # a wildcard-y name that the executor would expand to a
+                # different record than the user thinks they're confirming.
+                preflight = preflight_write(
+                    self.env, write_call["name"], write_call["args"]
                 )
-                question = _fmt_confirmation(write_call["name"], write_call["args"])
-                self.tg.send_confirmation(chat_id, question, nonce=nonce)
+                if not preflight["ok"]:
+                    err_msg = preflight["error"]
+                    self.tg.send_message(chat_id, err_msg)
+                    self._audit(
+                        chat_id, write_call["name"], write_call["args"], err_msg, False
+                    )
+                    return ""
+
+                # Stage the *resolved* args (with record id), with a fresh
+                # nonce embedded in the Yes/No button payload — the
+                # confirmation handler verifies the click is bound to this
+                # specific staged write.
+                nonce = session.sudo().stage_pending(
+                    write_call["name"], preflight["args"]
+                )
+                self.tg.send_confirmation(chat_id, preflight["question"], nonce=nonce)
                 return ""  # Pause — wait for user's Yes/No
 
             if not read_results:

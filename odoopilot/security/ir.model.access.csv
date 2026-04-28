@@ -3,3 +3,4 @@ access_odoopilot_identity_manager,odoopilot.identity manager,model_odoopilot_ide
 access_odoopilot_audit_manager,odoopilot.audit manager,model_odoopilot_audit,base.group_system,1,1,1,0
 access_odoopilot_session_system,odoopilot.session system,model_odoopilot_session,base.group_system,1,1,1,1
 access_odoopilot_link_token_system,odoopilot.link.token system,model_odoopilot_link_token,base.group_system,1,1,1,1
+access_odoopilot_delivery_system,odoopilot.delivery.seen system,model_odoopilot_delivery_seen,base.group_system,1,1,1,1
