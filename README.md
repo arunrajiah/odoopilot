@@ -1,15 +1,28 @@
 # OdooPilot
 
-**Free, open-source AI agent for Odoo — query live ERP data and take real actions via Telegram and WhatsApp, in plain language.**
+**Your team uses Odoo — without logging in to Odoo.**
+
+OdooPilot gives every employee an AI assistant on Telegram or WhatsApp that connects to the
+same Odoo instance, scoped to the same permissions they already have. They apply for leave,
+approve requests, check tasks, update the CRM pipeline, and validate stock moves — by chatting
+with a bot in their own language. No Odoo login, no app to install, no training.
+
+> **For your internal team.** Not for your customers. Each linked chat user is an Odoo user,
+> sees only the data they're authorised to see, and every write is recorded in the audit trail.
 
 ```
-You:        "What tasks are assigned to me today?"
-OdooPilot:  "You have 3 open tasks: Update product catalogue (due today ⚠️),
-             Review Q2 report (Thu), Onboard new supplier (Fri)."
+Mira (WhatsApp):    "I need 3 days off next month — Mar 14–16."
+OdooPilot:          "Filed leave request for 3 days (Mar 14–16). Carlos has been notified."
 
-You:        "Mark the first one as done."
-OdooPilot:  "✅ Update product catalogue marked as done in Odoo."
+Carlos (Telegram):  [inline button: ✅ Approve   ❌ Refuse ]
+Carlos:             taps Approve.
+OdooPilot:          "✅ Leave approved. Mira has been notified."
 ```
+
+The Odoo adoption problem solved: data is no longer stale because the people who generate it
+(field sales, warehouse staff, anyone who occasionally needs HR or Project) finally have a way
+to reach Odoo that fits their day. Same data, same permissions, same audit trail — just lower
+friction.
 
 No external service to host. No per-seat SaaS fees. Everything runs inside your Odoo instance.  
 Powered by **Claude AI**, **ChatGPT / GPT-4**, **Groq** (free tier), or **Ollama** (100% local).  
