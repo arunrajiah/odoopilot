@@ -12,6 +12,18 @@
         <field name="active">True</field>
     </record>
 
+    <!-- Delivery dedup garbage collection — runs daily -->
+    <record id="ir_cron_gc_deliveries" model="ir.cron">
+        <field name="name">OdooPilot: Garbage-collect old delivery dedup rows</field>
+        <field name="model_id" ref="odoopilot.model_odoopilot_delivery_seen"/>
+        <field name="state">code</field>
+        <field name="code">model._gc_old()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
     <!-- Session garbage collection — runs daily -->
     <record id="ir_cron_gc_sessions" model="ir.cron">
         <field name="name">OdooPilot: Clean up old conversation sessions</field>

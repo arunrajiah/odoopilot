@@ -31,6 +31,61 @@
         </html>
     </template>
 
+    <template id="link_confirm" name="OdooPilot — Confirm Account Link">
+        <html>
+            <head>
+                <title>OdooPilot — Confirm Account Link</title>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta name="referrer" content="no-referrer"/>
+                <meta name="robots" content="noindex,nofollow"/>
+                <style>
+                    body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
+                    .container { max-width: 480px; margin: 80px auto; text-align: center; padding: 0 16px; }
+                    .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.1); padding: 40px 32px; }
+                    .icon { font-size: 3em; }
+                    h3 { margin: 16px 0 8px; }
+                    p { color: #6c757d; margin: 8px 0; }
+                    .small { font-size: .875em; }
+                    .summary { background: #f1f3f5; border-radius: 6px; padding: 12px 16px; margin: 18px 0; text-align: left; font-size: .92em; }
+                    .summary code { background: #fff; padding: 1px 6px; border-radius: 3px; }
+                    button {
+                        background: #7c3aed; color: #fff; border: 0; padding: 12px 28px;
+                        border-radius: 6px; font-size: 1em; cursor: pointer; font-weight: 600;
+                    }
+                    button:hover { background: #6d28d9; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="card">
+                        <div class="icon">🔗</div>
+                        <h3>Confirm account link</h3>
+                        <p>
+                            You are signed in as <strong><t t-esc="user.name"/></strong>.
+                        </p>
+                        <div class="summary">
+                            Click <em>Confirm</em> to link this Odoo account to:
+                            <ul>
+                                <li>Channel: <code><t t-esc="channel"/></code></li>
+                                <li>Chat: <code><t t-esc="chat_id"/></code></li>
+                            </ul>
+                        </div>
+                        <p class="small">
+                            Only continue if you just sent <code>/link</code> from this
+                            chat yourself. If you did not, close this tab.
+                        </p>
+                        <form action="/odoopilot/link/confirm" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="token" t-att-value="token"/>
+                            <button type="submit">Confirm and link</button>
+                        </form>
+                    </div>
+                </div>
+            </body>
+        </html>
+    </template>
+
     <template id="link_error" name="OdooPilot — Linking Error">
         <html>
             <head>
