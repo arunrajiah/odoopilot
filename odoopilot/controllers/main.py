@@ -1,12 +1,32 @@
 import hmac
 import json
 import logging
-import threading
 
 from odoo import fields, http
 from odoo.http import request
 
+from ..services import throttle
+
 _logger = logging.getLogger(__name__)
+
+
+def _telegram_chat_id(update: dict) -> str:
+    """Extract the originating chat_id from a Telegram update for rate limiting."""
+    if "callback_query" in update:
+        return str(
+            update["callback_query"].get("message", {}).get("chat", {}).get("id", "")
+        )
+    return str(update.get("message", {}).get("chat", {}).get("id", ""))
+
+
+def _whatsapp_chat_id(update: dict) -> str:
+    """Extract the first ``from`` number out of a WhatsApp update."""
+    for entry in update.get("entry", []) or []:
+        for change in entry.get("changes", []) or []:
+            for msg in change.get("value", {}).get("messages", []) or []:
+                if msg.get("from"):
+                    return str(msg["from"])
+    return ""
 
 
 class OdooPilotController(http.Controller):
@@ -51,16 +71,29 @@ class OdooPilotController(http.Controller):
         except Exception:
             return request.make_response("Bad request", status=400)
 
+        # Per-chat rate limit: protects against cost amplification (paid LLM
+        # calls per message) and against a flood from a single linked user.
+        # Drop silently with 200 so Telegram doesn't retry-storm us.
+        chat_id = _telegram_chat_id(update)
+        if chat_id and not throttle.allow(request.env, "telegram", chat_id):
+            return request.make_response("", status=200)
+
+        # Idempotency: Telegram retries on 5xx and timeouts. The unique
+        # ``update_id`` lets us drop redeliveries — without this, a
+        # redelivered confirmation click could re-execute the same write.
+        update_id = update.get("update_id")
+        if update_id is not None:
+            seen_model = request.env["odoopilot.delivery.seen"].sudo()
+            if not seen_model.mark_or_drop("telegram", str(update_id)):
+                return request.make_response("", status=200)
+
         # Grab DB name and registry for use in background thread
         db = request.env.cr.dbname
         registry = request.env.registry
 
-        thread = threading.Thread(
-            target=self._process_update_async,
-            args=(db, registry, update),
-            daemon=True,
-        )
-        thread.start()
+        # Bounded worker pool replaces unbounded daemon threads. If saturated
+        # we drop the update — Telegram's retry would just compound the load.
+        throttle.submit(request.env, self._process_update_async, db, registry, update)
 
         return request.make_response("", status=200)
 
@@ -353,15 +386,33 @@ class OdooPilotController(http.Controller):
         except Exception:
             return request.make_response("Bad request", status=400)
 
+        chat_id = _whatsapp_chat_id(update)
+        if chat_id and not throttle.allow(request.env, "whatsapp", chat_id):
+            return request.make_response("", status=200)
+
+        # Idempotency: Meta retries on 5xx and timeouts. Dedup per-message
+        # (one envelope can carry several) and drop already-seen ones.
+        seen_model = request.env["odoopilot.delivery.seen"].sudo()
+        any_new = False
+        for entry in update.get("entry", []) or []:
+            for change in entry.get("changes", []) or []:
+                value = change.get("value", {}) or {}
+                kept = []
+                for msg in value.get("messages", []) or []:
+                    msg_id = msg.get("id")
+                    if msg_id and not seen_model.mark_or_drop("whatsapp", str(msg_id)):
+                        continue
+                    kept.append(msg)
+                value["messages"] = kept
+                if kept:
+                    any_new = True
+        if not any_new:
+            return request.make_response("", status=200)
+
         db = request.env.cr.dbname
         registry = request.env.registry
 
-        thread = threading.Thread(
-            target=self._process_whatsapp_async,
-            args=(db, registry, update),
-            daemon=True,
-        )
-        thread.start()
+        throttle.submit(request.env, self._process_whatsapp_async, db, registry, update)
         return request.make_response("", status=200)
 
     def _process_whatsapp_async(self, db, registry, update):
@@ -522,15 +573,80 @@ class OdooPilotController(http.Controller):
     # Account linking pages
     # ------------------------------------------------------------------
 
-    @http.route("/odoopilot/link/start", type="http", auth="user")
+    @http.route("/odoopilot/link/start", type="http", auth="user", methods=["GET"])
     def link_start(self, token=None, **kwargs):
-        """User lands here after clicking the link in Telegram/WhatsApp.
+        """GET: show a CSRF-protected confirmation page.
 
-        ``auth="user"`` requires the visitor to be logged in to Odoo, so the
-        identity created/updated below is the *current Odoo session*, not
-        the chat sender. Combined with single-use tokens, this means an
-        attacker who phishes a token cannot link another user's account
-        unless they also hijack that user's Odoo session.
+        Security: this endpoint MUST NOT consume the token or write any state.
+        The previous design (consume on GET) was vulnerable to a CSRF attack
+        where an attacker drops ``<img src="…/odoopilot/link/start?token=…">``
+        into any record an admin will render (lead description, mail comment,
+        customer note); the admin's browser then fires the GET while
+        authenticated as admin, and the attacker's chat is silently linked to
+        the admin's Odoo account. By making GET render a form and only POST
+        actually link, the browser's automatic CSRF protection (Odoo injects
+        a session-bound ``csrf_token``) blocks the attack.
+        """
+        if not token:
+            return request.render("odoopilot.link_error", {"error": "Missing token."})
+
+        # Peek without deleting — token consumption happens on POST.
+        payload = request.env["odoopilot.link.token"].sudo().peek(token)
+        if not payload:
+            return request.render(
+                "odoopilot.link_error",
+                {"error": "Invalid, already-used, or expired link. Use /link again."},
+            )
+
+        channel = payload["channel"]
+        chat_id = payload["chat_id"]
+
+        # If a different Odoo user already owns this chat link, refuse the
+        # silent hijack — even with a valid token. The legitimate owner must
+        # unlink first via the OdooPilot Identities admin view. Returning the
+        # error page here also burns the GET preview only; the token row stays
+        # intact (POST is what consumes), but a confused user can simply click
+        # "Cancel" and ask the bot for /link again.
+        existing = request.env["odoopilot.identity"].search(
+            [("channel", "=", channel), ("chat_id", "=", chat_id)], limit=1
+        )
+        if existing and existing.user_id and existing.user_id.id != request.env.user.id:
+            return request.render(
+                "odoopilot.link_error",
+                {
+                    "error": (
+                        f"This {channel} chat is already linked to another Odoo "
+                        f"user ({existing.user_id.name}). Ask them to unlink it "
+                        "first from Settings → Technical → OdooPilot Identities."
+                    )
+                },
+            )
+
+        return request.render(
+            "odoopilot.link_confirm",
+            {
+                "user": request.env.user,
+                "channel": channel,
+                "chat_id": chat_id,
+                "token": token,
+            },
+        )
+
+    @http.route(
+        "/odoopilot/link/confirm",
+        type="http",
+        auth="user",
+        methods=["POST"],
+        csrf=True,
+    )
+    def link_confirm(self, token=None, **kwargs):
+        """POST: actually consume the token and create/update the identity.
+
+        ``csrf=True`` makes Odoo's HTTP layer require a valid ``csrf_token``
+        form field bound to the current session — this is what blocks the
+        cross-site GET attack described on ``link_start``. Browsers will not
+        autofill a form to a third-party origin without user interaction, and
+        even if they did, they cannot forge the per-session CSRF token.
         """
         if not token:
             return request.render("odoopilot.link_error", {"error": "Missing token."})
@@ -550,6 +666,29 @@ class OdooPilotController(http.Controller):
         existing = request.env["odoopilot.identity"].search(
             [("channel", "=", channel), ("chat_id", "=", chat_id)], limit=1
         )
+        if existing and existing.user_id and existing.user_id.id != request.env.user.id:
+            # Race: someone else linked between GET preview and POST. The
+            # token has already been burnt above (one-shot), but we refuse
+            # the hijack write — the legitimate owner keeps their identity.
+            _logger.warning(
+                "OdooPilot: refusing identity hijack on POST: chat=%s/%s "
+                "owner=%s attacker_uid=%s",
+                channel,
+                chat_id,
+                existing.user_id.id,
+                request.env.user.id,
+            )
+            return request.render(
+                "odoopilot.link_error",
+                {
+                    "error": (
+                        f"This {channel} chat is already linked to another Odoo "
+                        f"user ({existing.user_id.name}). Ask them to unlink it "
+                        "first."
+                    )
+                },
+            )
+
         if existing:
             existing.write(
                 {
