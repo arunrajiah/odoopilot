@@ -5,6 +5,86 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [17.0.10.0.0] — 2026-04-28 — Repositioning + community panel + listing fix
+
+A non-security release bundling three changes that shipped to `main` and
+`17.0` over the last day. Upgrade is optional but recommended — the new
+in-Odoo Settings panel in particular is worth pulling.
+
+### Added — In-Odoo Settings community panel
+
+Settings → OdooPilot now ends with a four-card action panel pointing at
+the things users actually want to do after install:
+
+- **Sponsor on GitHub** — `https://github.com/sponsors/arunrajiah`
+- **Feedback & ideas** — opens a new GitHub Discussion in the Ideas
+  category
+- **Report a bug** — opens the GitHub issue template chooser
+- **Report a security issue** — opens a private GitHub Security Advisory
+  (the channel documented in `SECURITY.md`)
+
+Plus a thin row of quick-reference links: source code, README,
+CHANGELOG, security policy.
+
+*File:* `views/res_config_settings_views.xml`.
+
+### Fixed — App Store listing rendering
+
+Inspecting the live page source revealed the Odoo App Store HTML
+sanitiser does two things our previous listing relied on:
+
+1. Strips every `background:` and `background-color:` declaration from
+   inline `style=""` attributes (silently — the rest of the style
+   survives).
+2. Rewrites every `<a href="…">CustomText</a>` into
+   `<span href="…">CustomText</span>` — which is non-clickable HTML.
+   Plain URL text in the body is auto-linked by a separate pass that
+   *does* survive the sanitiser.
+
+Result before this fix: dark hero invisible (white text on white), CTA
+buttons invisible, all custom-styled links non-functional. The listing
+is now rebuilt for the sanitiser's actual rules:
+
+- Zero `background` / `background-color` declarations. Visual hierarchy
+  via borders, text colour, and padding only.
+- Zero white text. All copy legible on the App Store's default page
+  background.
+- Zero styled `<a>` tags around custom labels. CTAs are now plain URL
+  text with a leading label like "Get OdooPilot →"; the auto-linker
+  makes them clickable.
+- Demo conversation panes rebuilt with coloured left borders instead of
+  background-filled chat bubbles.
+
+A header comment in `index.html` documents the sanitiser's behaviour so
+future edits don't regress.
+
+*File:* `static/description/index.html`.
+
+### Changed — Marketing repositioning
+
+The pitch leads with a sharper frame: the killer use case is "your team
+uses Odoo without logging in to Odoo," and the audience is your
+internal team — not your customers. Updated across three surfaces, all
+telling the same story:
+
+- **App Store listing.** New hero headline; new "A day in the life"
+  section with four employee scenarios (new hire applies for leave;
+  manager approves; sales rep updates pipeline from the field; warehouse
+  picker validates a transfer at the dock); new "What OdooPilot is not"
+  callout; reframed personas; new "Odoo adoption problem — solved"
+  before/after table.
+- **Manifest.** Module name, summary, and long description rewritten.
+  Search keywords expanded with employee-self-service, leave-request,
+  approval, mobile-Odoo terms.
+- **README.** Top section reframed to match. Demo conversation switched
+  from a generic task query to the leave-request / approval flow that
+  is now the canonical use case.
+
+*Files:* `static/description/index.html`, `__manifest__.py`,
+`README.md`.
+
+---
+
 ## [17.0.9.0.0] — 2026-04-27 — Defence-in-depth pass
 
 This release closes the four lower-impact findings from the post-17.0.7
