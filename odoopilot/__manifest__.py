@@ -1,7 +1,7 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "17.0.11.0.0",
+    "version": "17.0.12.0.0",
     "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",
