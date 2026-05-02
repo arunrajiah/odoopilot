@@ -5,6 +5,52 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [17.0.11.0.0] — 2026-05-02 — Polish pass: banner, CI hardening, listing linter
+
+A non-security release. Three engineering hygiene items shipped together.
+Operator upgrade is optional — no code paths changed.
+
+### Added — Banner regenerated to match the new pitch
+
+`static/description/banner.png` redesigned to lead with the headline the
+listing now uses: "Your team uses Odoo — without logging in to Odoo."
+Big typography on the left; two phone notifications on the right
+showing the leave-request → approval flow (WhatsApp filing, Telegram
+approving). Source HTML and a Playwright render script live in
+`scripts/render_banner.py` so the image can be regenerated on demand.
+
+### Added — Static security scanning in CI
+
+`.github/workflows/ci.yml` now runs `bandit` and `semgrep` on every
+push and PR. After three security releases in a week, this is the
+right insurance — the next class of issue gets surfaced automatically
+rather than in a public Reddit post. Both scanners run with
+`continue-on-error: true` while we tune the rule set; real findings
+land in the job log without blocking unrelated PRs. We will tighten
+to a hard gate once the noise floor is known.
+
+### Added — App Store listing renderable check
+
+A new CI job runs `scripts/check_listing_rendering.py` against
+`static/description/index.html` and fails the build if any of the
+three patterns the App Store sanitiser breaks reappears:
+
+* `background:` or `background-color:` declarations in inline styles
+* `color: #fff` / `color: white` text colours
+* `<a >` tags around custom labels
+
+A header comment in `index.html` documents the rules; the linter
+enforces them so the listing cannot regress without somebody noticing.
+
+### Local checks
+
+- `bandit -r odoopilot -x odoopilot/tests -ll -ii` -- 0 medium/high
+  findings.
+- `semgrep --config=p/python` -- 0 blocking findings.
+- `python3 scripts/check_listing_rendering.py` -- clean.
+
+---
+
 ## [17.0.10.0.0] — 2026-04-28 — Repositioning + community panel + listing fix
 
 A non-security release bundling three changes that shipped to `main` and

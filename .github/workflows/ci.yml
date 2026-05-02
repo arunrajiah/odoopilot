@@ -46,3 +46,44 @@ jobs:
           else:
               print(f"All XML files are well-formed ({len(list(pathlib.Path('odoopilot').rglob('*.xml')))} files checked).")
           EOF
+
+  listing-renderable:
+    name: App Store listing renderable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint listing for App Store sanitiser compatibility
+        # Catches the three patterns the App Store HTML sanitiser breaks:
+        # background declarations (stripped silently), white text (invisible
+        # once the matching dark background is stripped), and styled <a>
+        # tags (rewritten to non-clickable <span href>).
+        run: python3 scripts/check_listing_rendering.py
+
+  security-scan:
+    name: Static security scan
+    runs-on: ubuntu-latest
+    # Continue running other jobs even if a finding lands so a noisy false
+    # positive cannot block an unrelated PR. Real findings still surface in
+    # the job log; the goal here is ongoing visibility rather than a hard
+    # gate. Tighten to a hard gate once the rule set is tuned.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install scanners
+        run: pip install bandit semgrep
+      - name: bandit
+        # -ll = report Medium and High severity only; skip Low (mostly noise
+        # like "subprocess used"). -ii = same threshold for confidence.
+        # Excludes test files because security tests deliberately exercise
+        # patterns that look risky in isolation (e.g. fixtures with weak
+        # secrets).
+        run: bandit -r odoopilot -x odoopilot/tests -ll -ii
+      - name: semgrep
+        # Default config covers OWASP Top 10 + common Python pitfalls.
+        # --error makes a real finding fail the job (caught by
+        # continue-on-error at the job level so it stays advisory until we
+        # tune the rule set).
+        run: semgrep --config=auto --error --skip-unknown-extensions odoopilot
