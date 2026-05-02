@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    # Per-version branches (17.0, 18.0, ...) get the same CI as main so a
+    # direct push -- e.g. a security backport -- runs the full check set.
+    branches: [main, develop, "*.0"]
   pull_request:
 
 jobs:

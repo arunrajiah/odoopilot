@@ -1,8 +1,13 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "17.0.12.0.0",
-    "development_status": "Beta",
+    "version": "18.0.1.0.0",
+    # Alpha for the 18 series until the port has been validated by an
+    # operator running it on a real Odoo 18 instance. The code is a
+    # straight port of the 17.0.12.0.0 release (no API breaks between
+    # the two versions for anything we use), but until someone confirms
+    # an end-to-end install works we under-promise rather than over.
+    "development_status": "Alpha",
     "category": "Discuss",
     "license": "LGPL-3",
     "author": "OdooPilot Contributors",
@@ -34,8 +39,8 @@ mobile Odoo, Odoo on Telegram, Odoo on WhatsApp, employee self-service Odoo,
 Odoo leave request bot, Odoo approval bot, field sales Odoo, warehouse Odoo,
 Odoo AI chatbot, Odoo AI agent, Odoo AI copilot, Telegram bot Odoo,
 WhatsApp bot Odoo, ChatGPT Odoo, Claude AI Odoo, GPT-4 Odoo, Groq Odoo,
-natural language ERP, Odoo NLQ, Odoo chatbot, Odoo 17 AI,
-Odoo 17 Community AI, free AI Odoo, ERP chatbot, Odoo AI assistant,
+natural language ERP, Odoo NLQ, Odoo chatbot, Odoo 18 AI,
+Odoo 18 Community AI, free AI Odoo, ERP chatbot, Odoo AI assistant,
 Odoo automation, Odoo push notifications, Odoo audit log,
 multi-language Odoo bot, Odoo Telegram integration, Odoo WhatsApp integration
 
@@ -59,7 +64,7 @@ Key Features
   result, success flag — for compliance and review
 * **Self-hosted / on-premise**: pure Odoo addon — no external service, no Docker,
   no cloud backend. Your data stays on your server.
-* **Odoo 17 Community** compatible — no Enterprise licence required
+* **Odoo 18 Community** compatible — no Enterprise licence required
 * **5-minute setup**: install → create bot → paste API keys → Register Webhook → done
 
 Supported AI Providers
