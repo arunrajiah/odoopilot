@@ -5,6 +5,66 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [17.0.12.0.0] — 2026-05-02 — Operator admin views
+
+The post-install experience for the operator who installed the addon now
+matches the production-ready security model. The bare list views that
+shipped historically have been replaced with a proper admin dashboard
+the operator can scan in two seconds.
+
+### Added — Activity-summary fields on `odoopilot.identity`
+
+Three live-computed fields read from the audit table for each linked
+user, with a 7-day sliding window:
+
+- `last_activity` — datetime of the most recent audit row for this
+  ``(user_id, channel)`` pair (or empty if never used).
+- `message_count_7d` — count of audit rows in the window.
+- `success_rate_7d` — % of those that succeeded.
+
+Computed via two ``read_group`` calls per recordset (no N+1), gated by
+``compute_sudo=True`` so the system-only audit table can be read for any
+identity the operator can see.
+
+### Added — Redesigned Linked Users view
+
+`Settings → OdooPilot → Linked Users` (renamed from "User Identities"):
+
+- New columns for ``last_activity``, ``message_count_7d``,
+  ``success_rate_7d``.
+- Row decoration: green when the user has been active in the window,
+  muted when never used or unlinked.
+- Search filters: *Active in last 7 days*, *Linked but never used*,
+  *Telegram* / *WhatsApp*, *Inactive (unlinked)*.
+- Group-by: *User*, *Channel*, *Language*.
+- Form view: smart-button stat tiles for messages and success rate, plus
+  a ``View activity`` button in the header that opens the audit log
+  filtered to this identity's user + channel.
+
+### Added — Redesigned Audit Log view
+
+`Settings → OdooPilot → Audit Log`:
+
+- Row decoration: failures in red. Inline ``error_message`` column makes
+  trouble visible without drilling into the form.
+- Search filters: *Failures only*, *Successes only*, *Write actions*,
+  *Read actions*, *Telegram*, *WhatsApp*, *Today*, *Last 7 days*.
+- Group-by: *User*, *Tool*, *Channel*, *Outcome*, *Day*.
+- Default open: filtered to the last 7 days, grouped by day. The most
+  common operator question is "what happened recently?", not "show me
+  everything ever".
+- Form view: title bar shows tool name + user + channel + timestamp; a
+  notebook splits the result and the JSON arguments into separate tabs.
+
+### Tests
+
+- New `tests/test_admin_views.py` with 7 tests covering the computed
+  field semantics: empty state, window cutoff at 7 days, success-rate
+  rounding, channel isolation, user isolation, and the
+  ``action_view_audit`` button payload.
+
+---
+
 ## [17.0.11.0.0] — 2026-05-02 — Polish pass: banner, CI hardening, listing linter
 
 A non-security release. Three engineering hygiene items shipped together.
