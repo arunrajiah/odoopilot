@@ -3,6 +3,51 @@
 All notable changes to OdooPilot are documented here.  
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+The `17.0.x` series ships from the [`17.0` branch](https://github.com/arunrajiah/odoopilot/tree/17.0).  
+The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah/odoopilot/tree/18.0).
+
+---
+
+## [18.0.1.0.0] — 2026-05-02 — Odoo 18 port (Alpha)
+
+First release on the new `18.0` branch. **Functionally identical to
+17.0.12.0.0** — same security model, same admin views, same tools,
+same agent loop. The version number resets to `18.0.1.0.0` per Odoo's
+versioning convention (one series per Odoo major version).
+
+### Why Alpha
+
+We have not yet had an operator validate an end-to-end install on a
+running Odoo 18 instance. Static analysis is clean (ruff format, ruff
+check, bandit, semgrep, listing renderable, all view XML well-formed)
+and we audited for the known 17→18 breaking patterns:
+
+- All views already use ``<list>`` (the 17+ form). No ``<tree>``.
+- No ``attrs=`` or ``states=`` on view elements.
+- No JS / Owl code.
+- ``read_group`` (deprecated in 18, used by the identity activity-summary
+  fields) still works in 18; removal is slated for 19. We will migrate
+  to ``_read_group`` ahead of that release.
+
+### Known unknowns
+
+The risk surface that we cannot statically verify is the ORM tool layer
+in ``services/tools.py`` — for tools that touch upstream models
+(``project.task``, ``sale.order``, ``crm.lead``, ``hr.leave``,
+``account.move``, ``stock.picking``, ``purchase.order``, ``hr.employee``)
+field renames in 18 could break individual tool calls without breaking
+module install. If you hit one, please open an issue with the tool name
+and the exception text.
+
+### Branch policy
+
+- `17.0` continues to receive backports of any security fix that lands
+  on `18.0`. The 17 branch is supported through Odoo's own 17 LTS
+  window.
+- `main` continues to track `17.0` for now, since that is where most
+  installs live. We will promote `main` → `18.0` once the 18 series
+  reaches Beta.
+
 ---
 
 ## [17.0.12.0.0] — 2026-05-02 — Operator admin views
