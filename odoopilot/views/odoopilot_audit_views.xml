@@ -1,52 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- List view -->
+    <!-- ============================================================ -->
+    <!-- List view                                                    -->
+    <!-- ============================================================ -->
+    <!--
+        Decoration rules: failures stand out in red so an operator
+        scanning the log can spot trouble at a glance. Unsuccessful
+        rows always carry an error_message; the list shows it inline
+        rather than forcing a click into the form view.
+    -->
     <record id="odoopilot_audit_view_list" model="ir.ui.view">
         <field name="name">odoopilot.audit.view.list</field>
         <field name="model">odoopilot.audit</field>
         <field name="arch" type="xml">
-            <list string="OdooPilot Audit Log" create="false" delete="false">
+            <list string="OdooPilot Audit Log"
+                  create="false"
+                  delete="false"
+                  decoration-danger="not success"
+                  decoration-muted="success and tool_name in ('chat',)">
                 <field name="timestamp"/>
                 <field name="user_id"/>
                 <field name="channel"/>
                 <field name="tool_name"/>
-                <field name="success"/>
-                <field name="error_message"/>
+                <field name="success" widget="boolean_toggle"/>
+                <field name="error_message" optional="show"/>
+                <field name="result_summary" optional="hide"/>
+                <field name="tool_args" optional="hide"/>
             </list>
         </field>
     </record>
 
-    <!-- Form view -->
+    <!-- ============================================================ -->
+    <!-- Search view                                                  -->
+    <!-- ============================================================ -->
+    <!--
+        Filters cover the three questions an operator typically asks:
+        "what failed?", "what wrote?", "what happened today/this week?".
+        Group-bys cover "who is the heaviest user?" and "which tool
+        burns the most cycles?".
+    -->
+    <record id="odoopilot_audit_view_search" model="ir.ui.view">
+        <field name="name">odoopilot.audit.view.search</field>
+        <field name="model">odoopilot.audit</field>
+        <field name="arch" type="xml">
+            <search string="OdooPilot Audit Log">
+                <field name="user_id"/>
+                <field name="tool_name"/>
+                <field name="channel"/>
+                <field name="error_message"/>
+
+                <!-- Outcome filters -->
+                <separator/>
+                <filter name="failures"
+                        string="Failures only"
+                        domain="[('success', '=', False)]"/>
+                <filter name="successes"
+                        string="Successes only"
+                        domain="[('success', '=', True)]"/>
+
+                <!-- Tool-class filters. Names match WRITE_TOOLS in
+                     services/tools.py; if that set ever changes the
+                     filters degrade gracefully (just show empty). -->
+                <separator/>
+                <filter name="writes"
+                        string="Write actions"
+                        domain="[('tool_name', 'in', [
+                            'mark_task_done',
+                            'confirm_sale_order',
+                            'approve_leave',
+                            'update_crm_stage',
+                            'create_crm_lead'
+                        ])]"/>
+                <filter name="reads"
+                        string="Read actions"
+                        domain="[('tool_name', 'not in', [
+                            'mark_task_done',
+                            'confirm_sale_order',
+                            'approve_leave',
+                            'update_crm_stage',
+                            'create_crm_lead',
+                            'chat'
+                        ])]"/>
+
+                <!-- Channel filters -->
+                <separator/>
+                <filter name="telegram"
+                        string="Telegram"
+                        domain="[('channel', '=', 'telegram')]"/>
+                <filter name="whatsapp"
+                        string="WhatsApp"
+                        domain="[('channel', '=', 'whatsapp')]"/>
+
+                <!-- Time filters -->
+                <separator/>
+                <filter name="today"
+                        string="Today"
+                        domain="[('timestamp', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter name="last_7_days"
+                        string="Last 7 days"
+                        domain="[('timestamp', '&gt;=', (context_today() - relativedelta(days=7)).strftime('%Y-%m-%d 00:00:00'))]"/>
+
+                <!-- Group-bys -->
+                <group expand="0" string="Group By">
+                    <filter name="group_by_user"
+                            string="User"
+                            context="{'group_by': 'user_id'}"/>
+                    <filter name="group_by_tool"
+                            string="Tool"
+                            context="{'group_by': 'tool_name'}"/>
+                    <filter name="group_by_channel"
+                            string="Channel"
+                            context="{'group_by': 'channel'}"/>
+                    <filter name="group_by_success"
+                            string="Outcome"
+                            context="{'group_by': 'success'}"/>
+                    <filter name="group_by_day"
+                            string="Day"
+                            context="{'group_by': 'timestamp:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Form view                                                    -->
+    <!-- ============================================================ -->
     <record id="odoopilot_audit_view_form" model="ir.ui.view">
         <field name="name">odoopilot.audit.view.form</field>
         <field name="model">odoopilot.audit</field>
         <field name="arch" type="xml">
             <form string="Audit Log Entry" create="false" delete="false">
                 <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="tool_name" readonly="1"/>
+                        </h1>
+                        <h3>
+                            <field name="user_id" readonly="1"/>
+                            <span> &#8226; </span>
+                            <field name="channel" readonly="1"/>
+                            <span> &#8226; </span>
+                            <field name="timestamp" readonly="1"/>
+                        </h3>
+                    </div>
                     <group>
-                        <group string="Event">
-                            <field name="timestamp"/>
-                            <field name="user_id"/>
-                            <field name="channel"/>
-                            <field name="tool_name"/>
-                            <field name="success"/>
-                        </group>
-                        <group string="Details">
-                            <field name="tool_args" widget="code"/>
-                            <field name="result_summary"/>
-                            <field name="error_message"/>
+                        <group string="Outcome">
+                            <field name="success" widget="boolean_toggle"/>
+                            <field name="error_message" invisible="success"/>
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Result" name="result">
+                            <field name="result_summary" nolabel="1"/>
+                        </page>
+                        <page string="Arguments" name="args">
+                            <field name="tool_args" nolabel="1" widget="code"/>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
     </record>
 
-    <!-- Action -->
+    <!-- ============================================================ -->
+    <!-- Action                                                       -->
+    <!-- ============================================================ -->
+    <!--
+        Default to "Last 7 days" — the most common question is
+        "what happened recently?", not "show me everything ever".
+        Operators who want the full history clear the filter.
+    -->
     <record id="action_odoopilot_audit" model="ir.actions.act_window">
         <field name="name">Audit Log</field>
         <field name="res_model">odoopilot.audit</field>
         <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="odoopilot_audit_view_search"/>
+        <field name="context">{
+            "search_default_last_7_days": 1,
+            "search_default_group_by_day": 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Nothing here yet
+            </p>
+            <p>
+                The audit log records every tool call OdooPilot makes on behalf of a linked user &#8212;
+                timestamp, user, channel, tool name, arguments, result, and success/failure.
+                Once your team starts chatting with the bot you&apos;ll see entries appear here.
+            </p>
+        </field>
     </record>
 
     <!-- Menu item -->
