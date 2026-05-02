@@ -3,6 +3,9 @@
 All notable changes to OdooPilot are documented here.  
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+The `17.0.x` series ships from the [`17.0` branch](https://github.com/arunrajiah/odoopilot/tree/17.0) (this branch).  
+The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah/odoopilot/tree/18.0) — currently in **Alpha**, see its CHANGELOG.
+
 ---
 
 ## [17.0.12.0.0] — 2026-05-02 — Operator admin views
