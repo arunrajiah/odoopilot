@@ -1,29 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- List view -->
+    <!-- ============================================================ -->
+    <!-- List view                                                    -->
+    <!-- ============================================================ -->
+    <!--
+        Layout choice: identity column first (who), channel + chat_id next
+        (where), then the activity summary (how active are they?). The
+        last_activity column is what an operator scans first when asking
+        "who is actually using this?", so it stays visible by default.
+
+        Decoration:
+          decoration-success  bright green when there has been activity
+                              in the last 7 days
+          decoration-muted    dimmed when no activity at all (linked but
+                              never used, or stale)
+        decoration-info reserved for the in-progress / pending case which
+        the identity model does not have, so we leave it off.
+    -->
     <record id="odoopilot_identity_view_list" model="ir.ui.view">
         <field name="name">odoopilot.identity.view.list</field>
         <field name="model">odoopilot.identity</field>
         <field name="arch" type="xml">
-            <list string="OdooPilot Identities">
+            <list string="Linked Users"
+                  decoration-success="message_count_7d &gt; 0 and active"
+                  decoration-muted="not active or (active and not last_activity)">
                 <field name="user_id"/>
                 <field name="channel"/>
-                <field name="chat_id"/>
-                <field name="display_name_channel"/>
-                <field name="language"/>
-                <field name="linked_at"/>
-                <field name="active"/>
+                <field name="chat_id" optional="show"/>
+                <field name="display_name_channel" optional="hide"/>
+                <field name="language" optional="hide"/>
+                <field name="linked_at" optional="show"/>
+                <field name="last_activity" optional="show"/>
+                <field name="message_count_7d" optional="show"/>
+                <field name="success_rate_7d" optional="show" widget="percentage"/>
+                <field name="active" widget="boolean_toggle"/>
             </list>
         </field>
     </record>
 
-    <!-- Form view -->
+    <!-- ============================================================ -->
+    <!-- Search view                                                  -->
+    <!-- ============================================================ -->
+    <record id="odoopilot_identity_view_search" model="ir.ui.view">
+        <field name="name">odoopilot.identity.view.search</field>
+        <field name="model">odoopilot.identity</field>
+        <field name="arch" type="xml">
+            <search string="Linked Users">
+                <field name="user_id"/>
+                <field name="chat_id"/>
+                <field name="display_name_channel"/>
+                <separator/>
+                <filter name="active_only"
+                        string="Active"
+                        domain="[('active', '=', True)]"/>
+                <filter name="inactive"
+                        string="Inactive (unlinked)"
+                        domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter name="active_recently"
+                        string="Active in last 7 days"
+                        domain="[('message_count_7d', '&gt;', 0)]"/>
+                <filter name="never_used"
+                        string="Linked but never used"
+                        domain="[('last_activity', '=', False), ('active', '=', True)]"/>
+                <separator/>
+                <filter name="telegram"
+                        string="Telegram"
+                        domain="[('channel', '=', 'telegram')]"/>
+                <filter name="whatsapp"
+                        string="WhatsApp"
+                        domain="[('channel', '=', 'whatsapp')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_by_user"
+                            string="User"
+                            context="{'group_by': 'user_id'}"/>
+                    <filter name="group_by_channel"
+                            string="Channel"
+                            context="{'group_by': 'channel'}"/>
+                    <filter name="group_by_language"
+                            string="Language"
+                            context="{'group_by': 'language'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Form view                                                    -->
+    <!-- ============================================================ -->
     <record id="odoopilot_identity_view_form" model="ir.ui.view">
         <field name="name">odoopilot.identity.view.form</field>
         <field name="model">odoopilot.identity</field>
         <field name="arch" type="xml">
-            <form string="OdooPilot Identity">
+            <form string="Linked User">
+                <header>
+                    <button name="action_view_audit"
+                            string="View activity"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-history"/>
+                </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button"
+                                type="object"
+                                name="action_view_audit"
+                                icon="fa-bar-chart">
+                            <field name="message_count_7d" widget="statinfo" string="Msgs (7d)"/>
+                        </button>
+                        <button class="oe_stat_button"
+                                type="object"
+                                name="action_view_audit"
+                                icon="fa-check-circle">
+                            <field name="success_rate_7d" widget="statinfo" string="Success %"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon"
+                            title="Inactive"
+                            bg_color="bg-danger"
+                            invisible="active"/>
                     <group>
                         <group string="User">
                             <field name="user_id"/>
@@ -34,7 +129,12 @@
                             <field name="chat_id"/>
                             <field name="display_name_channel"/>
                             <field name="language"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Activity">
                             <field name="linked_at"/>
+                            <field name="last_activity"/>
                         </group>
                     </group>
                 </sheet>
@@ -42,22 +142,45 @@
         </field>
     </record>
 
-    <!-- Action -->
+    <!-- ============================================================ -->
+    <!-- Action                                                       -->
+    <!-- ============================================================ -->
+    <!--
+        active_test=False so unlinked identities still show up under the
+        "Inactive" filter; default search shows the active set.
+    -->
     <record id="action_odoopilot_identity" model="ir.actions.act_window">
-        <field name="name">OdooPilot Identities</field>
+        <field name="name">Linked Users</field>
         <field name="res_model">odoopilot.identity</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{"active_test": False}</field>
+        <field name="search_view_id" ref="odoopilot_identity_view_search"/>
+        <field name="context">{
+            "active_test": False,
+            "search_default_active_only": 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No linked users yet
+            </p>
+            <p>
+                When an employee sends <code>/link</code> to your Telegram or WhatsApp bot
+                and confirms the link, they appear here. Each row shows their Odoo user, the
+                channel they&apos;re linked through, and how active they have been in the
+                last 7 days.
+            </p>
+        </field>
     </record>
 
-    <!-- Menu items -->
+    <!-- ============================================================ -->
+    <!-- Menu items                                                   -->
+    <!-- ============================================================ -->
     <menuitem id="menu_odoopilot_root"
               name="OdooPilot"
               sequence="90"
               groups="base.group_system"/>
 
     <menuitem id="menu_odoopilot_identity"
-              name="User Identities"
+              name="Linked Users"
               parent="menu_odoopilot_root"
               action="action_odoopilot_identity"
               sequence="10"
