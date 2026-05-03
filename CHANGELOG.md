@@ -8,6 +8,96 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.14.0.0] — 2026-05-03 — Employee-self-service tool sprint
+
+Six new tools that widen the bot's audience to anyone in the company
+who needs a one-tap-from-chat workflow: timesheet logging, expense
+filing, attendance clock-in/out, calendar events, and contact lookup.
+Every write tool flows through the existing preflight + nonce + audit
+pipeline.
+
+### Added — `find_partner` (read)
+
+Quick contact lookup. The LLM passes a name / email / phone substring;
+the bot searches all three columns in a single OR-domain and returns
+name + email + phone + country for the best matches.
+
+> "What's ACME's phone number?"
+> "Find the contact for billing@acme.com"
+
+### Added — `clock_in` / `clock_out` (write, `hr.attendance`)
+
+Clock the linked employee in or out without opening Odoo. Preflight
+rejects double-clock-in (an open attendance row already exists) and
+clock-out-while-not-clocked-in. The execute path re-checks at run time
+to defend against a race with the web UI.
+
+> "Clock me in"
+> "Clock out"
+
+### Added — `submit_expense` (write, `hr.expense`)
+
+Create a draft expense for the linked employee. Stays in `state="draft"`
+on purpose — the employee or HR explicitly submits for approval in the
+Expenses module. Auto-submitting from chat would skip a deliberate
+human checkpoint.
+
+> "Submit my expense for €42 lunch with ACME"
+
+### Added — `submit_timesheet` (write, `account.analytic.line`)
+
+Log a timesheet entry against a project (and optionally a task). The
+preflight resolves the project and task by name, validates hours are in
+[0, 24], and presents a confirmation that names the resolved project /
+task display_name (not the LLM's argument string).
+
+> "Log 2 hours on Project Phoenix today — implemented login flow"
+
+### Added — `create_calendar_event` (write, `calendar.event`)
+
+Create a calendar event with the linked user as organizer. Accepts
+either `YYYY-MM-DD HH:MM` or full ISO datetime; the LLM is responsible
+for converting relative phrases like "tomorrow at 10am" first. The
+preflight parses the start, computes stop from the duration, and
+rejects malformed input before staging.
+
+> "Schedule a follow-up with John tomorrow at 10am for 30 minutes"
+
+### Tests
+
+New `tests/test_employee_tools.py` with 5 test classes covering:
+
+- **Tool registry hygiene** — every new tool name is in
+  `TOOL_DEFINITIONS`, the right ones are in `WRITE_TOOLS`, and the
+  read tool is *not* in `WRITE_TOOLS`. Catches the four-way registry
+  drift that would let the LLM call a tool that crashes at execute
+  time.
+- **`find_partner`** — finds by name, email substring, phone
+  substring; empty query returns guidance; no-match returns friendly
+  message.
+- **`submit_expense` preflight** — rejects short description, zero /
+  negative / non-numeric amount.
+- **`submit_timesheet` preflight** — rejects zero hours, > 24 hours,
+  short project name.
+- **`create_calendar_event` preflight** — rejects short name, missing
+  start, malformed datetime, negative duration; accepts valid input
+  when calendar module is installed.
+- **`clock_in` preflight** — friendly error when attendance module
+  isn't installed.
+
+CI green: ruff format + check, bandit (0 medium/high), semgrep
+(0 blocking), listing renderable, all XML well-formed.
+
+### Tool count summary
+
+|        | Before | After |
+|--------|--------|-------|
+| Read   | 8      | 9     |
+| Write  | 5      | 10    |
+| Total  | 13     | 19    |
+
+---
+
 ## [17.0.13.0.0] — 2026-05-03 — Scope guard: refuse off-topic requests
 
 OdooPilot now refuses to act as a general-purpose LLM. A motivated user
