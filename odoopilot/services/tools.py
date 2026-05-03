@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from odoo import fields
 
 _logger = logging.getLogger(__name__)
 
@@ -16,6 +18,12 @@ WRITE_TOOLS = {
     "approve_leave",
     "update_crm_stage",
     "create_crm_lead",
+    # 17.0.14.0.0 — employee-self-service write tools
+    "clock_in",
+    "clock_out",
+    "submit_expense",
+    "submit_timesheet",
+    "create_calendar_event",
 }
 
 TOOL_DEFINITIONS = [
@@ -237,6 +245,134 @@ TOOL_DEFINITIONS = [
             },
         },
     },
+    # ── 17.0.14 employee-self-service tools ────────────────────────────────
+    {
+        "name": "find_partner",
+        "description": (
+            "Look up a contact (customer, vendor, or company) in the address "
+            "book by name, email, or phone. Returns name, email, phone and "
+            "country for the best matches. Read-only."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name, email, or phone (any partial match)",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Max results (default 5)",
+                },
+            },
+        },
+    },
+    {
+        "name": "clock_in",
+        "description": (
+            "Start an attendance entry for the current employee (clock in). "
+            "REQUIRES user confirmation. Fails if the employee is already "
+            "clocked in."
+        ),
+        "parameters": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "clock_out",
+        "description": (
+            "End the current employee's open attendance entry (clock out). "
+            "REQUIRES user confirmation. Fails if the employee is not clocked "
+            "in."
+        ),
+        "parameters": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "submit_expense",
+        "description": (
+            "Create a draft expense for the current employee (no auto-submit "
+            "for approval). REQUIRES user confirmation."
+        ),
+        "parameters": {
+            "type": "object",
+            "required": ["description", "amount"],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "description": "Short description, e.g. 'Lunch with ACME'",
+                },
+                "amount": {
+                    "type": "number",
+                    "description": "Total amount including tax",
+                },
+                "expense_date": {
+                    "type": "string",
+                    "description": "YYYY-MM-DD; defaults to today",
+                },
+            },
+        },
+    },
+    {
+        "name": "submit_timesheet",
+        "description": (
+            "Log a timesheet entry for the current employee against a project "
+            "(and optionally a task). REQUIRES user confirmation."
+        ),
+        "parameters": {
+            "type": "object",
+            "required": ["project_name", "hours", "description"],
+            "properties": {
+                "project_name": {
+                    "type": "string",
+                    "description": "Name of the project to log time against",
+                },
+                "task_name": {
+                    "type": "string",
+                    "description": "Optional task name within the project",
+                },
+                "hours": {
+                    "type": "number",
+                    "description": "Decimal hours, e.g. 1.5",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "What the time was spent on",
+                },
+                "entry_date": {
+                    "type": "string",
+                    "description": "YYYY-MM-DD; defaults to today",
+                },
+            },
+        },
+    },
+    {
+        "name": "create_calendar_event",
+        "description": (
+            "Create a calendar event with the current user as organizer. "
+            "REQUIRES user confirmation."
+        ),
+        "parameters": {
+            "type": "object",
+            "required": ["name", "start"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Event title",
+                },
+                "start": {
+                    "type": "string",
+                    "description": (
+                        "Start datetime in 'YYYY-MM-DD HH:MM' (24h, the "
+                        "user's local time will be assumed -- the LLM should "
+                        "convert relative phrases like 'tomorrow at 10am' "
+                        "before calling)."
+                    ),
+                },
+                "duration_hours": {
+                    "type": "number",
+                    "description": "Duration in hours, default 1.0",
+                },
+            },
+        },
+    },
 ]
 
 
@@ -259,6 +395,13 @@ def execute_tool(env, tool_name: str, args: dict) -> str:
         "approve_leave": approve_leave,
         "update_crm_stage": update_crm_stage,
         "create_crm_lead": create_crm_lead,
+        # 17.0.14 employee-self-service
+        "find_partner": find_partner,
+        "clock_in": clock_in,
+        "clock_out": clock_out,
+        "submit_expense": submit_expense,
+        "submit_timesheet": submit_timesheet,
+        "create_calendar_event": create_calendar_event,
     }
     fn = fn_map.get(tool_name)
     if not fn:
@@ -314,6 +457,23 @@ def _fmt_confirmation(tool_name: str, args: dict) -> str:
         if args.get("expected_revenue"):
             msg += f" — revenue: {args['expected_revenue']:,.0f}"
         return msg + "?"
+    if tool_name == "clock_in":
+        return "Clock in now?"
+    if tool_name == "clock_out":
+        return "Clock out now?"
+    if tool_name == "submit_expense":
+        return (
+            f"Submit expense <b>{args.get('description')}</b> for "
+            f"<b>{args.get('amount', 0):,.2f}</b>?"
+        )
+    if tool_name == "submit_timesheet":
+        return (
+            f"Log <b>{args.get('hours')}h</b> on "
+            f"<b>{args.get('project_name')}</b> "
+            f'&mdash; "{args.get("description")}"?'
+        )
+    if tool_name == "create_calendar_event":
+        return f"Create event <b>{args.get('name')}</b> at <b>{args.get('start')}</b>?"
     # Fallback
     return f"Execute <b>{tool_name}</b>?"
 
@@ -544,6 +704,216 @@ def preflight_write(env, tool_name: str, args: dict) -> dict:
         if revenue:
             question += f" &mdash; revenue: {revenue:,.0f}"
         return {"ok": True, "args": resolved, "question": question + "?"}
+
+    # ── 17.0.14 employee-self-service write tools ─────────────────────
+
+    if tool_name == "clock_in":
+        if "hr.attendance" not in env.registry:
+            return {"ok": False, "error": "The Attendances module is not installed."}
+        emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+        if not emp:
+            return {
+                "ok": False,
+                "error": "No HR employee record is linked to your user.",
+            }
+        # Reject if already clocked in (open attendance with no check_out).
+        open_att = env["hr.attendance"].search(
+            [("employee_id", "=", emp.id), ("check_out", "=", False)], limit=1
+        )
+        if open_att:
+            since = _fmt_date(open_att.check_in)
+            return {
+                "ok": False,
+                "error": (
+                    f"You are already clocked in (since {since}). Clock out first."
+                ),
+            }
+        return {
+            "ok": True,
+            "args": {"employee_id": emp.id},
+            "question": f"Clock in <b>{emp.name}</b> now?",
+        }
+
+    if tool_name == "clock_out":
+        if "hr.attendance" not in env.registry:
+            return {"ok": False, "error": "The Attendances module is not installed."}
+        emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+        if not emp:
+            return {
+                "ok": False,
+                "error": "No HR employee record is linked to your user.",
+            }
+        open_att = env["hr.attendance"].search(
+            [("employee_id", "=", emp.id), ("check_out", "=", False)],
+            limit=1,
+            order="check_in desc",
+        )
+        if not open_att:
+            return {"ok": False, "error": "You are not currently clocked in."}
+        return {
+            "ok": True,
+            "args": {"attendance_id": open_att.id, "employee_name": emp.name},
+            "question": (
+                f"Clock out <b>{emp.name}</b>? "
+                f"(working since {_fmt_date(open_att.check_in)})"
+            ),
+        }
+
+    if tool_name == "submit_expense":
+        if "hr.expense" not in env.registry:
+            return {"ok": False, "error": "The Expenses module is not installed."}
+        description = (args.get("description") or "").strip()
+        if len(description) < 3:
+            return {"ok": False, "error": "Expense description is too short."}
+        try:
+            amount = float(args.get("amount") or 0)
+        except (TypeError, ValueError):
+            return {"ok": False, "error": "Amount must be a number."}
+        if amount <= 0:
+            return {"ok": False, "error": "Amount must be greater than zero."}
+        emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+        if not emp:
+            return {
+                "ok": False,
+                "error": "No HR employee record is linked to your user.",
+            }
+        expense_date = (
+            args.get("expense_date") or ""
+        ).strip() or fields.Date.today().isoformat()
+        return {
+            "ok": True,
+            "args": {
+                "employee_id": emp.id,
+                "description": description,
+                "amount": amount,
+                "expense_date": expense_date,
+            },
+            "question": (
+                f"Submit expense <b>{description}</b> for "
+                f"<b>{amount:,.2f}</b> dated {expense_date}? "
+                "(Will be saved as draft for HR approval.)"
+            ),
+        }
+
+    if tool_name == "submit_timesheet":
+        if "account.analytic.line" not in env.registry:
+            return {
+                "ok": False,
+                "error": "The Timesheets module is not installed.",
+            }
+        project_name = (args.get("project_name") or "").strip()
+        err = _validate_search_term(project_name)
+        if err:
+            return {"ok": False, "error": err}
+        description = (args.get("description") or "").strip()
+        if len(description) < 3:
+            return {
+                "ok": False,
+                "error": "Please give a short description of the work.",
+            }
+        try:
+            hours = float(args.get("hours") or 0)
+        except (TypeError, ValueError):
+            return {"ok": False, "error": "Hours must be a number."}
+        if hours <= 0 or hours > 24:
+            return {
+                "ok": False,
+                "error": "Hours must be between 0 and 24 for a single entry.",
+            }
+        project = env["project.project"].search(
+            [("name", "ilike", project_name)], limit=1
+        )
+        if not project:
+            return {"ok": False, "error": f"Project '{project_name}' not found."}
+        task_name = (args.get("task_name") or "").strip()
+        task_id = None
+        task_label = ""
+        if task_name:
+            task = env["project.task"].search(
+                [("project_id", "=", project.id), ("name", "ilike", task_name)],
+                limit=1,
+            )
+            if task:
+                task_id = task.id
+                task_label = task.name
+        emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+        if not emp:
+            return {
+                "ok": False,
+                "error": "No HR employee record is linked to your user.",
+            }
+        entry_date = (
+            args.get("entry_date") or ""
+        ).strip() or fields.Date.today().isoformat()
+        suffix = f" / <b>{task_label}</b>" if task_label else ""
+        return {
+            "ok": True,
+            "args": {
+                "project_id": project.id,
+                "task_id": task_id,
+                "employee_id": emp.id,
+                "hours": hours,
+                "description": description,
+                "entry_date": entry_date,
+            },
+            "question": (
+                f"Log <b>{hours}h</b> on <b>{project.name}</b>{suffix} "
+                f'for {entry_date} &mdash; "{description}"?'
+            ),
+        }
+
+    if tool_name == "create_calendar_event":
+        if "calendar.event" not in env.registry:
+            return {"ok": False, "error": "The Calendar module is not installed."}
+        name = (args.get("name") or "").strip()
+        if len(name) < 2:
+            return {"ok": False, "error": "Event name is too short."}
+        start = (args.get("start") or "").strip()
+        if not start:
+            return {"ok": False, "error": "Start datetime is required."}
+        # Parse the LLM-provided datetime. We accept either a plain
+        # 'YYYY-MM-DD HH:MM' (most common from LLMs) or a full ISO
+        # 'YYYY-MM-DDTHH:MM:SS' string. Anything else is rejected up
+        # front rather than by the ORM at execute time.
+        parsed = None
+        for fmt in ("%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S"):
+            try:
+                parsed = datetime.strptime(start, fmt)
+                break
+            except ValueError:
+                continue
+        if parsed is None:
+            return {
+                "ok": False,
+                "error": (
+                    f"Could not parse start time '{start}'. Use "
+                    "YYYY-MM-DD HH:MM (24-hour clock)."
+                ),
+            }
+        try:
+            duration = float(args.get("duration_hours") or 1.0)
+        except (TypeError, ValueError):
+            duration = 1.0
+        if duration <= 0 or duration > 24:
+            return {
+                "ok": False,
+                "error": "Duration must be between 0 and 24 hours.",
+            }
+        stop = parsed + timedelta(hours=duration)
+        return {
+            "ok": True,
+            "args": {
+                "name": name,
+                "start": parsed.strftime("%Y-%m-%d %H:%M:%S"),
+                "stop": stop.strftime("%Y-%m-%d %H:%M:%S"),
+                "duration_hours": duration,
+            },
+            "question": (
+                f"Create event <b>{name}</b> on "
+                f"<b>{parsed.strftime('%a %d %b, %H:%M')}</b> "
+                f"for {duration:.1f}h?"
+            ),
+        }
 
     return {"ok": False, "error": f"Unknown write tool: {tool_name}"}
 
@@ -906,3 +1276,203 @@ def create_crm_lead(
             vals["stage_id"] = stage.id
     lead = env["crm.lead"].create(vals)
     return f"✅ Lead created: '{lead.name}' (ID {lead.id})."
+
+
+# ── 17.0.14 employee-self-service tools ───────────────────────────────────────
+
+
+def find_partner(env, name: str = "", limit: int = 5, **_):
+    """Look up contacts by name, email or phone (read-only).
+
+    Returns the best matches as a short bullet list. Searches three
+    fields with a single ``OR`` domain so a phone-like or email-like
+    query lands on the right column without the LLM having to specify.
+    """
+    if not (name or "").strip():
+        return "Please give me a name, email or phone to search for."
+    term = name.strip()
+    domain = [
+        "|",
+        "|",
+        ("name", "ilike", term),
+        ("email", "ilike", term),
+        ("phone", "ilike", term),
+    ]
+    partners = env["res.partner"].search(domain, limit=int(limit) or 5)
+    if not partners:
+        return f"No contact matched '{term}'."
+    lines = []
+    for p in partners:
+        bits = [p.name or "(no name)"]
+        if p.email:
+            bits.append(p.email)
+        if p.phone:
+            bits.append(p.phone)
+        if p.country_id:
+            bits.append(p.country_id.name)
+        lines.append("- " + " | ".join(bits))
+    return f"Contacts matching '{term}' ({len(partners)}):\n" + "\n".join(lines)
+
+
+def clock_in(env, employee_id=None, **_):
+    """Open a new attendance entry for the linked employee."""
+    err = _check_model(env, "hr.attendance", "Attendances")
+    if err:
+        return err
+    if employee_id:
+        emp = env["hr.employee"].browse(int(employee_id)).exists()
+    else:
+        emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+    if not emp:
+        return "No HR employee record is linked to your user."
+    # Re-check at execute time: someone may have clocked in via the web
+    # UI between staging and confirmation.
+    open_att = env["hr.attendance"].search(
+        [("employee_id", "=", emp.id), ("check_out", "=", False)], limit=1
+    )
+    if open_att:
+        return f"You are already clocked in (since {_fmt_date(open_att.check_in)})."
+    att = env["hr.attendance"].create(
+        {"employee_id": emp.id, "check_in": fields.Datetime.now()}
+    )
+    return f"✅ Clocked in {emp.name} at {_fmt_date(att.check_in)}."
+
+
+def clock_out(env, attendance_id=None, employee_name: str = "", **_):
+    """Close the linked employee's open attendance entry."""
+    err = _check_model(env, "hr.attendance", "Attendances")
+    if err:
+        return err
+    att = None
+    if attendance_id:
+        att = env["hr.attendance"].browse(int(attendance_id)).exists()
+        if not att or att.check_out:
+            return "That attendance entry is no longer open."
+    else:
+        emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+        if not emp:
+            return "No HR employee record is linked to your user."
+        att = env["hr.attendance"].search(
+            [("employee_id", "=", emp.id), ("check_out", "=", False)],
+            limit=1,
+            order="check_in desc",
+        )
+        if not att:
+            return "You are not currently clocked in."
+    att.write({"check_out": fields.Datetime.now()})
+    # worked_hours is computed by hr.attendance and reflects the just-
+    # written check_out without us having to re-read.
+    hours = getattr(att, "worked_hours", None)
+    summary = f"({hours:.2f}h)" if hours else ""
+    return f"✅ Clocked out {att.employee_id.name} {summary}."
+
+
+def submit_expense(
+    env,
+    employee_id=None,
+    description: str = "",
+    amount: float = 0.0,
+    expense_date: str = "",
+    **_,
+):
+    """Create a draft expense for the linked employee.
+
+    Created in the default draft state (``state='draft'``) so the
+    employee or HR can review it in Odoo before submission for approval.
+    Auto-submitting from chat would skip a deliberate human checkpoint.
+    """
+    err = _check_model(env, "hr.expense", "Expenses")
+    if err:
+        return err
+    if not employee_id:
+        emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+        if not emp:
+            return "No HR employee record is linked to your user."
+        employee_id = emp.id
+    vals = {
+        "name": description or "Expense submitted via OdooPilot",
+        "employee_id": int(employee_id),
+        "total_amount": float(amount),
+    }
+    if expense_date:
+        vals["date"] = expense_date
+    expense = env["hr.expense"].create(vals)
+    return (
+        f"✅ Draft expense '{expense.name}' for {expense.total_amount:,.2f} "
+        f"created (ID {expense.id}). Review and submit in Odoo when ready."
+    )
+
+
+def submit_timesheet(
+    env,
+    project_id=None,
+    task_id=None,
+    employee_id=None,
+    hours: float = 0.0,
+    description: str = "",
+    entry_date: str = "",
+    project_name: str = "",
+    task_name: str = "",
+    **_,
+):
+    """Log hours against a project (and optionally a task)."""
+    err = _check_model(env, "account.analytic.line", "Timesheets")
+    if err:
+        return err
+    if not project_id:
+        proj = env["project.project"].search([("name", "ilike", project_name)], limit=1)
+        if not proj:
+            return f"Project '{project_name}' not found."
+        project_id = proj.id
+    if not employee_id:
+        emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+        if not emp:
+            return "No HR employee record is linked to your user."
+        employee_id = emp.id
+    vals = {
+        "project_id": int(project_id),
+        "employee_id": int(employee_id),
+        "unit_amount": float(hours),
+        "name": description or "Logged via OdooPilot",
+    }
+    if task_id:
+        vals["task_id"] = int(task_id)
+    if entry_date:
+        vals["date"] = entry_date
+    line = env["account.analytic.line"].create(vals)
+    proj_name = line.project_id.name if line.project_id else "?"
+    return (
+        f"✅ Logged {line.unit_amount}h on '{proj_name}' "
+        f"({line.date}). Entry ID {line.id}."
+    )
+
+
+def create_calendar_event(
+    env, name: str, start: str, stop: str = "", duration_hours: float = 1.0, **_
+):
+    """Create a calendar event with the current user as organizer.
+
+    ``start`` and ``stop`` are pre-validated YYYY-MM-DD HH:MM:SS strings
+    produced by :func:`preflight_write`. We don't re-parse here.
+    """
+    err = _check_model(env, "calendar.event", "Calendar")
+    if err:
+        return err
+    if not stop:
+        # Defensive: preflight already computes stop, but accept a
+        # direct call without stop.
+        try:
+            parsed = datetime.strptime(start, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            return f"Invalid start datetime '{start}'."
+        stop = (parsed + timedelta(hours=float(duration_hours))).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+    vals = {
+        "name": name,
+        "start": start,
+        "stop": stop,
+        "user_id": env.uid,
+    }
+    event = env["calendar.event"].create(vals)
+    return f"✅ Event '{event.name}' created for {event.start} (ID {event.id})."
