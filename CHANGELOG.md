@@ -8,6 +8,20 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [18.0.2.0.0] — 2026-05-03 — Scope guard backport
+
+Mirrors **17.0.13.0.0** to the 18 series. Adds the pre-LLM regex
+filter (`services/scope_guard.py`) and the hardened `SYSTEM_PROMPT`
+that refuse off-topic / extraction / jailbreak attempts before paying
+for an LLM call. See the [17.0.13.0.0 entry below](#17013--2026-05-03--scope-guard-refuse-off-topic-requests)
+for the full description — same code, same tests, same configuration
+flag (`odoopilot.scope_guard_enabled`).
+
+The 18 series stays in **Alpha** until an operator validates an
+end-to-end install on a real Odoo 18 instance.
+
+---
+
 ## [18.0.1.0.0] — 2026-05-02 — Odoo 18 port (Alpha)
 
 First release on the new `18.0` branch. **Functionally identical to
