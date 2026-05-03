@@ -11,12 +11,12 @@ We patch security issues on the latest minor release of every Odoo major
 version we still support. Older patch versions on the same minor line
 should upgrade to the latest patch on that line.
 
-| Odoo series | Branch | Status            |
-|-------------|--------|-------------------|
-| 18.0        | `18.0` | Alpha (preview)   |
-| 17.0        | `17.0` | Supported         |
-| 16.0        | `16.0` | Not yet released  |
-| < 16.0      | n/a    | Not supported     |
+| Odoo series | Branch | Status            | App Store |
+|-------------|--------|-------------------|-----------|
+| 18.0        | `18.0` | Supported         | [apps.odoo.com/apps/modules/18.0/odoopilot](https://apps.odoo.com/apps/modules/18.0/odoopilot) |
+| 17.0        | `17.0` | Supported         | [apps.odoo.com/apps/modules/17.0/odoopilot](https://apps.odoo.com/apps/modules/17.0/odoopilot) |
+| 16.0        | `16.0` | Not yet released  | n/a       |
+| < 16.0      | n/a    | Not supported     | n/a       |
 
 The `main` branch tracks the latest supported series and is where security
 fixes land first before being mirrored to the per-version branches the
