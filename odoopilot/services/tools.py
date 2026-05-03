@@ -1281,12 +1281,22 @@ def create_crm_lead(
 # ── 17.0.14 employee-self-service tools ───────────────────────────────────────
 
 
+_FIND_PARTNER_MAX_LIMIT = 25
+
+
 def find_partner(env, name: str = "", limit: int = 5, **_):
     """Look up contacts by name, email or phone (read-only).
 
     Returns the best matches as a short bullet list. Searches three
     fields with a single ``OR`` domain so a phone-like or email-like
     query lands on the right column without the LLM having to specify.
+
+    The ``limit`` parameter is hard-capped at ``_FIND_PARTNER_MAX_LIMIT``
+    regardless of what the LLM passes. Without the cap, a chat-mediated
+    address-book scrape would be one ``find_partner(name='%', limit=999999)``
+    call away. Record rules already filter what the linked user can see,
+    but the cap keeps any single response from accidentally returning
+    the whole partner table.
     """
     if not (name or "").strip():
         return "Please give me a name, email or phone to search for."
@@ -1298,7 +1308,12 @@ def find_partner(env, name: str = "", limit: int = 5, **_):
         ("email", "ilike", term),
         ("phone", "ilike", term),
     ]
-    partners = env["res.partner"].search(domain, limit=int(limit) or 5)
+    try:
+        requested = int(limit) or 5
+    except (TypeError, ValueError):
+        requested = 5
+    capped_limit = max(1, min(requested, _FIND_PARTNER_MAX_LIMIT))
+    partners = env["res.partner"].search(domain, limit=capped_limit)
     if not partners:
         return f"No contact matched '{term}'."
     lines = []
@@ -1384,14 +1399,28 @@ def submit_expense(
     err = _check_model(env, "hr.expense", "Expenses")
     if err:
         return err
-    if not employee_id:
-        emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
-        if not emp:
-            return "No HR employee record is linked to your user."
-        employee_id = emp.id
+    # Defence-in-depth: re-resolve employee_id from env.uid at execute
+    # time, ignoring whatever was in the staged args. Today the agent
+    # loop always populates employee_id correctly via preflight_write,
+    # but binding to env.uid here means a future code path that stages
+    # a write with a different shape (or a future bug that lets a user
+    # influence pending_args) cannot trick us into writing as somebody
+    # else's hr.employee. Same pattern as mark_task_done's
+    # ownership re-check.
+    actual_emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+    if not actual_emp:
+        return "No HR employee record is linked to your user."
+    if employee_id and int(employee_id) != actual_emp.id:
+        _logger.warning(
+            "OdooPilot: submit_expense ignoring staged employee_id=%s "
+            "(does not match env.uid's employee=%s); writing as %s",
+            employee_id,
+            actual_emp.id,
+            actual_emp.name,
+        )
     vals = {
         "name": description or "Expense submitted via OdooPilot",
-        "employee_id": int(employee_id),
+        "employee_id": actual_emp.id,
         "total_amount": float(amount),
     }
     if expense_date:
@@ -1424,14 +1453,24 @@ def submit_timesheet(
         if not proj:
             return f"Project '{project_name}' not found."
         project_id = proj.id
-    if not employee_id:
-        emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
-        if not emp:
-            return "No HR employee record is linked to your user."
-        employee_id = emp.id
+    # Defence-in-depth: same pattern as submit_expense -- re-resolve
+    # employee_id from env.uid at execute time and ignore any incoming
+    # value. A timesheet entry written under the wrong employee would
+    # corrupt billing.
+    actual_emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
+    if not actual_emp:
+        return "No HR employee record is linked to your user."
+    if employee_id and int(employee_id) != actual_emp.id:
+        _logger.warning(
+            "OdooPilot: submit_timesheet ignoring staged employee_id=%s "
+            "(does not match env.uid's employee=%s); writing as %s",
+            employee_id,
+            actual_emp.id,
+            actual_emp.name,
+        )
     vals = {
         "project_id": int(project_id),
-        "employee_id": int(employee_id),
+        "employee_id": actual_emp.id,
         "unit_amount": float(hours),
         "name": description or "Logged via OdooPilot",
     }

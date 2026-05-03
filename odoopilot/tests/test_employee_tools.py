@@ -267,3 +267,110 @@ class TestClockInPreflight(TransactionCase):
         result = preflight_write(self.env, "clock_in", {})
         self.assertFalse(result["ok"])
         self.assertIn("not installed", result["error"].lower())
+
+
+# ── 17.0.15 hardening ─────────────────────────────────────────────────────
+
+
+class TestFindPartnerLimitCap(TransactionCase):
+    """The LLM cannot scrape the whole partner table by passing a huge limit.
+
+    Hard cap of 25 is enforced regardless of the requested value. Record
+    rules already filter what the linked user can see; the cap is the
+    second-line defence against an LLM-controlled exfiltration request
+    (or a malformed args payload).
+    """
+
+    def test_huge_limit_is_capped(self):
+        # Create a small batch to verify the call doesn't crash with a
+        # large requested limit and that the result count is bounded.
+        for i in range(3):
+            self.env["res.partner"].create(
+                {
+                    "name": f"OdooPilot LimitCap test partner {i}",
+                    "email": f"limitcap{i}@odoopilot-test.example",
+                }
+            )
+        result = tools.find_partner(self.env, name="OdooPilot LimitCap", limit=999_999)
+        # Three matching partners exist; the cap doesn't reduce them
+        # (cap is 25, well above 3). The point of this test is that the
+        # call succeeds with a sane response rather than running an
+        # unbounded ORM search.
+        self.assertIn("OdooPilot LimitCap", result)
+        # Negative / non-integer limits get sane defaults.
+        result = tools.find_partner(self.env, name="OdooPilot LimitCap", limit=-5)
+        self.assertIn("OdooPilot LimitCap", result)
+        result = tools.find_partner(
+            self.env, name="OdooPilot LimitCap", limit="not a number"
+        )
+        self.assertIn("OdooPilot LimitCap", result)
+
+
+class TestEmployeeIdRebinding(TransactionCase):
+    """submit_expense / submit_timesheet must ignore staged employee_id
+    that doesn't match env.uid's hr.employee.
+
+    The agent loop today pins employee_id correctly via preflight_write,
+    so the only way the wrong id reaches the executor is via a future
+    code-path bug. Defence-in-depth: re-resolve at execute time and
+    log a warning if the staged value disagrees.
+    """
+
+    def setUp(self):
+        super().setUp()
+        if "hr.employee" not in self.env.registry:
+            self.skipTest("hr.employee not installed")
+        # Make sure the test admin has an hr.employee.
+        self.user = self.env.ref("base.user_admin")
+        existing = self.env["hr.employee"].search(
+            [("user_id", "=", self.user.id)], limit=1
+        )
+        if existing:
+            self.my_emp = existing
+        else:
+            self.my_emp = self.env["hr.employee"].create(
+                {"name": "OdooPilot test admin", "user_id": self.user.id}
+            )
+        # And a second employee with a different (or no) user.
+        self.other_emp = self.env["hr.employee"].create(
+            {"name": "OdooPilot test other employee"}
+        )
+
+    def test_submit_expense_ignores_spoofed_employee_id(self):
+        if "hr.expense" not in self.env.registry:
+            self.skipTest("hr.expense not installed")
+        # Direct execute call with a spoofed employee_id pointing at
+        # the OTHER employee. The executor must override and write as
+        # the env.uid's own hr.employee.
+        result = tools.submit_expense(
+            self.env,
+            employee_id=self.other_emp.id,  # spoofed
+            description="Defence-in-depth test expense",
+            amount=42.0,
+        )
+        self.assertIn("Draft expense", result)
+        # Verify the row landed under MY employee, not the spoofed one.
+        latest = self.env["hr.expense"].search(
+            [("name", "=", "Defence-in-depth test expense")], limit=1
+        )
+        self.assertEqual(latest.employee_id, self.my_emp)
+
+    def test_submit_timesheet_ignores_spoofed_employee_id(self):
+        if "account.analytic.line" not in self.env.registry:
+            self.skipTest("account.analytic.line not installed")
+        if "project.project" not in self.env.registry:
+            self.skipTest("project not installed")
+        proj = self.env["project.project"].create({"name": "OdooPilot test project"})
+        result = tools.submit_timesheet(
+            self.env,
+            project_id=proj.id,
+            employee_id=self.other_emp.id,  # spoofed
+            hours=1.0,
+            description="Defence-in-depth test timesheet",
+        )
+        # Tool returned a success string.
+        self.assertTrue(result.startswith("✅"))
+        latest = self.env["account.analytic.line"].search(
+            [("name", "=", "Defence-in-depth test timesheet")], limit=1
+        )
+        self.assertEqual(latest.employee_id, self.my_emp)
