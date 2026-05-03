@@ -15,24 +15,43 @@ Telegram or WhatsApp account on a linked chat can however try to:
 * Use the bot as a free general-purpose LLM at the operator's expense
   ("write me Python code", "tell me a joke", "what's the weather").
 
-The system prompt in :mod:`services.agent` holds the line on anything
-subtle. This module is the cheap first line: a small set of regex
-patterns that catch the obvious attempts BEFORE we pay for an LLM call.
-Saves API spend and produces a consistent, fast refusal.
+What this module does and does NOT defend against
+-------------------------------------------------
 
-Design notes
-------------
+This is a **best-effort cost-saving filter**, not a security boundary.
+The real security boundary is the hardened ``SYSTEM_PROMPT`` in
+:mod:`services.agent`, which instructs the LLM to refuse off-topic
+requests regardless of how they are phrased and regardless of any
+instructions embedded in the user message.
 
-The patterns are intentionally narrow. False positives on a legitimate
-Odoo question are worse than false negatives on a jailbreak, because:
+Bypasses we DO defend against (after 17.0.15):
 
-1. The hardened system prompt is a real second line of defence; even if
-   a clever user gets past the regex, the LLM is told to refuse and
-   has no off-topic tools to call.
-2. A blocked legitimate question makes the bot useless to a real
-   employee, which directly contradicts the product's purpose.
+* Unicode normalisation tricks: Cyrillic homoglyphs ("sуstem" with a
+  Cyrillic 'у'), fullwidth Latin ("ｓystem"), zero-width characters
+  inserted between letters. We NFKC-normalise and strip the
+  zero-width set before matching.
+* The most common French / Spanish / German / Portuguese / Arabic
+  phrasings of the top five English jailbreaks. Coverage is not
+  exhaustive -- a determined attacker can paraphrase or pick a less
+  common language.
 
-Operators can disable the guard by setting
+Bypasses we do NOT defend against:
+
+* **Multi-message attacks**: a jailbreak split across two consecutive
+  user messages bypasses the per-message regex. The SYSTEM_PROMPT
+  refuses the result.
+* **Encoded payloads**: Base64, leet, or steganographic prompts that
+  the LLM can decode but the regex can't. The SYSTEM_PROMPT refuses
+  the result.
+* **Truly novel phrasings or rare languages**: any sufficiently
+  motivated attacker pays for one LLM call per attempt; the
+  SYSTEM_PROMPT then refuses.
+
+In short: every blocked attempt saves an LLM call, but the
+*correctness* guarantee (the bot won't actually do what the attacker
+asks) lives in the SYSTEM_PROMPT, not here.
+
+Operators can disable the regex layer by setting
 ``odoopilot.scope_guard_enabled`` to ``False`` in
 ``Settings -> Technical -> System Parameters``. The check is on by
 default.
@@ -41,6 +60,98 @@ default.
 from __future__ import annotations
 
 import re
+import unicodedata
+
+
+# Characters used in homoglyph / zero-width attacks. We strip these
+# before matching so "what is your sуstem prompt" (with a Cyrillic 'у')
+# normalises to "what is your system prompt" and trips the patterns
+# below. The set covers the four common attack vectors:
+#
+#   * Soft hyphen, zero-width space, ZWNJ, ZWJ, BOM, word joiner
+#   * Bidirectional override marks (LRM, RLM, LRE, RLE, PDF, LRO, RLO)
+#   * Ideographic space
+#
+# We list the characters by Unicode escape rather than as literals so
+# this source file itself does not contain bidi-override characters
+# (bandit's B613 trojansource rule, and human readers, both prefer the
+# escape form).
+_INVISIBLE_CODEPOINTS = [
+    0x00AD,  # soft hyphen
+    0x200B,  # zero-width space
+    0x200C,  # zero-width non-joiner
+    0x200D,  # zero-width joiner
+    0x2060,  # word joiner
+    0xFEFF,  # BOM / zero-width no-break space
+    0x200E,  # left-to-right mark
+    0x200F,  # right-to-left mark
+    0x202A,  # left-to-right embedding
+    0x202B,  # right-to-left embedding
+    0x202C,  # pop directional formatting
+    0x202D,  # left-to-right override
+    0x202E,  # right-to-left override
+    0x3000,  # ideographic space
+]
+_STRIP_INVISIBLE = str.maketrans({cp: None for cp in _INVISIBLE_CODEPOINTS})
+
+
+def _normalise(text: str) -> str:
+    """Strip Unicode tricks before pattern matching.
+
+    NFKC folds compatibility characters (fullwidth ASCII, ligatures,
+    Cyrillic look-alikes that have a canonical Latin equivalent) into
+    their plain ASCII form. The ``_STRIP_INVISIBLE`` translate then
+    removes zero-width and bidirectional override characters that
+    attackers insert between letters to break ``\b`` boundaries.
+
+    Note: NFKC does NOT cover every Cyrillic homoglyph -- the Cyrillic
+    'а' (U+0430) and Latin 'a' (U+0061) are visually identical but
+    NFKC treats them as different letters. For those, the
+    ``_HOMOGLYPH_MAP`` translate below catches the most common
+    English-letter look-alikes used in attacks.
+    """
+    return (
+        unicodedata.normalize("NFKC", text)
+        .translate(_STRIP_INVISIBLE)
+        .translate(_HOMOGLYPH_MAP)
+    )
+
+
+# A small map of Cyrillic and Greek look-alikes that NFKC does NOT
+# normalise to their Latin equivalents but that attackers often
+# substitute one-for-one to dodge an ASCII regex. Source: the OWASP
+# Unicode-handling cheat sheet, narrowed to the letters that actually
+# appear in our blocked patterns (s, y, t, e, m, a, o, p, r, i, c, n).
+_HOMOGLYPH_MAP = str.maketrans(
+    {
+        # Cyrillic -> Latin
+        "а": "a",  # U+0430
+        "е": "e",  # U+0435
+        "о": "o",  # U+043E
+        "р": "p",  # U+0440
+        "с": "c",  # U+0441
+        "у": "y",  # U+0443
+        "х": "x",  # U+0445
+        "і": "i",  # U+0456
+        "ѕ": "s",  # U+0455
+        "ј": "j",  # U+0458
+        "А": "A",
+        "Е": "E",
+        "О": "O",
+        "Р": "P",
+        "С": "C",
+        "У": "Y",
+        "Х": "X",
+        # Greek -> Latin
+        "α": "a",  # U+03B1
+        "ε": "e",  # U+03B5
+        "ο": "o",  # U+03BF
+        "ρ": "p",  # U+03C1
+        "τ": "t",  # U+03C4
+        "ι": "i",  # U+03B9
+        "ν": "v",  # U+03BD
+    }
+)
 
 # A canned, channel-appropriate refusal. The LLM-driven path translates
 # its replies into the user's language; this short-circuit reply stays in
@@ -192,6 +303,105 @@ BLOCKED_PATTERNS: list[tuple[re.Pattern[str], str]] = [
         re.compile(r"\bwhat(?:'s|\s+is)\s+(the\s+)?weather\b", re.I),
         "off-topic",
     ),
+    # ── Top-5 jailbreaks in five additional languages ──────────────────
+    # English coverage is in the patterns above. The list below adds the
+    # most common phrasings of "ignore previous instructions",
+    # "system prompt", "act as", "write code", and "tell joke" in
+    # French, Spanish, German, Portuguese, and Arabic. Coverage is
+    # explicitly NOT exhaustive -- see module docstring for why.
+    #
+    # FR
+    (
+        re.compile(
+            r"\bignor[ez]+\s+(les\s+)?(instructions?|consignes?|"
+            r"directives?)\s+(pr[ée]c[ée]dentes?|ant[ée]rieures?)",
+            re.I,
+        ),
+        "jailbreak",
+    ),
+    (
+        re.compile(r"\b(ton|votre)\s+(prompt|message)\s+(syst[èe]me|initial)", re.I),
+        "prompt extraction",
+    ),
+    (re.compile(r"\bagis\s+comme|\bagissez\s+comme\b", re.I), "role hijack"),
+    (
+        re.compile(r"\b[ée]cris-?moi\s+(du\s+)?code|\bg[ée]n[èe]re\s+du\s+code", re.I),
+        "code generation",
+    ),
+    (re.compile(r"\braconte-?moi\s+une\s+blague\b", re.I), "creative content"),
+    # ES
+    (
+        re.compile(r"\bignora\s+(las\s+)?instrucciones\s+(anteriores|previas)", re.I),
+        "jailbreak",
+    ),
+    (re.compile(r"\b(tu|su)\s+prompt\s+(del\s+)?sistema\b", re.I), "prompt extraction"),
+    (re.compile(r"\bact[úu]a\s+como\b", re.I), "role hijack"),
+    (
+        re.compile(r"\bescr[íi]beme\s+c[óo]digo|\bgenera\s+c[óo]digo", re.I),
+        "code generation",
+    ),
+    (re.compile(r"\bcu[ée]ntame\s+un\s+chiste\b", re.I), "creative content"),
+    # DE
+    (
+        re.compile(
+            r"\bignoriere\s+(alle\s+)?(vorherigen?|vorigen?|fr[üu]heren?)\s+"
+            r"(anweisungen?|instruktionen?)",
+            re.I,
+        ),
+        "jailbreak",
+    ),
+    (
+        re.compile(r"\b(dein|ihr|euer)\s+system[-_\s]?prompt\b", re.I),
+        "prompt extraction",
+    ),
+    (
+        re.compile(r"\bverhalte\s+dich\s+wie|\bspiele\s+(die\s+)?rolle\b", re.I),
+        "role hijack",
+    ),
+    (
+        re.compile(r"\bschreib(e)?\s+(mir\s+)?code|\bgeneriere\s+code", re.I),
+        "code generation",
+    ),
+    (
+        re.compile(r"\berz[äa]hl(e)?\s+(mir\s+)?einen\s+witz\b", re.I),
+        "creative content",
+    ),
+    # PT
+    (
+        re.compile(
+            r"\bignor[ae]\s+(as\s+)?instru[çc][õo]es\s+(anteriores|pr[ée]vias)", re.I
+        ),
+        "jailbreak",
+    ),
+    (
+        re.compile(r"\b(seu|teu)\s+prompt\s+(do\s+)?sistema\b", re.I),
+        "prompt extraction",
+    ),
+    (re.compile(r"\baja\s+como|\baja\s+como\s+um\b", re.I), "role hijack"),
+    (
+        re.compile(r"\bescreve(-me)?\s+(um\s+)?c[óo]digo|\bgera\s+c[óo]digo", re.I),
+        "code generation",
+    ),
+    (re.compile(r"\bconta(-me)?\s+uma\s+piada\b", re.I), "creative content"),
+    # AR -- right-to-left, but the same regex works because re does not
+    # care about display order. Patterns are limited to high-confidence
+    # phrasings since Arabic morphology has many valid variations.
+    (
+        re.compile(
+            r"\bتجاهل\s+(جميع\s+)?(التعليمات|الأوامر)\s+(السابقة|السابقه)", re.I
+        ),
+        "jailbreak",
+    ),
+    (
+        re.compile(r"\b(تعليماتك|موجه)\s+(النظام|النظامية)", re.I),
+        "prompt extraction",
+    ),
+    (re.compile(r"\bتصرف\s+ك[أا]نك\b", re.I), "role hijack"),
+    (
+        re.compile(r"\bاكتب\s+(لي\s+)?(كود|برنامج|سكربت)", re.I),
+        "code generation",
+    ),
+    (re.compile(r"\bاحك\s+لي\s+نكتة\b", re.I), "creative content"),
 ]
 
 
@@ -204,10 +414,18 @@ def check(text: str) -> tuple[bool, str | None]:
 
     Empty strings always pass through; the caller upstream of this filter
     has its own checks for empty bodies.
+
+    The text is run through :func:`_normalise` before matching:
+    NFKC-folded, zero-width / bidi-override characters stripped, and
+    common Cyrillic / Greek homoglyphs mapped to their Latin
+    equivalents. This catches the cheapest evasion attacks (fullwidth
+    "ｓystem" or Cyrillic "sуstem") at the cost of one ``str.translate``
+    call per inbound message.
     """
     if not text:
         return False, None
+    canonical = _normalise(text)
     for pattern, reason in BLOCKED_PATTERNS:
-        if pattern.search(text):
+        if pattern.search(canonical):
             return True, reason
     return False, None
