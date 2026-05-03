@@ -309,6 +309,44 @@ class TestBoundedPool(TransactionCase):
         self.assertTrue(done.wait(timeout=5))
 
 
+class TestRateLimiterBucketGC(TransactionCase):
+    """17.0.15 — opportunistic GC of empty buckets keeps the dict bounded
+    under (channel, chat_id) churn.
+
+    Without the GC, every unique chat_id ever seen leaves a key behind in
+    ``RateLimiter._buckets``. The opportunistic sweep runs every
+    ``_BUCKET_GC_INTERVAL`` calls and drops keys whose bucket is empty
+    after pruning to the current window.
+    """
+
+    def test_empty_buckets_get_swept(self):
+        # Use a small window so we can age buckets out without a long sleep.
+        rl = throttle.RateLimiter(limit=2, window=1)
+        # Touch a batch of unique chat_ids so the dict has many entries.
+        for i in range(throttle._BUCKET_GC_INTERVAL):
+            rl.allow("telegram", f"churn-{i}")
+        # Confirm the dict is large.
+        before = len(rl._buckets)
+        self.assertGreaterEqual(before, throttle._BUCKET_GC_INTERVAL)
+        # Wait past the window so every bucket is stale.
+        import time
+
+        time.sleep(1.1)
+        # One more allow() crosses _BUCKET_GC_INTERVAL again and triggers
+        # the sweep. The sweep prunes stale entries and drops empty
+        # buckets.
+        for i in range(throttle._BUCKET_GC_INTERVAL):
+            rl.allow("telegram", f"sweep-trigger-{i}")
+        # After the sweep, the dict size should reflect only the
+        # currently-active senders, not the original churn batch.
+        after = len(rl._buckets)
+        self.assertLess(
+            after,
+            before,
+            f"GC didn't shrink the dict ({before} -> {after})",
+        )
+
+
 class TestDeliveryDedup(TransactionCase):
     """Fix #9 — webhook deliveries are deduped by external id."""
 

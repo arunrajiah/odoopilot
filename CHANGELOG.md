@@ -8,6 +8,25 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [18.0.4.0.0] — 2026-05-03 — Internal audit fixes (backport)
+
+Mirrors **17.0.15.0.0** to the 18 series. Two High, two Medium, one
+hygiene item from the post-17.0.14 internal audit:
+
+- Scope guard hardened against Unicode (NFKC + zero-width strip +
+  Cyrillic/Greek homoglyph map) and foreign-language bypasses (FR /
+  ES / DE / PT / AR top-5 jailbreaks).
+- `submit_expense` / `submit_timesheet` rebind `employee_id` to
+  `env.uid` at execute time.
+- `find_partner` limit hard-capped at 25.
+- `RateLimiter._buckets` opportunistic GC every 256 calls.
+- `assert` → explicit `RuntimeError` in throttle module.
+
+Same code, same tests as the 17 release. The 18 series stays in
+**Alpha** until an operator validates an end-to-end install.
+
+---
+
 ## [18.0.3.0.0] — 2026-05-03 — Employee-self-service tools backport
 
 Mirrors **17.0.14.0.0** to the 18 series. Six new tools widen the
