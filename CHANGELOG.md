@@ -8,6 +8,116 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.15.0.0] — 2026-05-03 — Internal security audit fixes
+
+The fourth security audit since the public Reddit one. Two **High**
+findings, two **Medium**, one **hygiene** item. None is independently
+exploitable today against a default-configured install; this release
+closes them as defence-in-depth before the upcoming voice-messages
+work expands the attack surface.
+
+### High — Scope guard hardened against Unicode and foreign-language bypasses
+
+The pre-LLM regex filter shipped in 17.0.13 was ASCII-English only.
+Trivial bypasses worked: Cyrillic homoglyphs (`sуstem prompt` with a
+Cyrillic 'у'), zero-width joiners between letters, fullwidth Latin
+(`Ｗrite me Python`), and any non-English jailbreak phrasing
+(`Ignorez les instructions précédentes`, `Ignora las instrucciones
+anteriores`, `Ignoriere alle vorherigen Anweisungen`,
+`تجاهل جميع التعليمات السابقة`). The `SYSTEM_PROMPT` second-line
+defence already refused these — the bot didn't actually obey — but
+every bypass cost an LLM call, defeating the regex's stated purpose.
+
+Now:
+
+- Inputs run through `scope_guard._normalise()`: NFKC fold, strip
+  zero-width and bidi-override characters, map common Cyrillic and
+  Greek homoglyphs to Latin equivalents.
+- New patterns for the top-5 jailbreaks in **French, Spanish, German,
+  Portuguese, and Arabic**. Coverage is explicitly not exhaustive (the
+  module docstring now spells out what's defended and what isn't).
+
+22 representative legit queries still pass, 32 original attacks still
+block, plus 22 new bypass cases now block. *File:*
+`services/scope_guard.py`.
+
+### High — `submit_expense` / `submit_timesheet` re-resolve `employee_id` at execute time
+
+The two new write tools shipped in 17.0.14 trusted whatever
+`employee_id` was in the staged args, falling back to `env.uid` only
+when the field was missing. Today the only writer of those args is
+the agent loop after `preflight_write`, which correctly pins the
+linked user's own employee — but a future code path that stages
+writes with a different shape, or a future bug that lets a user
+influence `pending_args`, would let the executor write to another
+employee's expense or timesheet. The other write tools
+(`mark_task_done` etc.) already re-verify ownership at execute time;
+these two now do the same.
+
+The executors look up the linked user's `hr.employee` via
+`env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)`,
+ignore any mismatched staged value, and log a WARNING. *File:*
+`services/tools.py:submit_expense`, `services/tools.py:submit_timesheet`.
+
+### Medium — `find_partner` limit capped at 25
+
+`find_partner` accepted any `limit` the LLM passed and forwarded it
+to the ORM. A prompt-injection that nudged the LLM into calling
+`find_partner(name="%", limit=999999)` would scrape the entire visible
+partner table in a single chat reply. Record rules already filter to
+what the linked user can read, but the cap is the second-line defence
+against accidental address-book exfiltration. *File:*
+`services/tools.py:find_partner`.
+
+### Medium — `RateLimiter._buckets` opportunistic GC
+
+The dict was pruning timestamps within a bucket but never deleting
+empty buckets, so the dict grew by one ~100-byte entry per unique
+`(channel, chat_id)` ever seen. Bounded in practice by the number of
+real linked chats (Telegram chat_ids and WhatsApp `from` numbers are
+fixed per user), but a slow leak under churn. New: opportunistic
+sweep every 256 calls drops keys whose bucket is empty after pruning.
+*File:* `services/throttle.py:RateLimiter`.
+
+### Hygiene — `assert` → explicit `RuntimeError` in throttle module
+
+`assert _limiter is not None` and `assert _pool is not None` would be
+optimised out under `python -O`. Replaced with explicit `if … is None:
+raise RuntimeError(…)`. Odoo doesn't run with `-O` by default, so this
+is informational hardening only. *File:* `services/throttle.py`.
+
+### Findings explicitly NOT actioned
+
+The audit also flagged five informational items where the conclusion
+was "no fix needed":
+
+- Calendar-event creation rate already capped by the per-chat rate
+  limit; documenting acceptable.
+- `BoundedPool` semaphore leak on hard process crash; bounded by
+  process lifetime.
+- `_init_lock` held across `cfg.get_param`; first-call only, not
+  worth changing.
+- `link_token.peek()` reveals chat_id to the admin's session on the
+  GET preview; requires a separate XSS to exfiltrate.
+- `_compute_activity` `compute_sudo=True`: identity model is
+  system-only via ACL, so no privacy regression today.
+
+### Tests
+
+- `test_scope_guard.py` adds `TestUnicodeBypasses` (3 cases) and
+  `TestForeignLanguageJailbreaks` (16 cases across 5 languages).
+- `test_employee_tools.py` adds `TestFindPartnerLimitCap` (huge /
+  negative / non-numeric limit handled) and `TestEmployeeIdRebinding`
+  (spoofed `employee_id` ignored on `submit_expense` and
+  `submit_timesheet`).
+- `test_security.py` adds `TestRateLimiterBucketGC` (sweep shrinks
+  the dict after a churn batch).
+
+CI green: ruff format + check, bandit (0 medium/high), semgrep
+(0 blocking), listing renderable, all XML well-formed.
+
+---
+
 ## [17.0.14.0.0] — 2026-05-03 — Employee-self-service tool sprint
 
 Six new tools that widen the bot's audience to anyone in the company
