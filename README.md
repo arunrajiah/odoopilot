@@ -117,7 +117,9 @@ Copy the `odoopilot/` directory into your Odoo addons path, then:
 ./odoo-bin -c odoo.conf -u odoopilot
 ```
 
-Or install from the [Odoo App Store](https://apps.odoo.com/apps/modules/17.0/odoopilot).
+Or install from the Odoo App Store:
+- [Odoo 17](https://apps.odoo.com/apps/modules/17.0/odoopilot)
+- [Odoo 18](https://apps.odoo.com/apps/modules/18.0/odoopilot)
 
 ### 2. Configure in Odoo Settings
 
@@ -316,8 +318,8 @@ Please don't disclose publicly. Use [GitHub Security Advisories](https://github.
 ## Status & roadmap
 
 Current releases:
-- `17.0` branch — **17.0.13.0.0** (Beta, on the Odoo App Store)
-- `18.0` branch — **18.0.2.0.0** (Alpha, GitHub only)
+- `17.0` branch — **17.0.15.0.0** (Beta, on the [Odoo 17 App Store](https://apps.odoo.com/apps/modules/17.0/odoopilot))
+- `18.0` branch — **18.0.5.0.0** (Beta, on the [Odoo 18 App Store](https://apps.odoo.com/apps/modules/18.0/odoopilot))
 
 CHANGELOG: [full history](CHANGELOG.md).
 
@@ -340,11 +342,12 @@ CHANGELOG: [full history](CHANGELOG.md).
 
 **2. Voice messages → STT → tool calls.** Both Telegram and WhatsApp deliver voice as audio attachments. Adding a download → Whisper transcription → existing-text-flow path unlocks the warehouse-picker / driver / hands-busy use cases — anyone whose hands aren't free to type. The biggest single UX upgrade left for the on-the-go-employee persona. Real engineering work (audio buffering, voice-language detection, STT cost considerations); ships AFTER the security audit.
 
-**3. Operator-side (not code, just process):**
+**3. Operator-side:**
 
-- 📋 **Validate Odoo 18 install** on a real instance and submit the `18.0` listing to `apps.odoo.com` — currently only on GitHub
-- 📋 **OCA submission** once the 18 listing lands and gets a Beta promotion
+- ✅ **Validate Odoo 18 install** and submit the listing to `apps.odoo.com` — done, [live on the App Store](https://apps.odoo.com/apps/modules/18.0/odoopilot)
+- 📋 **OCA submission** — next, now that both 17 and 18 are on the App Store
 - 📋 **Odoo 16 backport** — low priority, only if there is operator demand
+- 📋 **Redis-backed rate limiter** — only if a multi-Odoo-worker deployment needs hard global rate caps
 
 ---
 
