@@ -258,23 +258,42 @@ Please don't disclose publicly. Use [GitHub Security Advisories](https://github.
 
 ## Status & roadmap
 
-Current release: **17.0.11.0.0** (CHANGELOG: [full history](CHANGELOG.md))
+Current releases:
+- `17.0` branch — **17.0.13.0.0** (Beta, on the Odoo App Store)
+- `18.0` branch — **18.0.2.0.0** (Alpha, GitHub only)
 
-Recent line-up (all on the `17.0` branch and the Odoo App Store):
+CHANGELOG: [full history](CHANGELOG.md).
+
+### Recently shipped (last two weeks)
 
 | Version | Date | Theme |
 |---------|------|-------|
-| **17.0.11.0.0** | 2026-05-02 | Polish pass — banner, CI security scanning (bandit/semgrep), listing renderable check |
+| **17.0.13.0.0** / **18.0.2.0.0** | 2026-05-03 | Scope guard — refuse off-topic / extraction / jailbreak attempts before paying for an LLM call; hardened SYSTEM_PROMPT |
+| **17.0.12.0.0** | 2026-05-02 | Operator admin views — Linked Users dashboard with activity columns, Audit Log with failure-decoration + filters + group-bys |
+| **17.0.11.0.0** | 2026-05-02 | Polish pass — new banner, CI security scanning (bandit/semgrep), listing renderable check |
+| **18.0.1.0.0** | 2026-05-02 | First Odoo 18 release (Alpha) — static port |
 | **17.0.10.0.0** | 2026-04-28 | Repositioning + community panel + listing fix |
 | **17.0.9.0.0** | 2026-04-27 | Defence-in-depth — token scrub, sudo_env rename, hygiene |
 | **17.0.8.0.0** | 2026-04-27 | 5 fixes from internal post-release audit (CSRF, hijack, wildcard, rate limit, idempotency) |
 | **17.0.7.0.0** | 2026-04-26 | Public audit fixes (HMAC, mandatory secret, per-write nonce, hashed tokens) |
 
-Coming next:
+### Coming next
 
-- 📋 **Odoo 18 port** — adapt to the 18 ORM, dual-branch CI
-- 📋 **Operator-friendly admin views** — group audit log by user, recent-activity dashboard
-- 📋 **OCA submission** once the 18 port lands
+**Sprint: tool-coverage expansion.** The bot today covers 8 read domains and 5 write actions. The next set of tools widens the audience to anyone in the company who needs a one-tap-from-chat workflow:
+
+- `clock_in` / `clock_out` — `hr.attendance` for field staff and shift workers
+- `submit_expense` — `hr.expense` for sales reps and travelling employees
+- `submit_timesheet` — `account.analytic.line` for billable-time tracking
+- `find_partner` — `res.partner` quick lookup ("what's ACME's phone?")
+- `create_calendar_event` — `calendar.event` ("schedule follow-up with John tomorrow 10am")
+
+**Voice messages → tool calls.** Both Telegram and WhatsApp deliver voice as audio attachments. Adding a download → Whisper transcription → existing-text-flow path unlocks the warehouse-picker / driver / hands-busy use cases. Real engineering work; targeted for the release after the tool-coverage sprint.
+
+**Operator-side (not code, just process):**
+
+- 📋 **Validate Odoo 18 install** on a real instance and submit the `18.0` listing to `apps.odoo.com` — currently only on GitHub
+- 📋 **OCA submission** once the 18 listing lands and gets a Beta promotion
+- 📋 **Odoo 16 backport** — low priority, only if there is operator demand
 
 ---
 
