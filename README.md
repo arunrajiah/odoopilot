@@ -215,6 +215,63 @@ To run **100% local** with no third-party API calls, pick `ollama` and point the
 
 ---
 
+## Sizing & capacity
+
+The most common operator question: *will this handle my team?* Short answer for almost any deployment up to ~5,000 employees: **yes, and the binding constraint is your LLM provider's rate limit, not OdooPilot or Odoo**.
+
+### What to set, by team size
+
+Pick the row that matches your headcount. The defaults work up to ~200 employees with no tuning at all.
+
+| Team size | Daily volume | Pool size | Odoo workers | LLM provider tier | Daily LLM cost (~) |
+|---|---|---|---|---|---|
+| **20**, casual | ~100 msg/day | default (`8`) | `--workers=2` | Groq free tier | $0 |
+| **100**, daily use | ~1,000 msg/day | default (`8`) | `--workers=2` | OpenAI Tier 1 ($5 spent) | ~$1 |
+| **300**, all-day | ~3,000 msg/day | `16` | `--workers=4` | Claude Tier 2 or OpenAI Tier 1 | ~$5 |
+| **1,000** | ~15,000 msg/day | `32` | `--workers=4` | Claude Tier 3 or OpenAI Tier 2 | ~$15–30 |
+| **5,000+** | ~75,000+ msg/day | `64` | `--workers=8`+ | Anthropic Tier 4 / OpenAI scaled | ~$100+ |
+
+**Pool size** is set in *Settings → Technical → System Parameters → `odoopilot.worker_pool_size`*. **Odoo workers** is the `--workers=N` flag on `odoo-bin`.
+
+### Why the LLM provider, not OdooPilot, is the bottleneck
+
+Each layer's ceiling at default config:
+
+| Layer | Ceiling |
+|---|---|
+| OdooPilot bounded worker pool | 8 concurrent in-flight messages → ~50 msg/min sustained |
+| OdooPilot per-chat rate limit | 30 messages/hour per chat (`odoopilot.rate_limit_per_hour`) |
+| Odoo HTTP frontend (`--workers=2`) | a few hundred req/sec — the webhook handler is sub-100ms |
+| PostgreSQL (audit + session) | trivial below ~100 msg/sec |
+| **LLM provider rate limit** | **typically the binding constraint** |
+
+Provider rate limits at the tiers most teams actually use:
+
+| Provider | Tier | Rate limit | Comfortable team size |
+|---|---|---|---|
+| Groq (free) | none | ~50 RPM | up to ~50 employees |
+| OpenAI | Tier 1 ($5 spent) | 500 RPM | up to ~1,000 employees |
+| Anthropic | Tier 2 (~$40/mo) | ~1,000 RPM | up to ~2,000 employees |
+| Anthropic | Tier 4 | 4,000+ RPM | 5,000+ employees |
+| Ollama | local | bound by your GPU | bound by your GPU |
+
+### Watch for
+
+- **First 9 AM / first 5 PM**: peak hours typically run 3–4× the daily average. Size for the peak, not the average.
+- **One employee monopolising the bot**: capped at 30 messages/hour by the per-chat rate limit. They can request a higher limit by editing `odoopilot.rate_limit_per_hour` for the whole install (no per-user override yet).
+- **Multi-Odoo-worker fairness**: the throttle is in-process per Odoo HTTP worker. If you run `--workers=4`, each worker has its own counter — so a chatty user effectively gets `30 × 4 = 120` msg/hour rather than 30. Acceptable for almost all teams; if you need a hard global cap, that requires a Redis-backed limiter (not built today, see roadmap).
+- **LLM cost overruns**: the audit log is your friend. *Settings → OdooPilot → Audit Log* with the *Group by user* filter shows you who's burning the budget.
+
+### Self-test before the first real user logs in
+
+1. Install the addon. Configure Telegram bot token + LLM API key in Settings.
+2. Click *Register Webhook*. Watch the Odoo log for `OdooPilot: rejecting Telegram webhook` warnings (a sign of a misconfigured secret).
+3. Send `/start` to your bot. You should get the welcome reply within 1–2 seconds.
+4. Send `/link`, click the URL, confirm — you should land on the success page.
+5. Send a real query: *"Show me my open tasks."* If it works, you're done. If not: check *Settings → OdooPilot → Audit Log* for the failure reason.
+
+---
+
 ## Security
 
 OdooPilot has been through a public audit (April 2026, [u/jeconti on r/Odoo](https://github.com/arunrajiah/odoopilot/blob/main/CHANGELOG.md#17070--2026-04-26--security-release)) and three follow-up internal reviews. The current model:
@@ -258,23 +315,36 @@ Please don't disclose publicly. Use [GitHub Security Advisories](https://github.
 
 ## Status & roadmap
 
-Current release: **17.0.11.0.0** (CHANGELOG: [full history](CHANGELOG.md))
+Current releases:
+- `17.0` branch — **17.0.13.0.0** (Beta, on the Odoo App Store)
+- `18.0` branch — **18.0.2.0.0** (Alpha, GitHub only)
 
-Recent line-up (all on the `17.0` branch and the Odoo App Store):
+CHANGELOG: [full history](CHANGELOG.md).
+
+### Recently shipped (last two weeks)
 
 | Version | Date | Theme |
 |---------|------|-------|
-| **17.0.11.0.0** | 2026-05-02 | Polish pass — banner, CI security scanning (bandit/semgrep), listing renderable check |
+| **17.0.13.0.0** / **18.0.2.0.0** | 2026-05-03 | Scope guard — refuse off-topic / extraction / jailbreak attempts before paying for an LLM call; hardened SYSTEM_PROMPT |
+| **17.0.12.0.0** | 2026-05-02 | Operator admin views — Linked Users dashboard with activity columns, Audit Log with failure-decoration + filters + group-bys |
+| **17.0.11.0.0** | 2026-05-02 | Polish pass — new banner, CI security scanning (bandit/semgrep), listing renderable check |
+| **18.0.1.0.0** | 2026-05-02 | First Odoo 18 release (Alpha) — static port |
 | **17.0.10.0.0** | 2026-04-28 | Repositioning + community panel + listing fix |
 | **17.0.9.0.0** | 2026-04-27 | Defence-in-depth — token scrub, sudo_env rename, hygiene |
 | **17.0.8.0.0** | 2026-04-27 | 5 fixes from internal post-release audit (CSRF, hijack, wildcard, rate limit, idempotency) |
 | **17.0.7.0.0** | 2026-04-26 | Public audit fixes (HMAC, mandatory secret, per-write nonce, hashed tokens) |
 
-Coming next:
+### Coming next
 
-- 📋 **Odoo 18 port** — adapt to the 18 ORM, dual-branch CI
-- 📋 **Operator-friendly admin views** — group audit log by user, recent-activity dashboard
-- 📋 **OCA submission** once the 18 port lands
+**1. Internal security audit (gate for any new feature work).** With 13 releases shipped in 9 days and 19 tools live, the threat model has evolved. Re-audit the post-17.0.7 surface — scope guard regex, throttle / dedup concurrency, the 6 new employee tools, admin-view computed fields, settings panel HTML — before adding voice. Ship any findings as `17.0.15.0.0` / `18.0.4.0.0`.
+
+**2. Voice messages → STT → tool calls.** Both Telegram and WhatsApp deliver voice as audio attachments. Adding a download → Whisper transcription → existing-text-flow path unlocks the warehouse-picker / driver / hands-busy use cases — anyone whose hands aren't free to type. The biggest single UX upgrade left for the on-the-go-employee persona. Real engineering work (audio buffering, voice-language detection, STT cost considerations); ships AFTER the security audit.
+
+**3. Operator-side (not code, just process):**
+
+- 📋 **Validate Odoo 18 install** on a real instance and submit the `18.0` listing to `apps.odoo.com` — currently only on GitHub
+- 📋 **OCA submission** once the 18 listing lands and gets a Beta promotion
+- 📋 **Odoo 16 backport** — low priority, only if there is operator demand
 
 ---
 
