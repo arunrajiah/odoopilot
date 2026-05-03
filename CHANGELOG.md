@@ -8,6 +8,27 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [18.0.5.0.0] — 2026-05-03 — Promoted to Beta on the Odoo App Store
+
+The 18 series passed Odoo's listing review and is now live at
+**[apps.odoo.com/apps/modules/18.0/odoopilot](https://apps.odoo.com/apps/modules/18.0/odoopilot)**.
+
+Two changes:
+
+- `__manifest__.py`: `development_status` Alpha → **Beta**. The series
+  has the same hardened security model and 19-tool surface as 17.0.15;
+  the only difference between the two branches is the manifest version
+  segment. Now that Odoo's review has implicitly validated the install,
+  there's no reason to keep under-promising.
+- README + SECURITY.md updated with App Store links for both series
+  and the operator-side roadmap entry "Validate Odoo 18 install" is
+  marked done.
+
+No code change beyond the manifest. Operators on 18.0.4 can upgrade
+at their convenience for the manifest bump.
+
+---
+
 ## [18.0.4.0.0] — 2026-05-03 — Internal audit fixes (backport)
 
 Mirrors **17.0.15.0.0** to the 18 series. Two High, two Medium, one

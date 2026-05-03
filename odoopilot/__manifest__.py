@@ -1,13 +1,13 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "18.0.4.0.0",
-    # Alpha for the 18 series until the port has been validated by an
-    # operator running it on a real Odoo 18 instance. The code is a
-    # straight port of the 17.0.12.0.0 release (no API breaks between
-    # the two versions for anything we use), but until someone confirms
-    # an end-to-end install works we under-promise rather than over.
-    "development_status": "Alpha",
+    "version": "18.0.5.0.0",
+    # Beta as of 18.0.5 -- the 18 series is now live on the Odoo App
+    # Store (apps.odoo.com/apps/modules/18.0/odoopilot), having passed
+    # Odoo's own listing review. Same hardened security model and
+    # 19-tool surface as the 17 series; the only difference between
+    # the two branches is the manifest version segment.
+    "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",
     "author": "OdooPilot Contributors",
