@@ -279,17 +279,11 @@ CHANGELOG: [full history](CHANGELOG.md).
 
 ### Coming next
 
-**Sprint: tool-coverage expansion.** The bot today covers 8 read domains and 5 write actions. The next set of tools widens the audience to anyone in the company who needs a one-tap-from-chat workflow:
+**1. Internal security audit (gate for any new feature work).** With 13 releases shipped in 9 days and 19 tools live, the threat model has evolved. Re-audit the post-17.0.7 surface — scope guard regex, throttle / dedup concurrency, the 6 new employee tools, admin-view computed fields, settings panel HTML — before adding voice. Ship any findings as `17.0.15.0.0` / `18.0.4.0.0`.
 
-- `clock_in` / `clock_out` — `hr.attendance` for field staff and shift workers
-- `submit_expense` — `hr.expense` for sales reps and travelling employees
-- `submit_timesheet` — `account.analytic.line` for billable-time tracking
-- `find_partner` — `res.partner` quick lookup ("what's ACME's phone?")
-- `create_calendar_event` — `calendar.event` ("schedule follow-up with John tomorrow 10am")
+**2. Voice messages → STT → tool calls.** Both Telegram and WhatsApp deliver voice as audio attachments. Adding a download → Whisper transcription → existing-text-flow path unlocks the warehouse-picker / driver / hands-busy use cases — anyone whose hands aren't free to type. The biggest single UX upgrade left for the on-the-go-employee persona. Real engineering work (audio buffering, voice-language detection, STT cost considerations); ships AFTER the security audit.
 
-**Voice messages → tool calls.** Both Telegram and WhatsApp deliver voice as audio attachments. Adding a download → Whisper transcription → existing-text-flow path unlocks the warehouse-picker / driver / hands-busy use cases. Real engineering work; targeted for the release after the tool-coverage sprint.
-
-**Operator-side (not code, just process):**
+**3. Operator-side (not code, just process):**
 
 - 📋 **Validate Odoo 18 install** on a real instance and submit the `18.0` listing to `apps.odoo.com` — currently only on GitHub
 - 📋 **OCA submission** once the 18 listing lands and gets a Beta promotion
