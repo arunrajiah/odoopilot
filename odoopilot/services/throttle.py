@@ -52,6 +52,15 @@ _DEFAULT_WINDOW = 3600
 _DEFAULT_POOL_SIZE = 8
 
 
+# Opportunistic GC of empty buckets runs every Nth ``allow()`` call.
+# Without it, ``_buckets`` grows by one entry per unique (channel,
+# chat_id) ever seen -- benign for installs with a fixed team, but a
+# slow leak under churn. The sweep is cheap (it's a dict comprehension
+# over keys whose bucket has gone empty) and amortises across many
+# messages.
+_BUCKET_GC_INTERVAL = 256
+
+
 class RateLimiter:
     """Thread-safe sliding-window rate limiter keyed by (channel, chat_id)."""
 
@@ -60,6 +69,7 @@ class RateLimiter:
         self._window = max(1, int(window))
         self._buckets: dict[tuple[str, str], deque[float]] = {}
         self._lock = threading.Lock()
+        self._call_count = 0
 
     def allow(self, channel: str, chat_id: str) -> bool:
         """Return ``True`` if this message should be processed.
@@ -67,6 +77,9 @@ class RateLimiter:
         Returns ``False`` when the linked user has exceeded their budget for
         the current window. The bucket is pruned of stale entries each call
         so memory usage is bounded by the number of currently-active senders.
+        Every :data:`_BUCKET_GC_INTERVAL` calls we additionally sweep the
+        whole dict and drop keys whose bucket is empty after pruning -- this
+        prevents unbounded growth across (channel, chat_id) churn.
         """
         if not channel or not chat_id:
             # No way to attribute the message — fail open. The caller still
@@ -79,10 +92,36 @@ class RateLimiter:
             bucket = self._buckets.setdefault(key, deque())
             while bucket and bucket[0] < cutoff:
                 bucket.popleft()
-            if len(bucket) >= self._limit:
-                return False
-            bucket.append(now)
-            return True
+            allowed = len(bucket) < self._limit
+            if allowed:
+                bucket.append(now)
+
+            # Opportunistic sweep every Nth call. Drop empty buckets so
+            # the dict size tracks active senders, not lifetime distinct
+            # senders.
+            self._call_count += 1
+            if self._call_count % _BUCKET_GC_INTERVAL == 0:
+                self._gc_empty_buckets(cutoff)
+
+            return allowed
+
+    def _gc_empty_buckets(self, cutoff: float) -> None:
+        """Drop bucket entries with no timestamps left in the window.
+
+        Caller must hold ``self._lock``. Called from inside
+        :meth:`allow` on a fixed cadence; never invoked directly.
+        """
+        stale_keys = []
+        for k, b in self._buckets.items():
+            # Re-prune in case a bucket has gone stale since its last
+            # touch -- otherwise a key that was active long ago and
+            # never seen again would never be collected.
+            while b and b[0] < cutoff:
+                b.popleft()
+            if not b:
+                stale_keys.append(k)
+        for k in stale_keys:
+            del self._buckets[k]
 
 
 class BoundedPool:
@@ -149,7 +188,8 @@ def _ensure_initialized(env) -> None:
 def allow(env, channel: str, chat_id: str) -> bool:
     """Check the per-(channel, chat_id) rate limit. Returns False to drop."""
     _ensure_initialized(env)
-    assert _limiter is not None
+    if _limiter is None:  # pragma: no cover -- _ensure_initialized guarantees
+        raise RuntimeError("OdooPilot rate limiter not initialised")
     allowed = _limiter.allow(channel, chat_id)
     if not allowed:
         _logger.warning(
@@ -161,7 +201,8 @@ def allow(env, channel: str, chat_id: str) -> bool:
 def submit(env, fn: Callable, *args, **kwargs) -> bool:
     """Submit work to the bounded pool. Returns False when saturated."""
     _ensure_initialized(env)
-    assert _pool is not None
+    if _pool is None:  # pragma: no cover -- _ensure_initialized guarantees
+        raise RuntimeError("OdooPilot worker pool not initialised")
     ok = _pool.submit(fn, *args, **kwargs)
     if not ok:
         _logger.warning(
