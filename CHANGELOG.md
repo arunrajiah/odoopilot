@@ -8,6 +8,19 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [18.0.3.0.0] — 2026-05-03 — Employee-self-service tools backport
+
+Mirrors **17.0.14.0.0** to the 18 series. Six new tools widen the
+bot's audience: `find_partner` (read), `clock_in`, `clock_out`,
+`submit_expense`, `submit_timesheet`, `create_calendar_event`. Tool
+count on the 18 branch: 13 → 19. Same code, same tests, same
+registry-hygiene guarantees as the 17 release.
+
+The 18 series stays in **Alpha** until an operator validates an
+end-to-end install on a real Odoo 18 instance.
+
+---
+
 ## [18.0.2.0.0] — 2026-05-03 — Scope guard backport
 
 Mirrors **17.0.13.0.0** to the 18 series. Adds the pre-LLM regex

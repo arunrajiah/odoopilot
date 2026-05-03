@@ -1,7 +1,7 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "18.0.2.0.0",
+    "version": "18.0.3.0.0",
     # Alpha for the 18 series until the port has been validated by an
     # operator running it on a real Odoo 18 instance. The code is a
     # straight port of the 17.0.12.0.0 release (no API breaks between
