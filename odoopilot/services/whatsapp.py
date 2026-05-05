@@ -59,11 +59,15 @@ def _strip_html(text: str) -> str:
     return re.sub(r"<[^>]+>", "", text).strip()
 
 
+_GRAPH_BASE = f"https://graph.facebook.com/{_GRAPH_API_VERSION}"
+
+
 class WhatsAppClient:
     """Thin wrapper around the WhatsApp Cloud API (no SDK required)."""
 
     def __init__(self, phone_number_id: str, access_token: str):
         self._url = _MESSAGES_URL.format(phone_number_id=phone_number_id)
+        self._access_token = access_token
         self._headers = {
             "Authorization": f"Bearer {access_token}",
             "Content-Type": "application/json",
@@ -136,3 +140,84 @@ class WhatsAppClient:
                 "message_id": message_id,
             }
         )
+
+    def download_media(self, media_id: str, max_bytes: int = 25 * 1024 * 1024):
+        """Download a WhatsApp media attachment (audio / voice / image / etc).
+
+        WhatsApp's media model is two-step: the webhook gives us a
+        ``media_id``; we exchange it for a temporary ``url`` via
+        ``graph.facebook.com/<version>/<media_id>`` (Bearer auth), then
+        download the binary from that URL with the same Bearer header.
+
+        Returns ``(bytes, mime_type)`` on success, ``(None, "")`` on
+        any failure. The ``url`` returned by Meta has its own auth
+        requirement -- the same access token must be presented in the
+        Authorization header on the second request, which is why we
+        can't naively redirect through it.
+
+        ``max_bytes`` matches our STT cap (25 MB) and Meta's own caps
+        for audio (16 MB) and video (16 MB), with a small margin.
+        """
+        if not media_id or not self._access_token:
+            return None, ""
+        meta_url = f"{_GRAPH_BASE}/{media_id}"
+        auth_header = {"Authorization": f"Bearer {self._access_token}"}
+        try:
+            meta_resp = requests.get(meta_url, headers=auth_header, timeout=15)
+        except Exception as e:
+            _logger.error(
+                "WhatsApp media-id lookup failed: %s: %s",
+                type(e).__name__,
+                str(e),
+            )
+            return None, ""
+        if meta_resp.status_code != 200:
+            _logger.warning(
+                "WhatsApp media-id lookup HTTP %s for id=%s",
+                meta_resp.status_code,
+                media_id,
+            )
+            return None, ""
+        try:
+            meta = meta_resp.json()
+        except Exception:
+            return None, ""
+        download_url = meta.get("url")
+        mime = meta.get("mime_type") or ""
+        if not download_url:
+            return None, ""
+        try:
+            blob_resp = requests.get(
+                download_url, headers=auth_header, stream=True, timeout=30
+            )
+        except Exception as e:
+            _logger.error(
+                "WhatsApp media download failed: %s: %s",
+                type(e).__name__,
+                str(e),
+            )
+            return None, ""
+        if blob_resp.status_code != 200:
+            _logger.warning(
+                "WhatsApp media download HTTP %s for id=%s",
+                blob_resp.status_code,
+                media_id,
+            )
+            return None, ""
+        buf = bytearray()
+        for chunk in blob_resp.iter_content(chunk_size=64 * 1024):
+            buf.extend(chunk)
+            if len(buf) > max_bytes:
+                _logger.warning(
+                    "WhatsApp media id=%s exceeded %d bytes; truncating download",
+                    media_id,
+                    max_bytes,
+                )
+                return None, ""
+        # Strip codec parameter from MIME (e.g. "audio/ogg; codecs=opus"
+        # -> "audio/ogg") so the STT provider's filename heuristics work.
+        if ";" in mime:
+            mime = mime.split(";", 1)[0].strip()
+        if not mime.startswith("audio/"):
+            mime = "audio/ogg"  # safe default for WhatsApp voice notes
+        return bytes(buf), mime
