@@ -29,6 +29,53 @@ def _whatsapp_chat_id(update: dict) -> str:
     return ""
 
 
+def _stt_client_or_none(sudo_env):
+    """Build an STT client from config, or return None if voice is disabled.
+
+    Voice support is opt-in: an operator must set
+    ``odoopilot.stt_provider`` and ``odoopilot.stt_api_key``. We don't
+    auto-enable from the LLM config because the operator might use
+    Anthropic for chat (no Whisper there) and want to leave voice off
+    rather than silently route audio to a third party.
+
+    Returns None if voice is disabled or not configured. The caller
+    falls back to a polite "voice not enabled" reply rather than
+    crashing.
+    """
+    from ..services.stt import STTClient, STTUnavailable
+
+    cfg = sudo_env["ir.config_parameter"].sudo()
+    if cfg.get_param("odoopilot.voice_enabled") not in ("True", "1", "true", True):
+        return None
+    provider = cfg.get_param("odoopilot.stt_provider") or ""
+    api_key = cfg.get_param("odoopilot.stt_api_key") or ""
+    model = cfg.get_param("odoopilot.stt_model") or ""
+    try:
+        return STTClient(provider, api_key, model)
+    except STTUnavailable:
+        return None
+
+
+def _voice_too_long(sudo_env, duration_seconds) -> bool:
+    """True if the platform-reported duration exceeds the operator's cap.
+
+    Cuts off oversize voice notes BEFORE we pay for the download
+    bandwidth or the STT call. Cap is configurable via
+    ``odoopilot.voice_max_duration_seconds`` (default 60).
+    """
+    if not duration_seconds:
+        return False
+    try:
+        cap = int(
+            sudo_env["ir.config_parameter"]
+            .sudo()
+            .get_param("odoopilot.voice_max_duration_seconds", "60")
+        )
+    except (TypeError, ValueError):
+        cap = 60
+    return int(duration_seconds) > max(1, cap)
+
+
 class OdooPilotController(http.Controller):
     # ------------------------------------------------------------------
     # Telegram webhook
@@ -147,11 +194,27 @@ class OdooPilotController(http.Controller):
 
         # Handle regular messages
         message = update.get("message")
-        if not message or "text" not in message:
+        if not message:
             return
 
         chat_id = str(message["chat"]["id"])
-        text = message["text"].strip()
+
+        # Voice / audio attachments: transcribe and treat as text.
+        # Telegram puts voice notes in ``message.voice`` and audio
+        # files in ``message.audio``. Both have a ``file_id`` we
+        # exchange via getFile, plus a ``duration`` we use to bail
+        # early on over-budget messages.
+        voice_blob = message.get("voice") or message.get("audio")
+        if voice_blob and voice_blob.get("file_id"):
+            text = self._transcribe_telegram_voice(sudo_env, tg, chat_id, voice_blob)
+            if not text:
+                return
+        elif "text" in message:
+            text = message["text"].strip()
+        else:
+            # Other update types (sticker, photo, location, etc.) --
+            # not handled today.
+            return
 
         # /link command — generate and send a linking URL
         if text.startswith("/link"):
@@ -194,6 +257,62 @@ class OdooPilotController(http.Controller):
         user_env = sudo_env(user=identity.user_id.id)
         agent = OdooPilotAgent(user_env, tg, channel="telegram")
         agent.handle_message(chat_id, text)
+
+    def _transcribe_telegram_voice(self, sudo_env, tg, chat_id, voice_blob):
+        """Download + transcribe a Telegram voice/audio attachment.
+
+        Returns the transcript on success, or empty string on any
+        failure (with an appropriate user-facing reply already sent).
+        The caller treats the return value as if the user had typed it.
+        """
+        from ..services.stt import STTUnavailable
+
+        # Cap on duration BEFORE we pay for download bandwidth.
+        if _voice_too_long(sudo_env, voice_blob.get("duration")):
+            tg.send_message(
+                chat_id,
+                "Voice message too long. Please keep it under 60 seconds, "
+                "or split into parts.",
+            )
+            return ""
+
+        stt = _stt_client_or_none(sudo_env)
+        if stt is None:
+            tg.send_message(
+                chat_id,
+                "Voice messages are not enabled on this OdooPilot install. "
+                "Please type your request as text.",
+            )
+            return ""
+
+        audio, mime = tg.download_voice(voice_blob["file_id"])
+        if not audio:
+            tg.send_message(
+                chat_id,
+                "Sorry, I couldn't download that voice message. Please try "
+                "again or type your request as text.",
+            )
+            return ""
+
+        try:
+            transcript = stt.transcribe(audio, mime, filename="voice.ogg")
+        except STTUnavailable as e:
+            _logger.warning("STT failed for telegram chat %s: %s", chat_id, e)
+            tg.send_message(
+                chat_id,
+                "Sorry, I couldn't transcribe that voice message right now. "
+                "Please try again or type your request as text.",
+            )
+            return ""
+
+        if not (transcript or "").strip():
+            tg.send_message(
+                chat_id,
+                "I couldn't make out any words in that voice message. "
+                "Please try again or type your request as text.",
+            )
+            return ""
+        return transcript.strip()
 
     def _handle_link_command(self, sudo_env, tg, chat_id):
         """Generate a one-time linking token and send the link to the user.
@@ -518,6 +637,82 @@ class OdooPilotController(http.Controller):
                         if not text:
                             continue
                         self._handle_whatsapp_message(sudo_env, wa, from_number, text)
+                        continue
+
+                    # Voice / audio attachment -- transcribe and treat as text.
+                    # WhatsApp sends voice notes as ``type=audio`` with an
+                    # ``audio.voice = true`` flag; regular audio attachments
+                    # also land here. Both are downloaded by media id.
+                    if msg_type == "audio":
+                        text = self._transcribe_whatsapp_voice(
+                            sudo_env, wa, from_number, msg.get("audio", {})
+                        )
+                        if text:
+                            self._handle_whatsapp_message(
+                                sudo_env, wa, from_number, text
+                            )
+
+    def _transcribe_whatsapp_voice(self, sudo_env, wa, from_number, audio_blob):
+        """Download + transcribe a WhatsApp audio/voice message.
+
+        Mirrors :meth:`_transcribe_telegram_voice`. Returns the
+        transcript on success, empty string on any failure (with a
+        user-facing reply already sent).
+        """
+        from ..services.stt import STTUnavailable
+
+        # WhatsApp doesn't always populate the duration on inbound
+        # messages -- only when the platform extracted it during
+        # encoding. Treat missing as 0 (skip the cap rather than
+        # rejecting silently).
+        if _voice_too_long(sudo_env, audio_blob.get("duration")):
+            wa.send_message(
+                from_number,
+                "Voice message too long. Please keep it under 60 seconds, "
+                "or split into parts.",
+            )
+            return ""
+
+        stt = _stt_client_or_none(sudo_env)
+        if stt is None:
+            wa.send_message(
+                from_number,
+                "Voice messages are not enabled on this OdooPilot install. "
+                "Please type your request as text.",
+            )
+            return ""
+
+        media_id = audio_blob.get("id")
+        if not media_id:
+            return ""
+        audio, mime = wa.download_media(media_id)
+        if not audio:
+            wa.send_message(
+                from_number,
+                "Sorry, I couldn't download that voice message. Please try "
+                "again or type your request as text.",
+            )
+            return ""
+
+        try:
+            transcript = stt.transcribe(audio, mime, filename="voice.ogg")
+        except STTUnavailable as e:
+            _logger.warning("STT failed for whatsapp %s: %s", from_number, e)
+            wa.send_message(
+                from_number,
+                "Sorry, I couldn't transcribe that voice message right now. "
+                "Please try again or type your request as text.",
+            )
+            return ""
+
+        if not (transcript or "").strip():
+            wa.send_message(
+                from_number,
+                "I couldn't make out any words in that voice message. "
+                "Please try again or type your request as text.",
+            )
+            return ""
+        return transcript.strip()
 
     def _handle_whatsapp_message(self, sudo_env, wa, from_number, text):
         from ..services.agent import OdooPilotAgent
