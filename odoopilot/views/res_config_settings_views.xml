@@ -88,6 +88,36 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Voice / Speech-to-Text -->
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="odoopilot_voice_enabled"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="odoopilot_voice_enabled" string="Voice messages"/>
+                                <div class="text-muted">
+                                    Transcribe Telegram and WhatsApp voice notes via Whisper, then run them through the agent like typed text.
+                                </div>
+                                <div class="content-group" invisible="not odoopilot_voice_enabled">
+                                    <div class="mt8">
+                                        <field name="odoopilot_stt_provider" string="STT Provider"/>
+                                    </div>
+                                    <div class="mt4">
+                                        <field name="odoopilot_stt_api_key" string="STT API Key" widget="password" placeholder="gsk_... or sk-..."/>
+                                    </div>
+                                    <div class="mt4">
+                                        <field name="odoopilot_stt_model" string="STT Model" placeholder="leave blank for default"/>
+                                    </div>
+                                    <div class="mt4">
+                                        <field name="odoopilot_voice_max_duration_seconds" string="Max duration (s)"/>
+                                    </div>
+                                    <div class="text-muted mt4">
+                                        Voice messages longer than the cap are rejected before download. Default: 60s. Bandwidth + STT cost protection.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Notifications -->
