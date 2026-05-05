@@ -54,6 +54,61 @@ class ResConfigSettings(models.TransientModel):
         help="Leave blank to use provider default: claude-3-5-haiku-20241022 / gpt-4o-mini / llama-3.1-70b-versatile",
     )
 
+    # Voice (speech-to-text)
+    #
+    # Voice support is opt-in: an operator must explicitly enable it
+    # AND configure an STT provider + key. We don't auto-derive the
+    # STT key from the LLM key because the operator might be on
+    # Anthropic or Ollama for chat (no Whisper there) and want voice
+    # off rather than silently routing audio to a third party.
+    odoopilot_voice_enabled = fields.Boolean(
+        string="Voice Messages",
+        config_parameter="odoopilot.voice_enabled",
+        help=(
+            "Accept voice messages from Telegram and WhatsApp. Audio is "
+            "transcribed via the STT provider below and then handled by "
+            "the same agent loop as a typed message."
+        ),
+    )
+    odoopilot_stt_provider = fields.Selection(
+        [
+            ("groq", "Groq (whisper-large-v3, free tier)"),
+            ("openai", "OpenAI (whisper-1)"),
+        ],
+        string="STT Provider",
+        config_parameter="odoopilot.stt_provider",
+        default="groq",
+        help=(
+            "Speech-to-text backend. Groq's free tier is the cheapest "
+            "way to start; OpenAI offers higher rate limits at paid tiers."
+        ),
+    )
+    odoopilot_stt_api_key = fields.Char(
+        string="STT API Key",
+        config_parameter="odoopilot.stt_api_key",
+        help=(
+            "API key for the STT provider above. Can be the same key as "
+            "the LLM provider when both are Groq or both are OpenAI."
+        ),
+    )
+    odoopilot_stt_model = fields.Char(
+        string="STT Model (optional override)",
+        config_parameter="odoopilot.stt_model",
+        help=(
+            "Leave blank to use provider default (whisper-large-v3 for "
+            "Groq, whisper-1 for OpenAI)."
+        ),
+    )
+    odoopilot_voice_max_duration_seconds = fields.Integer(
+        string="Max voice duration (seconds)",
+        config_parameter="odoopilot.voice_max_duration_seconds",
+        default=60,
+        help=(
+            "Voice messages longer than this are rejected before "
+            "download. Caps STT cost and DoS surface. Default: 60."
+        ),
+    )
+
     # WhatsApp
     odoopilot_whatsapp_enabled = fields.Boolean(
         string="WhatsApp Enabled",

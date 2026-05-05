@@ -8,6 +8,20 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [18.0.6.0.0] — 2026-05-03 — Voice messages backport
+
+Mirrors **17.0.16.0.0** to the 18 series. Opt-in Whisper transcription
+for inbound Telegram + WhatsApp voice notes. Groq free tier or
+OpenAI; 60-second duration cap; 25 MB file cap; STT key scrubbed
+from logs. Voice notes flow through the same scope-guard + per-write
+nonce + audit pipeline as typed text.
+
+See the [17.0.16.0.0 entry on the 17 branch](https://github.com/arunrajiah/odoopilot/blob/17.0/CHANGELOG.md#17016--2026-05-03--voice-messages--stt--tool-calls)
+for full details, or the 17.0.16.0.0 entry below if you're reading
+the unified changelog on `main`.
+
+---
+
 ## [18.0.5.0.0] — 2026-05-03 — Promoted to Beta on the Odoo App Store
 
 The 18 series passed Odoo's listing review and is now live at
