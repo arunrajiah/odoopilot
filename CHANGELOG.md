@@ -8,6 +8,116 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.16.0.0] — 2026-05-03 — Voice messages → STT → tool calls
+
+The single biggest UX upgrade left for the on-the-go-employee persona.
+Warehouse pickers, drivers, anyone whose hands aren't free to type can
+now talk to the bot. Voice notes flow through the same agent loop, the
+same scope guard, the same per-write nonce + audit pipeline as typed
+text — the only thing that changes is one extra step at the front of
+the pipe.
+
+### How it works
+
+1. The user holds-to-record a voice note in Telegram or WhatsApp and
+   sends it.
+2. The webhook handler downloads the audio (Telegram via
+   ``getFile`` + the ``api.telegram.org/file/bot…`` endpoint;
+   WhatsApp via the ``graph.facebook.com/<media-id>`` two-step).
+3. The audio is transcribed via the configured STT provider's
+   ``audio/transcriptions`` endpoint (Whisper-compatible).
+4. The transcript is fed into ``OdooPilotAgent.handle_message`` as if
+   the user had typed it. Every existing safety property (scope guard,
+   write confirmations, linked-user scoping, audit log) carries
+   through unchanged.
+
+### Configuration (opt-in)
+
+Voice support is **off by default**. To enable, in
+*Settings → OdooPilot*:
+
+| Field | Value |
+|---|---|
+| Voice messages | Enable |
+| STT Provider | ``groq`` (free tier, recommended) or ``openai`` |
+| STT API Key | Your Groq or OpenAI key (can be the same as the LLM key when both are the same provider) |
+| STT Model | Leave blank for default (``whisper-large-v3`` for Groq, ``whisper-1`` for OpenAI) |
+| Max voice duration (seconds) | Default 60. Voice notes longer than this are rejected before download — bandwidth + STT cost protection. |
+
+The defaults are chosen so a Groq-on-everything operator pays $0 for
+voice support indefinitely.
+
+### Why it's opt-in rather than auto-derived from the LLM config
+
+The operator might use Anthropic for chat (no Whisper there) or
+Ollama (local; voice support is harder). Auto-routing audio to a
+third party they didn't pick would be the wrong default. Setting
+the voice path explicitly keeps that choice in the operator's hands.
+
+### Failure modes (and how they're surfaced)
+
+- **STT provider not configured**: bot replies "Voice messages are
+  not enabled on this OdooPilot install. Please type your request as
+  text." No silent drop.
+- **Voice longer than the duration cap**: bot replies "Voice message
+  too long. Please keep it under 60 seconds, or split into parts."
+  Cap is checked from the platform-reported duration *before*
+  downloading.
+- **Download fails / oversize**: bot replies "Sorry, I couldn't
+  download that voice message." Bytes capped at 25 MB (matching
+  Whisper's own cap).
+- **Transcription returns empty / silence / unintelligible**: bot
+  replies "I couldn't make out any words in that voice message."
+- **Provider rate-limit / 5xx**: bot replies "Sorry, I couldn't
+  transcribe that voice message right now." STT key is scrubbed from
+  any logged error.
+
+### Security properties carried over
+
+- **Scope guard runs on the transcript**, not the audio bytes. So
+  someone speaking "ignore previous instructions" gets blocked the
+  same way someone typing it does.
+- **API key scrub** in ``services/stt.py`` mirrors the bot-token
+  scrub in ``services/telegram.py``: provider exception strings that
+  echo the auth header are redacted before logging.
+- **No new authorization surface**: the linked user the transcript is
+  routed under is the same one the chat_id resolves to. Voice cannot
+  bypass record-rule scoping any more than text can.
+
+### Files
+
+- ``services/stt.py`` (new) — ``STTClient`` with Groq and OpenAI
+  backends.
+- ``services/telegram.py`` — added ``download_voice(file_id)`` with
+  size cap and MIME inference.
+- ``services/whatsapp.py`` — added ``download_media(media_id)`` for
+  the two-step Meta Graph API audio fetch.
+- ``controllers/main.py`` — voice handling in both dispatchers,
+  ``_stt_client_or_none`` and ``_voice_too_long`` helpers,
+  ``_transcribe_telegram_voice`` and ``_transcribe_whatsapp_voice``
+  controller methods.
+- ``models/res_config_settings.py`` — five new fields
+  (``odoopilot_voice_enabled``, ``odoopilot_stt_provider``,
+  ``odoopilot_stt_api_key``, ``odoopilot_stt_model``,
+  ``odoopilot_voice_max_duration_seconds``).
+- ``views/res_config_settings_views.xml`` — new "Voice messages"
+  setting box, conditionally shown when the master flag is on.
+- ``tests/test_voice.py`` (new) — 5 test classes covering STT client
+  construction, input validation, key scrubbing, the duration cap
+  helper, and the ``_stt_client_or_none`` config gate.
+
+### Cost note
+
+Each voice message = 1 STT call + 1 LLM call. Groq's free tier covers
+both at zero cost. On OpenAI: ~$0.006 per minute of audio plus the
+existing LLM cost. The per-(channel, chat_id) rate limit (default 30
+msgs/hour) bounds abuse on either provider.
+
+CI green: ruff format + check, bandit (0 medium/high), semgrep
+(0 blocking), listing renderable, all XML well-formed.
+
+---
+
 ## [17.0.15.0.0] — 2026-05-03 — Internal security audit fixes
 
 The fourth security audit since the public Reddit one. Two **High**

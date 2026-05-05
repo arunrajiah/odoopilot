@@ -70,3 +70,81 @@ class TelegramClient:
         return self._call(
             "answerCallbackQuery", {"callback_query_id": callback_query_id}
         )
+
+    # ------------------------------------------------------------------
+    # Voice / audio download
+    # ------------------------------------------------------------------
+
+    def download_voice(self, file_id: str, max_bytes: int = 25 * 1024 * 1024):
+        """Download a Telegram voice or audio file.
+
+        Telegram's media model is two-step: the webhook gives us an
+        opaque ``file_id``; we exchange it for a temporary
+        ``file_path`` via ``getFile``, then download the audio from
+        ``api.telegram.org/file/bot<token>/<file_path>``.
+
+        Returns ``(audio_bytes, mime_type)`` on success, ``(None, "")``
+        on any failure (network, missing token, oversize file, etc.).
+        The caller is responsible for falling back to a polite reply.
+
+        ``max_bytes`` caps the download as a defence-in-depth against a
+        misbehaving client claiming a small file but streaming a huge
+        one. The ``audio/transcriptions`` endpoint also caps at 25 MB,
+        so this matches.
+        """
+        if not file_id or not self._token:
+            return None, ""
+        meta = self._call("getFile", {"file_id": file_id})
+        if not meta or not meta.get("ok"):
+            _logger.warning(
+                "Telegram getFile failed for file_id=%s: %s",
+                file_id,
+                self._scrub(str(meta)[:200]),
+            )
+            return None, ""
+        file_path = meta.get("result", {}).get("file_path")
+        if not file_path:
+            return None, ""
+        url = f"https://api.telegram.org/file/bot{self._token}/{file_path}"
+        try:
+            resp = requests.get(url, stream=True, timeout=30)
+        except Exception as e:
+            _logger.error(
+                "Telegram file download failed: %s: %s",
+                type(e).__name__,
+                self._scrub(str(e)),
+            )
+            return None, ""
+        if resp.status_code != 200:
+            _logger.warning(
+                "Telegram file download HTTP %s for path=%s",
+                resp.status_code,
+                file_path,
+            )
+            return None, ""
+        # Read incrementally up to the cap; bail if oversize.
+        buf = bytearray()
+        for chunk in resp.iter_content(chunk_size=64 * 1024):
+            buf.extend(chunk)
+            if len(buf) > max_bytes:
+                _logger.warning(
+                    "Telegram file_id=%s exceeded %d bytes; truncating download",
+                    file_id,
+                    max_bytes,
+                )
+                return None, ""
+        # Telegram voice notes are OGG/Opus; audio attachments may be
+        # other types. The HTTP layer doesn't always send a useful
+        # Content-Type header, so we infer from the file_path
+        # extension as a fallback.
+        mime = resp.headers.get("Content-Type") or ""
+        if not mime.startswith("audio/"):
+            if file_path.endswith(".oga") or file_path.endswith(".ogg"):
+                mime = "audio/ogg"
+            elif file_path.endswith(".mp3"):
+                mime = "audio/mpeg"
+            elif file_path.endswith(".m4a"):
+                mime = "audio/m4a"
+            else:
+                mime = "audio/ogg"  # safe default for Telegram voice notes
+        return bytes(buf), mime
