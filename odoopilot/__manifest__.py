@@ -1,7 +1,7 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "17.0.18.0.0",
+    "version": "17.0.19.0.0",
     "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",
@@ -17,6 +17,13 @@
     "author": "arunrajiah, Odoo Community Association (OCA)",
     "maintainers": ["arunrajiah"],
     "website": "https://github.com/arunrajiah/odoopilot",
+    # The ``support`` field is the standard Odoo manifest key for an
+    # operator-facing contact email. The Odoo App Store listing
+    # surfaces it as a "Contact" link in the right-hand sidebar of
+    # the module detail page. Operators can also reach the same
+    # mailbox for security disclosures, though we strongly prefer
+    # GitHub Security Advisories for those (see SECURITY.md).
+    "support": "arunrajiah@gmail.com",
     # pylint-odoo flags ``description`` as deprecated (C8103) in favour
     # of ``readme/DESCRIPTION.rst``. We keep both: the readme/ files
     # feed the README.rst that OCA tooling generates at module root,
