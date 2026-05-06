@@ -42,6 +42,26 @@ groq          ``llama-3.3-70b-versatile``          Free tier, very fast
 ollama        (set in override field)              100% local, e.g. ``llama3.2``
 ============  ===================================  ============================
 
+In-Odoo web chat widget (optional)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Off by default. When enabled, every logged-in Odoo user sees a chat-
+bubble icon in the systray (top-right of the navigation bar). Click
+it and a panel opens with the conversation history and an input
+field. Same agent loop as Telegram and WhatsApp; no ``/link`` flow
+needed because the user is already authenticated.
+
+To enable, tick **In-Odoo Web Chat** on the Settings panel. To
+disable for a deployment, untick. Users see the icon disappear on
+the next page reload.
+
+The widget runs the same write-confirmation gate (Yes / No buttons
+inline in the panel), the same per-(channel, chat_id) rate limit
+(channel ``web``, chat_id = the user's Odoo id), the same scope
+guard, and the same audit log. The frontend is XSS-safe; assistant
+messages render as escaped text, never as HTML. Voice messages and
+file uploads are not supported on this channel today.
+
 Voice messages (optional)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

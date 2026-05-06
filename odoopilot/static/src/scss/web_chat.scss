@@ -1,0 +1,226 @@
+// OdooPilot in-Odoo web chat widget styling.
+//
+// Scoped under .o-odoopilot-systray so we don't bleed into Odoo's
+// own systray entries. Uses Bootstrap-ish neutral colours so the
+// widget looks at home in both Odoo's light and dark themes.
+//
+// The collapsed trigger is a 32x32 icon button; the expanded panel
+// is anchored to its bottom-right and slides slightly up. On mobile
+// the panel goes full-width minus a small margin.
+
+.o-odoopilot-systray {
+    position: relative;
+    display: inline-block;
+
+    .o-odoopilot-trigger {
+        background: transparent;
+        border: 0;
+        color: inherit;
+        cursor: pointer;
+        font-size: 1.1em;
+        padding: 0 8px;
+        height: 100%;
+        line-height: 1;
+
+        &:hover,
+        &:focus {
+            color: #7c3aed;
+            outline: none;
+        }
+    }
+
+    .o-odoopilot-panel {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 6px;
+        width: 360px;
+        max-width: calc(100vw - 24px);
+        height: 480px;
+        max-height: calc(100vh - 80px);
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14);
+        display: flex;
+        flex-direction: column;
+        z-index: 1050;
+    }
+
+    .o-odoopilot-panel-header {
+        flex: 0 0 auto;
+        padding: 12px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .o-odoopilot-panel-title {
+            font-weight: 700;
+            font-size: 0.96em;
+            color: #0f172a;
+        }
+
+        .o-odoopilot-panel-close {
+            background: transparent;
+            border: 0;
+            color: #64748b;
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.9em;
+            line-height: 1;
+        }
+    }
+
+    .o-odoopilot-panel-body {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .o-odoopilot-empty {
+        color: #64748b;
+        font-size: 0.85em;
+        line-height: 1.55;
+        margin: 14px 4px;
+
+        p {
+            margin: 0;
+        }
+    }
+
+    .o-odoopilot-msg {
+        display: flex;
+
+        &.o-odoopilot-msg-user {
+            justify-content: flex-end;
+        }
+
+        &.o-odoopilot-msg-assistant {
+            justify-content: flex-start;
+        }
+    }
+
+    .o-odoopilot-msg-bubble {
+        max-width: 80%;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 0.88em;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .o-odoopilot-msg-user .o-odoopilot-msg-bubble {
+        background: #7c3aed;
+        color: #ffffff;
+        border-bottom-right-radius: 2px;
+    }
+
+    .o-odoopilot-msg-assistant .o-odoopilot-msg-bubble {
+        background: #f1f5f9;
+        color: #1e293b;
+        border-bottom-left-radius: 2px;
+    }
+
+    .o-odoopilot-msg-confirm {
+        // Confirmation prompts get a thin amber accent so the user
+        // notices "this needs my input" without the rest of the
+        // chat looking warning-coloured.
+        border-left: 3px solid #f59e0b;
+    }
+
+    .o-odoopilot-confirm-question {
+        margin-bottom: 8px;
+    }
+
+    .o-odoopilot-confirm-buttons {
+        display: flex;
+        gap: 6px;
+    }
+
+    .o-odoopilot-msg-typing {
+        display: inline-flex;
+        gap: 3px;
+        padding: 10px 14px;
+
+        span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #94a3b8;
+            animation: o-odoopilot-blink 1.2s infinite ease-in-out;
+
+            &:nth-child(2) {
+                animation-delay: 0.18s;
+            }
+
+            &:nth-child(3) {
+                animation-delay: 0.36s;
+            }
+        }
+    }
+
+    @keyframes o-odoopilot-blink {
+        0%,
+        80%,
+        100% {
+            opacity: 0.3;
+        }
+        40% {
+            opacity: 1;
+        }
+    }
+
+    .o-odoopilot-panel-footer {
+        flex: 0 0 auto;
+        padding: 10px 12px;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        gap: 6px;
+        align-items: flex-end;
+    }
+
+    .o-odoopilot-input {
+        flex: 1;
+        resize: none;
+        font-size: 0.88em;
+        min-height: 38px;
+        max-height: 120px;
+    }
+
+    .o-odoopilot-send {
+        flex: 0 0 auto;
+        padding: 6px 12px;
+    }
+}
+
+// Dark-theme override (Odoo 18 webclient supports a dark mode; the
+// 17 webclient ignores this since the body class is never set).
+.o_dark_mode .o-odoopilot-systray {
+    .o-odoopilot-panel {
+        background: #1e293b;
+        border-color: #334155;
+        color: #e2e8f0;
+    }
+
+    .o-odoopilot-panel-header {
+        border-bottom-color: #334155;
+
+        .o-odoopilot-panel-title {
+            color: #f8fafc;
+        }
+    }
+
+    .o-odoopilot-msg-assistant .o-odoopilot-msg-bubble {
+        background: #334155;
+        color: #e2e8f0;
+    }
+
+    .o-odoopilot-panel-footer {
+        border-top-color: #334155;
+    }
+}
