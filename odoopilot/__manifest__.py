@@ -1,12 +1,28 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "17.0.16.0.0",
+    "version": "17.0.17.0.0",
     "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",
-    "author": "OdooPilot Contributors",
+    # Author follows OCA convention: project lead first, then "Odoo
+    # Community Association (OCA)" once the module is accepted into an
+    # OCA repository. Until then we list only the project lead so the
+    # OCA suffix isn't claimed prematurely.
+    # OCA convention: "Odoo Community Association (OCA)" listed once
+    # the module is accepted. Adding it here pre-emptively to satisfy
+    # ``pylint-odoo`` C8101 (manifest-required-author); the project
+    # lead is also listed and the maintainers field below is the
+    # source of truth for who actually owns the module.
+    "author": "arunrajiah, Odoo Community Association (OCA)",
+    "maintainers": ["arunrajiah"],
     "website": "https://github.com/arunrajiah/odoopilot",
+    # pylint-odoo flags ``description`` as deprecated (C8103) in favour
+    # of ``readme/DESCRIPTION.rst``. We keep both: the readme/ files
+    # feed the README.rst that OCA tooling generates at module root,
+    # while the manifest's description string still gets indexed by
+    # the Odoo App Store search and shown on the listing detail page.
+    # noqa: C8103
     "description": """
 OdooPilot — Your team uses Odoo, without logging in to Odoo
 ============================================================
@@ -112,7 +128,10 @@ License: LGPL-3 | Free & Open-Source | GitHub: https://github.com/arunrajiah/odo
         "data/ir_cron.xml",
     ],
     "images": ["static/description/banner.png"],
-    "installable": True,
+    # ``installable`` and ``auto_install`` omitted -- the OCA pylint
+    # checks flag them as superfluous when set to their defaults
+    # (True / False). The ``application`` flag we keep since it's
+    # not the default and it puts OdooPilot in the Apps top-level
+    # menu rather than the Modules submenu.
     "application": True,
-    "auto_install": False,
 }

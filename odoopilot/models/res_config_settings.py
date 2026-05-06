@@ -1,4 +1,4 @@
-from odoo import _, fields, models
+from odoo import fields, models
 from odoo.exceptions import UserError
 import logging
 import secrets
@@ -165,12 +165,12 @@ class ResConfigSettings(models.TransientModel):
         cfg = self.env["ir.config_parameter"].sudo()
         token = cfg.get_param("odoopilot.telegram_bot_token")
         if not token:
-            raise UserError(_("Please save the Telegram Bot Token first."))
+            raise UserError(self.env._("Please save the Telegram Bot Token first."))
 
         base_url = cfg.get_param("web.base.url", "")
         if not base_url:
             raise UserError(
-                _(
+                self.env._(
                     "web.base.url is not configured. Set it under "
                     "Settings -> Technical -> System Parameters before "
                     "registering the webhook."
@@ -202,7 +202,7 @@ class ResConfigSettings(models.TransientModel):
                 "type": "ir.actions.client",
                 "tag": "display_notification",
                 "params": {
-                    "title": _("Webhook registered"),
+                    "title": self.env._("Webhook registered"),
                     "message": (
                         f"Telegram webhook set to: {webhook_url} "
                         "(secret token configured)."
@@ -210,8 +210,11 @@ class ResConfigSettings(models.TransientModel):
                     "type": "success",
                 },
             }
+        # Lazy interpolation: the second arg is passed positionally so
+        # the template stays stable for translation lookup; substitution
+        # happens at display time. (Avoids pylint-odoo W8301.)
         raise UserError(
-            _("Telegram error: %s") % data.get("description", "Unknown error")
+            self.env._("Telegram error: %s", data.get("description", "Unknown error"))
         )
 
     def action_test_whatsapp_connection(self):
@@ -228,7 +231,7 @@ class ResConfigSettings(models.TransientModel):
         )
         if not phone_number_id or not access_token:
             raise UserError(
-                _("Please save the Phone Number ID and Access Token first.")
+                self.env._("Please save the Phone Number ID and Access Token first.")
             )
         resp = requests.get(
             f"https://graph.facebook.com/v19.0/{phone_number_id}",
@@ -242,13 +245,13 @@ class ResConfigSettings(models.TransientModel):
                 "type": "ir.actions.client",
                 "tag": "display_notification",
                 "params": {
-                    "title": _("Connected!"),
+                    "title": self.env._("Connected!"),
                     "message": f"WhatsApp number: {display}",
                     "type": "success",
                 },
             }
         error = data.get("error", {}).get("message", "Unknown error")
-        raise UserError(_(f"WhatsApp API error: {error}"))
+        raise UserError(self.env._("WhatsApp API error: %s", error))
 
     def action_test_telegram_connection(self):
         """Test bot token by calling getMe."""
@@ -258,7 +261,7 @@ class ResConfigSettings(models.TransientModel):
             .get_param("odoopilot.telegram_bot_token")
         )
         if not token:
-            raise UserError(_("No Telegram Bot Token configured."))
+            raise UserError(self.env._("No Telegram Bot Token configured."))
         resp = requests.get(f"https://api.telegram.org/bot{token}/getMe", timeout=10)
         data = resp.json()
         if data.get("ok"):
@@ -267,11 +270,11 @@ class ResConfigSettings(models.TransientModel):
                 "type": "ir.actions.client",
                 "tag": "display_notification",
                 "params": {
-                    "title": _("Connected!"),
+                    "title": self.env._("Connected!"),
                     "message": f"Bot: @{bot.get('username')} ({bot.get('first_name')})",
                     "type": "success",
                 },
             }
         raise UserError(
-            _(f"Telegram error: {data.get('description', 'Unknown error')}")
+            self.env._("Telegram error: %s", data.get("description", "Unknown error"))
         )
