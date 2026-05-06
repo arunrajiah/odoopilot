@@ -48,7 +48,6 @@ class OdooPilotIdentity(models.Model):
     linked_at = fields.Datetime(readonly=True)
     language = fields.Selection(
         LANGUAGE_CHOICES,
-        string="Language",
         default="",
         help="Preferred language for bot replies. Leave empty to auto-detect from user messages.",
     )
@@ -73,7 +72,6 @@ class OdooPilotIdentity(models.Model):
     # exceed a few hundred linked users.
 
     last_activity = fields.Datetime(
-        string="Last Activity",
         compute="_compute_activity",
         compute_sudo=True,
         help="Timestamp of the most recent audit log entry attributed to "
