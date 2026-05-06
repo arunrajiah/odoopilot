@@ -986,3 +986,179 @@ class OdooPilotController(http.Controller):
                 )
 
         return request.render("odoopilot.link_success", {"user": request.env.user})
+
+    # ------------------------------------------------------------------
+    # In-Odoo web chat widget (17.0.18.0.0)
+    # ------------------------------------------------------------------
+    #
+    # Two JSON routes power the in-Odoo chatbot:
+    #   /odoopilot/web/config   -- frontend asks "should I render?"
+    #   /odoopilot/web/message  -- frontend POSTs a message, gets the
+    #                              agent's buffered reply
+    #
+    # Both are auth="user" so anonymous traffic 403s at Odoo's HTTP
+    # layer. The logged-in user's id IS the chat_id for the web
+    # channel; no /link flow, no odoopilot.identity lookup needed.
+    # The agent runs as ``request.env.user``, so record-rule scoping
+    # is identical to interactive Odoo use.
+
+    @http.route(
+        "/odoopilot/web/config",
+        type="json",
+        auth="user",
+        methods=["POST"],
+    )
+    def web_chat_config(self, **kwargs):
+        """Tell the frontend whether the in-Odoo widget should render.
+
+        Returns a small JSON envelope. Today only ``enabled`` matters;
+        the field is reserved so we can add per-user limits later
+        without breaking the frontend.
+        """
+        enabled = (
+            request.env["ir.config_parameter"]
+            .sudo()
+            .get_param("odoopilot.web_chat_enabled")
+        ) in ("True", "1", "true", True)
+        return {
+            "enabled": bool(enabled),
+            "user_name": request.env.user.name,
+        }
+
+    @http.route(
+        "/odoopilot/web/message",
+        type="json",
+        auth="user",
+        methods=["POST"],
+    )
+    def web_chat_message(self, message=None, **kwargs):
+        """Run a single user message through the agent loop.
+
+        Body: ``{"message": "<what the user typed or clicked>"}``.
+        For confirmation clicks the frontend sends ``message`` of
+        the form ``"confirm:yes:<nonce>"`` or ``"confirm:no:<nonce>"``
+        -- exactly the same payload Telegram's inline keyboard sends.
+
+        Response: ``{"items": [...]}`` where each item is one of:
+          {"type": "text", "text": "..."}
+          {"type": "confirm", "question": "...", "nonce": "..."}
+        """
+        from ..services.agent import OdooPilotAgent
+        from ..services.web_chat import WebChatClient
+
+        if not isinstance(message, str):
+            return {"items": [], "error": "message_required"}
+
+        # Master kill switch -- if the operator has disabled the web
+        # chat after the page loaded, refuse to process. Frontend
+        # re-checks /config periodically so a fresh page would
+        # already know the widget is off.
+        cfg = request.env["ir.config_parameter"].sudo()
+        if cfg.get_param("odoopilot.web_chat_enabled") not in (
+            "True",
+            "1",
+            "true",
+            True,
+        ):
+            return {"items": [], "error": "disabled"}
+
+        text = message.strip()
+        if not text:
+            return {"items": []}
+
+        # Same per-(channel, chat_id) rate limit the messaging
+        # channels use. Voice + text + web all share this budget.
+        chat_id = str(request.env.user.id)
+        if not throttle.allow(request.env, "web", chat_id):
+            return {
+                "items": [
+                    {
+                        "type": "text",
+                        "text": (
+                            "You've sent a lot of messages in the last hour. "
+                            "Please wait a moment before trying again."
+                        ),
+                    }
+                ]
+            }
+
+        web_client = WebChatClient()
+
+        # Confirmation callbacks: the frontend posts the same
+        # ``confirm:yes:<nonce>`` payload Telegram sends. Route it
+        # through the controller's existing _handle_confirmation
+        # logic (channel="web") -- the WebChatClient buffer captures
+        # the assistant's reply for the JSON response.
+        if text.startswith("confirm:"):
+            self._handle_web_confirmation(request.env, web_client, chat_id, text)
+            return {"items": web_client.outgoing}
+
+        # Regular message. The agent runs under request.env (the
+        # logged-in user); no sudo, no env-rebinding -- record rules
+        # apply exactly the same as interactive Odoo use.
+        agent = OdooPilotAgent(request.env, web_client, channel="web")
+        try:
+            agent.handle_message(chat_id, text)
+        except Exception:
+            _logger.exception(
+                "OdooPilot web chat: agent error for user %s", request.env.user.id
+            )
+            web_client.send_message(
+                chat_id,
+                "Sorry, I encountered an error. Please try again or use the "
+                "Telegram / WhatsApp channel.",
+            )
+        return {"items": web_client.outgoing}
+
+    def _handle_web_confirmation(self, env, web_client, chat_id, payload):
+        """Handle ``confirm:yes:<nonce>`` / ``confirm:no:<nonce>`` from web.
+
+        Mirrors :meth:`_handle_confirmation` for Telegram, but uses
+        ``request.env`` directly (the logged-in user is the actor) and
+        accumulates the reply into the buffer client instead of sending
+        via TelegramClient.
+        """
+        from ..services.agent import OdooPilotAgent
+
+        session = env["odoopilot.session"].search(
+            [("channel", "=", "web"), ("chat_id", "=", chat_id)], limit=1
+        )
+        action, _, nonce = payload.partition(":")[2].partition(":")
+
+        if action == "no":
+            web_client.send_message(chat_id, "Cancelled.")
+            if session:
+                session.clear_pending()
+                session.append_message("user", "(I declined the action)")
+                session.append_message(
+                    "assistant", "Understood, the action was cancelled."
+                )
+            return
+
+        if action == "yes":
+            if not session or not session.pending_tool:
+                web_client.send_message(chat_id, "Nothing to confirm.")
+                return
+            if not session.verify_and_consume_nonce(nonce):
+                _logger.warning(
+                    "OdooPilot web chat: rejecting confirmation for user %s "
+                    "(nonce mismatch)",
+                    chat_id,
+                )
+                web_client.send_message(
+                    chat_id, "This confirmation has expired. Please ask again."
+                )
+                session.clear_pending()
+                return
+            tool_name = session.pending_tool
+            args = json.loads(session.pending_args or "{}")
+            session.clear_pending()
+            agent = OdooPilotAgent(env, web_client, channel="web")
+            agent.execute_confirmed(chat_id, tool_name, args)
+            return
+
+        _logger.warning(
+            "OdooPilot web chat: ignoring malformed callback payload for user %s: %r",
+            chat_id,
+            payload,
+        )

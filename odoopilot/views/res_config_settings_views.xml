@@ -118,6 +118,27 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- In-Odoo Web Chat widget -->
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="odoopilot_web_chat_enabled"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="odoopilot_web_chat_enabled" string="In-Odoo web chat"/>
+                                <div class="text-muted">
+                                    Show a chatbot icon in every Odoo page so employees can chat with OdooPilot from the browser, without leaving the Odoo tab.
+                                </div>
+                                <div class="content-group" invisible="not odoopilot_web_chat_enabled">
+                                    <div class="text-muted mt8">
+                                        The widget appears in the systray (top-right) and runs the same agent loop as Telegram / WhatsApp. The linked user is whoever is logged into Odoo &#8212; no <code>/link</code> flow needed. Same write-confirmation gate, same audit log, same rate limit.
+                                    </div>
+                                    <div class="text-muted mt4">
+                                        Toggle off to hide the widget from every Odoo user (a page reload is required for the change to take effect on already-open tabs).
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Notifications -->
