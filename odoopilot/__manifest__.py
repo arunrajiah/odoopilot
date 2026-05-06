@@ -1,12 +1,7 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "18.0.6.0.0",
-    # Beta as of 18.0.5 -- the 18 series is now live on the Odoo App
-    # Store (apps.odoo.com/apps/modules/18.0/odoopilot), having passed
-    # Odoo's own listing review. Same hardened security model and
-    # 19-tool surface as the 17 series; the only difference between
-    # the two branches is the manifest version segment.
+    "version": "17.0.16.0.0",
     "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",
@@ -35,6 +30,7 @@ trail. The only thing that changes is HOW employees reach Odoo —
 through chat instead of a browser.
 
 Keywords: Odoo employee chatbot, Odoo team assistant, Odoo without login,
+Odoo voice messages, voice-to-Odoo, speak to Odoo, Whisper Odoo, Odoo STT,
 mobile Odoo, Odoo on Telegram, Odoo on WhatsApp, employee self-service Odoo,
 Odoo leave request bot, Odoo approval bot, field sales Odoo, warehouse Odoo,
 Odoo AI chatbot, Odoo AI agent, Odoo AI copilot, Telegram bot Odoo,
@@ -55,6 +51,9 @@ Key Features
   approve leave requests, move CRM pipeline stages, create CRM leads — every write
   triggers an inline Yes/No confirmation before touching Odoo data
 * **Dual-channel**: Telegram Bot + WhatsApp Cloud API — full feature parity on both channels
+* **Voice messages**: hold-to-record on Telegram or WhatsApp; OdooPilot transcribes via Whisper
+  (Groq free tier or OpenAI) and runs the same agent loop as typed text. For warehouse pickers,
+  drivers, anyone whose hands aren't free to type. Operator-tunable duration cap (default 60s).
 * **Multi-language support**: 15 languages — users set preferred language with /language command
   (English, French, Spanish, German, Italian, Portuguese, Dutch, Arabic, Chinese, Japanese,
   Korean, Russian, Turkish, Polish, Hindi)

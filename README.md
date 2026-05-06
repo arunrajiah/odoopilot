@@ -36,6 +36,7 @@ Works on **Telegram** and **WhatsApp**. Supports **15 languages**. LGPL-3 open-s
 
 - **Conversational queries on live Odoo data** — Tasks, CRM, Sales, Invoices, Inventory, Purchase, HR, Leaves
 - **Write actions with a confirmation gate** — Yes/No button required before any record changes
+- **Voice messages** — speak instead of typing; the bot transcribes (Whisper) and runs the same agent loop
 - **Two channels, full parity** — Telegram bot and WhatsApp Cloud API
 - **Choice of LLM** — Anthropic Claude, OpenAI GPT-4o, Groq (free tier), or Ollama (100% local)
 - **15 UI languages** — per-user `/language` command
@@ -65,10 +66,18 @@ Everything runs inside the Odoo addon — no separate Python service, no Docker 
 │  │  • Verify webhook signature in constant time           │     │
 │  │  • Per-(channel, chat_id) sliding-window rate limit    │     │
 │  │  • Idempotency dedup on update_id / messages[].id      │     │
+│  │  • Voice msg? download + transcribe via STT first      │     │
 │  │  • Hand off to bounded worker pool                     │     │
-│  └─────────────────────────┬──────────────────────────────┘     │
-│                            │                                     │
-│  ┌─────────────────────────▼──────────────────────────────┐     │
+│  └────┬───────────────────────────┬───────────────────────┘     │
+│       │ text                      │ voice                       │
+│       │                           ▼                             │
+│       │            ┌──────────────────────────────┐            │
+│       │            │  STT Client (services/stt)   │            │
+│       │            │  Groq whisper-large-v3 / OAI │            │
+│       │            │  whisper-1 · key scrubbed    │            │
+│       │            └──────────────┬───────────────┘            │
+│       │                           │ transcript                 │
+│  ┌────▼───────────────────────────▼───────────────────────┐     │
 │  │  Agent  (services/agent.py)                            │     │
 │  │  • Load session · build messages · run LLM tool loop   │     │
 │  │  • Read tools execute immediately                      │     │
@@ -163,15 +172,30 @@ Default models if you leave the override blank:
 | `groq` | `llama-3.3-70b-versatile` | Free tier, very fast |
 | `ollama` | (set in override) | 100% local, e.g. `llama3.2` |
 
+#### Voice messages (optional)
+
+Off by default. When enabled, employees can hold-to-record on Telegram or WhatsApp instead of typing — OdooPilot transcribes via Whisper and runs the transcript through the same agent loop. The killer use case is warehouse pickers, drivers, anyone whose hands aren't free.
+
+| Field | Value |
+|-------|-------|
+| Voice messages | Enable |
+| STT Provider | `groq` (free tier, recommended) or `openai` |
+| STT API Key | Your provider key (can be the same key as the LLM provider when both are Groq or both are OpenAI) |
+| STT Model | Leave blank for default (`whisper-large-v3` for Groq, `whisper-1` for OpenAI) |
+| Max voice duration (seconds) | Default `60`. Voice notes longer than this are rejected before download — bandwidth + STT cost protection |
+
+A Groq-on-everything operator pays **$0** for voice support indefinitely. On OpenAI: ~$0.006 per audio-minute. Hard caps: 25 MB per file, default 60 s per message — both configurable. The scope guard runs on the transcript, so spoken jailbreaks get the same refusal as typed ones.
+
 #### Optional throttling knobs
 
 These are read once at first use from `ir.config_parameter`. Defaults are fine for most installs; raise them if your team is large, lower them if you suspect abuse.
 
 | Parameter | Default | What it controls |
 |-----------|---------|------------------|
-| `odoopilot.rate_limit_per_hour` | `30` | Max messages per (channel, chat_id) per window |
+| `odoopilot.rate_limit_per_hour` | `30` | Max messages per (channel, chat_id) per window (voice + text combined) |
 | `odoopilot.rate_limit_window_seconds` | `3600` | Sliding-window length |
 | `odoopilot.worker_pool_size` | `8` | Bounded thread pool for webhook dispatch |
+| `odoopilot.voice_max_duration_seconds` | `60` | Max length of a single voice note (cost / DoS guard) |
 
 ### 3. Link employee accounts
 
@@ -260,9 +284,25 @@ Provider rate limits at the tiers most teams actually use:
 ### Watch for
 
 - **First 9 AM / first 5 PM**: peak hours typically run 3–4× the daily average. Size for the peak, not the average.
-- **One employee monopolising the bot**: capped at 30 messages/hour by the per-chat rate limit. They can request a higher limit by editing `odoopilot.rate_limit_per_hour` for the whole install (no per-user override yet).
+- **One employee monopolising the bot**: capped at 30 messages/hour by the per-chat rate limit (voice + text combined). They can request a higher limit by editing `odoopilot.rate_limit_per_hour` for the whole install (no per-user override yet).
 - **Multi-Odoo-worker fairness**: the throttle is in-process per Odoo HTTP worker. If you run `--workers=4`, each worker has its own counter — so a chatty user effectively gets `30 × 4 = 120` msg/hour rather than 30. Acceptable for almost all teams; if you need a hard global cap, that requires a Redis-backed limiter (not built today, see roadmap).
 - **LLM cost overruns**: the audit log is your friend. *Settings → OdooPilot → Audit Log* with the *Group by user* filter shows you who's burning the budget.
+
+### Voice messages — capacity notes
+
+When voice is enabled, each voice note costs **one STT call + one LLM call** instead of just one LLM call. The total throughput stays bounded by the same rate-limit and worker-pool ceilings; only the cost per message changes.
+
+| Provider | STT cost | Throughput cap |
+|---|---|---|
+| Groq (`whisper-large-v3`, free tier) | $0 | shared with Groq LLM rate limit |
+| OpenAI (`whisper-1`) | ~$0.006 / audio-minute | 50 RPM at Tier 1, way more at higher tiers |
+
+Two safeguards bound the worst-case cost:
+
+- **`odoopilot.voice_max_duration_seconds`** (default 60) — voice notes longer than this are rejected before download. Caps both bandwidth and STT spend per message.
+- **25 MB hard cap** in `services/stt.py` — matches Whisper's own limit, prevents oversized-file abuse regardless of duration.
+
+Practical guidance: a 300-employee deployment with 10% voice adoption (3 voice notes / day per voice user = ~90 voice messages / day) costs **~$1/day extra** on OpenAI Whisper, **$0** on Groq. The per-chat rate limit makes runaway costs impossible without an authenticated linked user.
 
 ### Self-test before the first real user logs in
 
@@ -318,8 +358,8 @@ Please don't disclose publicly. Use [GitHub Security Advisories](https://github.
 ## Status & roadmap
 
 Current releases:
-- `17.0` branch — **17.0.15.0.0** (Beta, on the [Odoo 17 App Store](https://apps.odoo.com/apps/modules/17.0/odoopilot))
-- `18.0` branch — **18.0.5.0.0** (Beta, on the [Odoo 18 App Store](https://apps.odoo.com/apps/modules/18.0/odoopilot))
+- `17.0` branch — **17.0.16.0.0** (Beta, on the [Odoo 17 App Store](https://apps.odoo.com/apps/modules/17.0/odoopilot))
+- `18.0` branch — **18.0.6.0.0** (Beta, on the [Odoo 18 App Store](https://apps.odoo.com/apps/modules/18.0/odoopilot))
 
 CHANGELOG: [full history](CHANGELOG.md).
 
@@ -327,6 +367,9 @@ CHANGELOG: [full history](CHANGELOG.md).
 
 | Version | Date | Theme |
 |---------|------|-------|
+| **17.0.16.0.0** / **18.0.6.0.0** | 2026-05-03 | Voice messages → Whisper STT → existing text agent loop. Opt-in; Groq free tier or OpenAI; 60-second cap by default |
+| **17.0.15.0.0** / **18.0.4.0.0** | 2026-05-03 | Internal security audit fixes — scope-guard Unicode + foreign-language bypasses, employee_id rebinding, find_partner cap, rate-limiter GC |
+| **17.0.14.0.0** / **18.0.3.0.0** | 2026-05-03 | Employee-self-service tool sprint — `find_partner` + `clock_in/out` + `submit_expense` + `submit_timesheet` + `create_calendar_event` (tool count 13 → 19) |
 | **17.0.13.0.0** / **18.0.2.0.0** | 2026-05-03 | Scope guard — refuse off-topic / extraction / jailbreak attempts before paying for an LLM call; hardened SYSTEM_PROMPT |
 | **17.0.12.0.0** | 2026-05-02 | Operator admin views — Linked Users dashboard with activity columns, Audit Log with failure-decoration + filters + group-bys |
 | **17.0.11.0.0** | 2026-05-02 | Polish pass — new banner, CI security scanning (bandit/semgrep), listing renderable check |
@@ -338,11 +381,9 @@ CHANGELOG: [full history](CHANGELOG.md).
 
 ### Coming next
 
-**1. Internal security audit (gate for any new feature work).** With 13 releases shipped in 9 days and 19 tools live, the threat model has evolved. Re-audit the post-17.0.7 surface — scope guard regex, throttle / dedup concurrency, the 6 new employee tools, admin-view computed fields, settings panel HTML — before adding voice. Ship any findings as `17.0.15.0.0` / `18.0.4.0.0`.
+**1. OCA submission.** Both 17 and 18 are now Beta on the App Store, the security model has been audited four times, the test suite is comprehensive, and the codebase follows Odoo conventions. Time to submit upstream.
 
-**2. Voice messages → STT → tool calls.** Both Telegram and WhatsApp deliver voice as audio attachments. Adding a download → Whisper transcription → existing-text-flow path unlocks the warehouse-picker / driver / hands-busy use cases — anyone whose hands aren't free to type. The biggest single UX upgrade left for the on-the-go-employee persona. Real engineering work (audio buffering, voice-language detection, STT cost considerations); ships AFTER the security audit.
-
-**3. Operator-side:**
+**2. Operator-side:**
 
 - ✅ **Validate Odoo 18 install** and submit the listing to `apps.odoo.com` — done, [live on the App Store](https://apps.odoo.com/apps/modules/18.0/odoopilot)
 - 📋 **OCA submission** — next, now that both 17 and 18 are on the App Store
