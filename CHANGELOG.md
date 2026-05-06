@@ -8,6 +8,28 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [18.0.7.0.0] — 2026-05-06 — OCA submission prep + manifest version fix
+
+Mirror of **17.0.17.0.0** to the 18 series. Brings the codebase up
+to OCA-quality standards (`pylint-odoo` 10.00/10) so the eventual
+upstream PR is mostly mechanical. See the
+[17.0.17.0.0 entry](https://github.com/arunrajiah/odoopilot/blob/17.0/CHANGELOG.md#170170--2026-05-06--oca-submission-prep)
+on the 17 branch for full details.
+
+### Bug fix included in this release
+
+The 18.0.6.0.0 manifest accidentally carried the version string
+`17.0.16.0.0` -- a copy-paste regression introduced when the
+voice-feature documentation was mirrored from main to 18.0 by
+checking out the 17 manifest. Symptoms: the App Store would
+have refused to ingest the new build because the manifest version
+didn't match the branch series. The 18.0 listing was unaffected
+because Odoo's last successful crawl already had `18.0.6.0.0`
+recorded; the regression would have surfaced on the next pull.
+Fixed in this release.
+
+---
+
 ## [18.0.6.0.0] — 2026-05-03 — Voice messages backport
 
 Mirrors **17.0.16.0.0** to the 18 series. Opt-in Whisper transcription

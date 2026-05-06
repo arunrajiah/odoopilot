@@ -296,4 +296,9 @@ class OdooPilotAgent:
                 }
             )
         except Exception:
-            pass  # Audit failure must never break the main flow
+            # Audit failure must never break the main flow -- the user
+            # experience would degrade silently if a logging error
+            # cascaded into a webhook 500. We log at warning so
+            # operators can spot persistent audit-write failures
+            # without having a deluge in the log on transient ones.
+            _logger.warning("OdooPilot: audit row write failed", exc_info=True)
