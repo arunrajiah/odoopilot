@@ -8,6 +8,57 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.19.0.0] — 2026-05-06 — Support email surfaced everywhere
+
+Adds `arunrajiah@gmail.com` as the operator-facing support contact
+across every surface where someone might look for it. No code-path
+behaviour change.
+
+### What changed
+
+- **`__manifest__.py`**: new `support` field. The Odoo App Store
+  surfaces this as a "Contact" link in the right-hand sidebar of
+  the module detail page. Operators get a one-click "email the
+  maintainer" affordance from the listing.
+- **`README.md`**: new top-level **Support** section between the
+  Status & Roadmap and Sponsor & Feedback sections. Lists the email
+  + the GitHub repo URL. Also adds an "📧 General support" line at
+  the bottom of the Sponsor & Feedback list.
+- **`static/description/index.html`** (App Store listing): the
+  Resources & Documentation card on the right-hand column gains a
+  bold "Email support: arunrajiah@gmail.com" line. The card is
+  renamed from "Community" to "Community & support" to make the
+  scope clear.
+- **`views/res_config_settings_views.xml`**: the in-Odoo Settings
+  community panel adds a fifth card -- **📧 Email support** with a
+  `mailto:` link that pre-fills "OdooPilot support" as the subject.
+- **`readme/MAINTAINERS.rst`**: lists the email under the
+  maintainer entry, with a guidance paragraph routing public
+  questions to GitHub Issues/Discussions and security disclosures
+  to GitHub Security Advisories.
+
+### Verified along with this change
+
+- App Store cache state: 17 listing at `17.0.15.0.0` (3 versions
+  behind), 18 listing at `18.0.6.0.0` (2 versions behind). Both
+  catching up; Voice + Web Chat will land in the next refresh
+  cycle.
+- The App Store's per-module detail page does **not** display
+  `banner.png` (only the icon). The banner ships with the addon
+  and is used for category browse / grid views; nothing wrong on
+  our side.
+
+### Local pre-flight
+
+- `ruff format --check odoopilot/` -- clean
+- `ruff check odoopilot/` -- clean
+- `pylint --load-plugins=pylint_odoo --enable=odoolint` -- 10.00/10
+- `bandit -r odoopilot -ll -ii` -- 0 medium/high
+- All XML well-formed
+- App Store listing renderable -- clean
+
+---
+
 ## [17.0.18.0.0] — 2026-05-06 — In-Odoo web chat widget
 
 A third channel alongside Telegram and WhatsApp: a chatbot icon in
