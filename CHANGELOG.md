@@ -8,6 +8,20 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [18.0.9.0.0] — 2026-05-06 — Support email surfaced (backport)
+
+Mirror of **17.0.19.0.0**. Adds `arunrajiah@gmail.com` as the
+operator-facing support contact across:
+
+- `__manifest__.py` `support` field (App Store sidebar Contact link)
+- App Store listing (Resources card)
+- Settings community panel (new 5th card with `mailto:`)
+- `readme/MAINTAINERS.rst`
+
+No code-path behaviour change.
+
+---
+
 ## [18.0.8.0.0] — 2026-05-06 — In-Odoo web chat widget (backport)
 
 Mirrors **17.0.18.0.0** to the 18 series. Adds a chatbot icon in
