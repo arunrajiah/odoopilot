@@ -38,6 +38,7 @@
     <span style="display:inline-block; color:#1e40af; padding:5px 14px; border:1px solid #1e40af; border-radius:99px; font-size:0.78em; font-weight:700; margin:3px;">Telegram</span>
     <span style="display:inline-block; color:#166534; padding:5px 14px; border:1px solid #166534; border-radius:99px; font-size:0.78em; font-weight:700; margin:3px;">WhatsApp</span>
     <span style="display:inline-block; color:#9d174d; padding:5px 14px; border:1px solid #9d174d; border-radius:99px; font-size:0.78em; font-weight:700; margin:3px;">15 Languages</span>
+    <span style="display:inline-block; color:#0e7490; padding:5px 14px; border:1px solid #0e7490; border-radius:99px; font-size:0.78em; font-weight:700; margin:3px;">&#127908; Voice messages</span>
   </div>
 
   <h1 style="color:#0f172a; font-size:3em; font-weight:800; margin:8px 0 14px; letter-spacing:-1px; line-height:1.1;">OdooPilot</h1>
@@ -47,7 +48,7 @@
   </p>
   <p style="color:#475569; font-size:1.05em; margin:0 auto 18px; max-width:720px;">
     Employees apply for leave, approve requests, check tasks, update the CRM pipeline, and validate stock moves &mdash;
-    by chatting with a bot on <strong style="color:#0f172a;">Telegram</strong> or <strong style="color:#0f172a;">WhatsApp</strong>, in their own language.
+    by <strong style="color:#0f172a;">typing or speaking</strong> to a bot on <strong style="color:#0f172a;">Telegram</strong> or <strong style="color:#0f172a;">WhatsApp</strong>, in their own language.
     No Odoo login, no app to install, no training.<br>
     <em style="color:#64748b;">For your internal team. Not for your customers.</em>
   </p>
@@ -162,6 +163,48 @@
     <strong>What OdooPilot is not:</strong> a chatbot for your customers, a public website widget, or a way to bypass Odoo permissions.
     Every linked user is an Odoo user, sees only the data they are already authorised to see, and every write is logged in the audit trail.
     The only thing that changes is <em>how</em> they reach Odoo &mdash; through chat instead of a browser.
+  </p>
+</div>
+
+
+<!-- ===== VOICE MESSAGES ===== -->
+<h2 style="font-size:1.6em; font-weight:800; color:#0f172a; margin:8px 0 6px; padding-bottom:6px; border-bottom:2px solid #0e7490;">&#127908; Voice messages &mdash; speak instead of typing</h2>
+<p style="color:#64748b; margin:0 0 18px; font-size:0.95em;">
+  For employees whose hands aren't free to type. Hold-to-record on Telegram or WhatsApp, send the voice note,
+  and OdooPilot transcribes it into the same agent loop typed text uses.
+</p>
+
+<table width="100%" cellpadding="8" cellspacing="8" border="0" style="margin:0 0 24px;">
+  <tr>
+    <td width="33%" style="border:1px solid #e2e8f0; border-top:3px solid #0e7490; border-radius:12px; padding:20px 18px; vertical-align:top;">
+      <div style="color:#0e7490; font-weight:800; font-size:0.95em; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:8px;">Who it's for</div>
+      <p style="font-size:0.9em; color:#374151; margin:0; line-height:1.65;">
+        Warehouse pickers on the floor. Drivers between deliveries. Field engineers in the truck.
+        Anyone who'd rather speak a 10-second message than thumb-type 5 lines.
+      </p>
+    </td>
+    <td width="33%" style="border:1px solid #e2e8f0; border-top:3px solid #0e7490; border-radius:12px; padding:20px 18px; vertical-align:top;">
+      <div style="color:#0e7490; font-weight:800; font-size:0.95em; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:8px;">How it works</div>
+      <p style="font-size:0.9em; color:#374151; margin:0; line-height:1.65;">
+        Record &rarr; the bot transcribes via Whisper (Groq free tier or OpenAI) &rarr; transcript runs
+        through the existing agent loop &rarr; you get a text reply with the same Yes / No buttons for any write.
+      </p>
+    </td>
+    <td width="33%" style="border:1px solid #e2e8f0; border-top:3px solid #0e7490; border-radius:12px; padding:20px 18px; vertical-align:top;">
+      <div style="color:#0e7490; font-weight:800; font-size:0.95em; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:8px;">What it costs</div>
+      <p style="font-size:0.9em; color:#374151; margin:0; line-height:1.65;">
+        Groq free tier: <strong>$0</strong>. OpenAI: ~$0.006 per audio-minute. Operator-tunable cap on
+        max voice duration (default 60 s) bounds both bandwidth and STT spend.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<div style="border:1px solid #a5f3fc; border-left:4px solid #0e7490; border-radius:8px; padding:14px 18px; margin:0 0 32px;">
+  <p style="margin:0; font-size:0.92em; color:#155e75;">
+    <strong>Same safety properties as typed text.</strong> The scope guard runs on the transcript, not the audio
+    bytes &mdash; "ignore previous instructions" spoken or typed gets the same refusal. Per-chat rate limit covers
+    voice and text together. Linked-user record-rule scoping is unchanged. Voice cannot bypass anything text can't.
   </p>
 </div>
 
