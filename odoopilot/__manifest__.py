@@ -1,7 +1,7 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "17.0.17.0.0",
+    "version": "17.0.18.0.0",
     "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",
@@ -128,6 +128,19 @@ License: LGPL-3 | Free & Open-Source | GitHub: https://github.com/arunrajiah/odo
         "data/ir_cron.xml",
     ],
     "images": ["static/description/banner.png"],
+    # Frontend assets for the in-Odoo web chat widget. The assets
+    # always load; the component itself early-returns when
+    # ``odoopilot.web_chat_enabled`` is False, so disabling the
+    # feature in Settings simply hides the systray icon. Loading
+    # ~6 KB of unused JS is cheaper than a per-page conditional
+    # asset bundle.
+    "assets": {
+        "web.assets_backend": [
+            "odoopilot/static/src/components/web_chat.js",
+            "odoopilot/static/src/components/web_chat.xml",
+            "odoopilot/static/src/scss/web_chat.scss",
+        ],
+    },
     # ``installable`` and ``auto_install`` omitted -- the OCA pylint
     # checks flag them as superfluous when set to their defaults
     # (True / False). The ``application`` flag we keep since it's

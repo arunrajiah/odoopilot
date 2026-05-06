@@ -109,6 +109,29 @@ class ResConfigSettings(models.TransientModel):
         ),
     )
 
+    # In-Odoo web chat widget
+    #
+    # When enabled, every logged-in Odoo user sees a chatbot icon in
+    # the systray that opens a panel and lets them talk to OdooPilot
+    # without leaving the Odoo browser tab. No /link flow, no phone
+    # required -- the logged-in user IS the chat identity, scoped to
+    # their existing record-rule permissions.
+    #
+    # Off by default: operators who deployed Telegram / WhatsApp only
+    # might not want a second surface, and the frontend asset bundle
+    # ships behind this flag so disabling it stops loading the JS too.
+    odoopilot_web_chat_enabled = fields.Boolean(
+        string="In-Odoo Web Chat",
+        config_parameter="odoopilot.web_chat_enabled",
+        help=(
+            "Show a chatbot icon in every Odoo page so logged-in "
+            "employees can chat with OdooPilot from the browser, "
+            "without using Telegram or WhatsApp. The widget runs the "
+            "same agent loop with the same write-confirmation gate; "
+            "the linked user is whoever is logged into Odoo."
+        ),
+    )
+
     # WhatsApp
     odoopilot_whatsapp_enabled = fields.Boolean(
         string="WhatsApp Enabled",
