@@ -30,6 +30,7 @@ trail. The only thing that changes is HOW employees reach Odoo —
 through chat instead of a browser.
 
 Keywords: Odoo employee chatbot, Odoo team assistant, Odoo without login,
+Odoo voice messages, voice-to-Odoo, speak to Odoo, Whisper Odoo, Odoo STT,
 mobile Odoo, Odoo on Telegram, Odoo on WhatsApp, employee self-service Odoo,
 Odoo leave request bot, Odoo approval bot, field sales Odoo, warehouse Odoo,
 Odoo AI chatbot, Odoo AI agent, Odoo AI copilot, Telegram bot Odoo,
@@ -50,6 +51,9 @@ Key Features
   approve leave requests, move CRM pipeline stages, create CRM leads — every write
   triggers an inline Yes/No confirmation before touching Odoo data
 * **Dual-channel**: Telegram Bot + WhatsApp Cloud API — full feature parity on both channels
+* **Voice messages**: hold-to-record on Telegram or WhatsApp; OdooPilot transcribes via Whisper
+  (Groq free tier or OpenAI) and runs the same agent loop as typed text. For warehouse pickers,
+  drivers, anyone whose hands aren't free to type. Operator-tunable duration cap (default 60s).
 * **Multi-language support**: 15 languages — users set preferred language with /language command
   (English, French, Spanish, German, Italian, Portuguese, Dutch, Arabic, Chinese, Japanese,
   Korean, Russian, Turkish, Polish, Hindi)
