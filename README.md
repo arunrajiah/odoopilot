@@ -417,6 +417,17 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full details.
 
 ---
 
+## Support
+
+For installation help, configuration questions, or anything else where the public channels above aren't a good fit:
+
+- **📧 Email**: [arunrajiah@gmail.com](mailto:arunrajiah@gmail.com)
+- **📦 Source & docs**: [github.com/arunrajiah/odoopilot](https://github.com/arunrajiah/odoopilot)
+
+For security issues please use [GitHub Security Advisories](https://github.com/arunrajiah/odoopilot/security/advisories/new) rather than email — see [SECURITY.md](SECURITY.md) for the disclosure policy.
+
+---
+
 ## Sponsor & feedback
 
 OdooPilot is free, open-source, and solo-maintained. After install, **Settings → OdooPilot** ends with quick links for all of these — or use the URLs directly:
@@ -425,6 +436,7 @@ OdooPilot is free, open-source, and solo-maintained. After install, **Settings �
 - **💬 Feedback & ideas** → https://github.com/arunrajiah/odoopilot/discussions/new?category=ideas
 - **🛠 Report a bug** → https://github.com/arunrajiah/odoopilot/issues/new/choose
 - **🔒 Report a security issue (private)** → https://github.com/arunrajiah/odoopilot/security/advisories/new
+- **📧 General support** → arunrajiah@gmail.com
 
 ---
 
