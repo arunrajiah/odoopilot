@@ -8,6 +8,75 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.17.0.0] — 2026-05-06 — OCA submission prep
+
+Brings the codebase up to OCA-quality standards so the actual
+upstream PR is mostly mechanical when it lands. No code changes
+that affect runtime behaviour; every change is to satisfy OCA's
+[`pylint-odoo`](https://github.com/OCA/pylint-odoo) checks or to
+restructure documentation per OCA conventions.
+
+### Module structure
+
+- `odoopilot/readme/` rewritten as eight reStructuredText files per
+  OCA's [`oca-gen-addon-readme`](https://github.com/OCA/maintainer-tools)
+  template: `DESCRIPTION`, `INSTALL`, `CONFIGURE`, `USAGE`, `ROADMAP`,
+  `CONTRIBUTORS`, `CREDITS`, `MAINTAINERS`. The previous Markdown
+  files were removed.
+- New top-level `CONTRIBUTING-OCA.md` documenting what's done and
+  what an OCA reviewer would still need to confirm in the eventual
+  PR.
+
+### Manifest
+
+- New `maintainers: ["arunrajiah"]` field (OCA-required).
+- `author` updated to `"arunrajiah, Odoo Community Association (OCA)"`
+  per OCA convention. The OCA suffix is added pre-emptively to
+  satisfy `pylint-odoo` C8101; the module is not yet hosted in an
+  OCA repository.
+- Removed redundant `installable: True` and `auto_install: False`
+  (both at default values; flagged by C8116).
+- The `description` field stays — it's marked deprecated by
+  pylint-odoo (C8103) but the Odoo App Store listing search still
+  indexes it. A `# noqa: C8103` comment now documents this.
+
+### Code style
+
+`pylint --load-plugins=pylint_odoo --enable=odoolint odoopilot/` now
+scores **10.00/10** (was 9.90). Fixes:
+
+- W8161 (`prefer-env-translation`): all `_()` calls in
+  `models/res_config_settings.py` rewritten as `self.env._(...)`.
+- W8301 (`translation-not-lazy`): translation calls with `% arg`
+  interpolation switched to lazy positional args:
+  `self.env._("text %s", arg)`.
+- W8303 (`translation-fstring-interpolation`): two f-strings inside
+  `_()` calls rewritten to use lazy substitution.
+- W8113 (`attribute-string-redundant`): six redundant `string=...`
+  field parameters dropped where the auto-derived label matches.
+- W8138 (`except-pass`): the bare `except: pass` in
+  `services/agent.py:_audit` now logs at WARNING with `exc_info=True`
+  so persistent audit-write failures are visible without spamming
+  on transient ones.
+
+### Out of scope for this release
+
+The actual OCA submission PR. The repo is now in a state where
+opening that PR is mostly mechanical; the call on which OCA repo
+to target (`OCA/connector`, `OCA/server-tools`, or a new dedicated
+AI-integration repo) is best made after a discussion in the OCA
+forum. Tracked in `CONTRIBUTING-OCA.md` "Pending" section.
+
+### Local pre-flight
+
+- `ruff format --check odoopilot/` -- clean
+- `ruff check odoopilot/` -- clean
+- `pylint --load-plugins=pylint_odoo --enable=odoolint` -- 10.00/10
+- `bandit -r odoopilot -ll -ii` -- 0 medium/high
+- `semgrep --config=p/python` -- 0 blocking
+
+---
+
 ## [17.0.16.0.0] — 2026-05-03 — Voice messages → STT → tool calls
 
 The single biggest UX upgrade left for the on-the-go-employee persona.
