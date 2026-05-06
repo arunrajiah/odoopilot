@@ -231,6 +231,15 @@
                                         </div>
                                     </a>
 
+                                    <a href="mailto:arunrajiah@gmail.com?subject=OdooPilot%20support" target="_blank" rel="noopener noreferrer"
+                                       style="flex:1 1 200px; min-width:180px; background:#fff; border:1px solid #e9d5ff; border-radius:6px; padding:10px 14px; text-decoration:none; color:#374151; display:flex; align-items:center; gap:10px;">
+                                        <span style="font-size:1.2em;">📧</span>
+                                        <div>
+                                            <div style="font-size:0.88em; font-weight:700; color:#7c3aed;">Email support</div>
+                                            <div style="font-size:0.78em; color:#6b7280;">arunrajiah@gmail.com</div>
+                                        </div>
+                                    </a>
+
                                 </div>
 
                                 <!-- Quick reference links -->
