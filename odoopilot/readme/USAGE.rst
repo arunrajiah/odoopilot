@@ -28,10 +28,22 @@ Example interactions
 * "Submit my expense for 42 EUR lunch with ACME."
 * "Find the contact for billing@acme.com."
 
-Voice messages are accepted on both channels when voice support is
-enabled. Hold the record button on Telegram or WhatsApp, speak, and
-release. The transcript runs through the same agent loop as if it
-had been typed.
+Voice messages are accepted on Telegram and WhatsApp when voice
+support is enabled. Hold the record button, speak, and release.
+The transcript runs through the same agent loop as if it had been
+typed.
+
+In-Odoo web chat
+~~~~~~~~~~~~~~~~
+
+When the widget is enabled in Settings, every logged-in Odoo user
+sees a chat-bubble icon in the systray (top-right of the navigation
+bar). Click it to open a panel inside the Odoo UI; type and submit
+exactly like Telegram or WhatsApp. The linked user is whoever is
+logged into Odoo, so write actions still surface a Yes / No
+confirmation gate, the linked user's record-rule permissions still
+apply, and every action lands in the audit log. No separate
+``/link`` flow because the user is already authenticated.
 
 Operator views
 ~~~~~~~~~~~~~~

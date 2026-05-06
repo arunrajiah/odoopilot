@@ -8,6 +8,21 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [18.0.8.0.0] — 2026-05-06 — In-Odoo web chat widget (backport)
+
+Mirrors **17.0.18.0.0** to the 18 series. Adds a chatbot icon in
+Odoo's systray that opens a panel inside the Odoo UI. For desk
+users who'd rather not switch to a phone app for a quick query.
+
+Same agent loop, same scope guard, same per-write nonce, same
+audit log as Telegram and WhatsApp. Off by default; enable in
+*Settings → OdooPilot → In-Odoo Web Chat*.
+
+See the [17.0.18.0.0 entry](https://github.com/arunrajiah/odoopilot/blob/17.0/CHANGELOG.md#170180--2026-05-06--in-odoo-web-chat-widget)
+for the full design rationale + file list.
+
+---
+
 ## [18.0.7.0.0] — 2026-05-06 — OCA submission prep + manifest version fix
 
 Mirror of **17.0.17.0.0** to the 18 series. Brings the codebase up
