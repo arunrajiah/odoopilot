@@ -8,6 +8,109 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.18.0.0] — 2026-05-06 — In-Odoo web chat widget
+
+A third channel alongside Telegram and WhatsApp: a chatbot icon in
+Odoo's systray (top-right of the navigation bar) that opens a panel
+right inside the Odoo UI. For employees who spend their day at a
+desk and don't want a separate phone app for the bot.
+
+### Why a third channel
+
+The product already shipped two ways to reach OdooPilot:
+
+- **Telegram** for employees who are already on it.
+- **WhatsApp** for everyone else with a phone.
+
+But there's a third audience the messaging surfaces don't cover well:
+**desk users who live in Odoo all day.** Sales reps doing pipeline
+work, accountants doing reconciliation, ops users running purchase
+orders — they don't want to switch to a phone app to ask a quick
+"who owns this lead?" question. They want a chat bubble in the same
+window they're already in.
+
+This release adds it.
+
+### How it works
+
+- A chat-bubble icon appears in the systray (top-right of the Odoo
+  navigation bar) when the operator enables the feature in Settings.
+- Click → a panel slides down with the conversation history and an
+  input field. Type and submit like any chat app.
+- The agent runs as the **logged-in Odoo user** (no `/link` flow,
+  no phone needed). Linked-user record-rule scoping is identical to
+  interactive Odoo use.
+- Write actions still surface a **Yes / No confirmation gate** —
+  rendered as inline buttons in the panel rather than Telegram /
+  WhatsApp inline keyboards. Same per-write nonce, same audit log.
+- Same scope guard, same per-(channel, chat_id) rate limit
+  (channel `web`, chat_id = the Odoo user id), same idempotency.
+
+### Configuration
+
+A single boolean: *Settings → OdooPilot → In-Odoo Web Chat*. Off by
+default — operators who deployed Telegram or WhatsApp only might not
+want a second surface, and disabling the toggle stops the systray
+icon from rendering on the next page reload.
+
+### What's NOT supported on the web channel
+
+- **Voice messages.** The widget is text-only; voice is
+  Telegram / WhatsApp only.
+- **File uploads.** Same reason.
+- **Streaming replies.** The widget POSTs and receives the full
+  reply in one response. Streaming would need websockets which
+  require Odoo's longpolling worker; we can revisit if it ever
+  becomes a UX bottleneck.
+
+### Security properties
+
+- Endpoint is `auth="user"` — anonymous traffic 403s at Odoo's HTTP
+  layer.
+- Identity is `request.env.user`; no spoofable chat_id.
+- The agent runs under `request.env` directly (the logged-in user),
+  so record rules apply as in interactive Odoo use.
+- Frontend renders messages as **escaped text** (`t-esc`), never
+  HTML — a malicious tool result cannot inject markup into the
+  page.
+- Every web message is rate-limited under
+  `(channel="web", chat_id=str(user.id))`, sharing the budget with
+  Telegram and WhatsApp messages from the same Odoo user.
+
+### Files
+
+- `services/web_chat.py` (new) — `WebChatClient` buffer matching the
+  same `send_message` / `send_confirmation` surface as
+  `TelegramClient`. The agent loop runs unchanged.
+- `controllers/main.py` — two new routes (`/odoopilot/web/config`,
+  `/odoopilot/web/message`) plus `_handle_web_confirmation` for the
+  Yes / No flow.
+- `models/res_config_settings.py` — `odoopilot_web_chat_enabled`
+  boolean.
+- `views/res_config_settings_views.xml` — new "In-Odoo web chat"
+  setting block.
+- `static/src/components/web_chat.js` (new) — OWL component
+  registered in the systray. ~150 LOC.
+- `static/src/components/web_chat.xml` (new) — QWeb template.
+- `static/src/scss/web_chat.scss` (new) — widget styling, light +
+  dark theme.
+- `__manifest__.py` — `assets` block registering the three frontend
+  files into `web.assets_backend`.
+- `tests/test_web_chat.py` (new) — 11 cases covering the
+  WebChatClient buffer, confirmation routing, and channel-keyed
+  session isolation.
+
+### Local pre-flight
+
+- `ruff format --check odoopilot/` -- clean
+- `ruff check odoopilot/` -- clean
+- `pylint --load-plugins=pylint_odoo --enable=odoolint` -- 10.00/10
+- `bandit -r odoopilot -ll -ii` -- 0 medium/high
+- All XML well-formed (including the new QWeb template)
+- App Store listing renderable -- clean
+
+---
+
 ## [17.0.17.0.0] — 2026-05-06 — OCA submission prep
 
 Brings the codebase up to OCA-quality standards so the actual

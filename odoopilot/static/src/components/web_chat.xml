@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+  <!--
+    OdooPilot in-Odoo web chat widget template.
+
+    Two-state widget: a small icon button when collapsed; a panel
+    with header, scroll body, and input footer when expanded.
+
+    Rendering rules:
+      1. The icon does not render until /config has answered AND
+         said enabled is true. Avoids a flash of icon then disappear
+         when the operator has the feature off.
+      2. Message text uses t-esc, never t-raw. The frontend does NOT
+         render LLM output as HTML; a malicious tool result cannot
+         inject markup into the page.
+      3. Plain Enter sends; Shift+Enter inserts a newline. Matches
+         every other chat app.
+  -->
+
+  <t t-name="odoopilot.WebChat">
+    <div class="o-odoopilot-systray" t-if="state.configLoaded and state.enabled">
+
+      <!-- Trigger button: visible whenever the widget is enabled. -->
+      <button
+          type="button"
+          class="o-odoopilot-trigger"
+          t-on-click="_toggle"
+          t-att-aria-expanded="state.open"
+          aria-label="OdooPilot chat"
+          title="OdooPilot">
+        <i class="fa fa-comments"/>
+      </button>
+
+      <!-- Expanded panel: only in the DOM when state.open. -->
+      <div class="o-odoopilot-panel" t-if="state.open">
+
+        <div class="o-odoopilot-panel-header">
+          <span class="o-odoopilot-panel-title">OdooPilot</span>
+          <button
+              type="button"
+              class="o-odoopilot-panel-close"
+              t-on-click="_toggle"
+              aria-label="Close OdooPilot">
+            <i class="fa fa-times"/>
+          </button>
+        </div>
+
+        <div class="o-odoopilot-panel-body" t-ref="scroll">
+
+          <div class="o-odoopilot-empty" t-if="state.messages.length === 0">
+            <p>
+              Ask anything about your Odoo data: tasks, leaves, sales,
+              invoices, stock. I'll confirm with you before changing anything.
+            </p>
+          </div>
+
+          <t t-foreach="state.messages" t-as="msg" t-key="msg_index">
+            <div t-attf-class="o-odoopilot-msg o-odoopilot-msg-#{msg.role}">
+
+              <div class="o-odoopilot-msg-bubble" t-if="msg.type === 'text'">
+                <t t-esc="msg.text"/>
+              </div>
+
+              <div class="o-odoopilot-msg-bubble o-odoopilot-msg-confirm"
+                   t-if="msg.type === 'confirm'">
+                <div class="o-odoopilot-confirm-question">
+                  <t t-esc="msg.question"/>
+                </div>
+                <div class="o-odoopilot-confirm-buttons">
+                  <button
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      t-on-click="() => this._confirm(msg.nonce, 'yes')"
+                      t-att-disabled="state.sending">
+                    Yes
+                  </button>
+                  <button
+                      type="button"
+                      class="btn btn-secondary btn-sm"
+                      t-on-click="() => this._confirm(msg.nonce, 'no')"
+                      t-att-disabled="state.sending">
+                    No
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </t>
+
+          <div class="o-odoopilot-msg o-odoopilot-msg-assistant"
+               t-if="state.sending">
+            <div class="o-odoopilot-msg-bubble o-odoopilot-msg-typing">
+              <span/><span/><span/>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="o-odoopilot-panel-footer">
+          <textarea
+              id="odoopilot-web-chat-input"
+              class="o-odoopilot-input form-control"
+              t-model="state.input"
+              t-on-keydown="_onKeydown"
+              placeholder="Ask OdooPilot..."
+              rows="2"
+              t-att-disabled="state.sending"/>
+          <button
+              type="button"
+              class="btn btn-primary o-odoopilot-send"
+              t-on-click="_send"
+              t-att-disabled="state.sending or !state.input.trim()"
+              aria-label="Send">
+            <i class="fa fa-paper-plane"/>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </t>
+
+</templates>

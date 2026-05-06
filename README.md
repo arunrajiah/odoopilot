@@ -37,7 +37,7 @@ Works on **Telegram** and **WhatsApp**. Supports **15 languages**. LGPL-3 open-s
 - **Conversational queries on live Odoo data** — Tasks, CRM, Sales, Invoices, Inventory, Purchase, HR, Leaves
 - **Write actions with a confirmation gate** — Yes/No button required before any record changes
 - **Voice messages** — speak instead of typing; the bot transcribes (Whisper) and runs the same agent loop
-- **Two channels, full parity** — Telegram bot and WhatsApp Cloud API
+- **Three surfaces, full parity** — Telegram bot, WhatsApp Cloud API, and an in-Odoo web chat widget for users at their desk
 - **Choice of LLM** — Anthropic Claude, OpenAI GPT-4o, Groq (free tier), or Ollama (100% local)
 - **15 UI languages** — per-user `/language` command
 - **Proactive notifications** — daily task digest and overdue-invoice alerts
@@ -171,6 +171,18 @@ Default models if you leave the override blank:
 | `openai` | `gpt-4o-mini` | Widest ecosystem |
 | `groq` | `llama-3.3-70b-versatile` | Free tier, very fast |
 | `ollama` | (set in override) | 100% local, e.g. `llama3.2` |
+
+#### In-Odoo web chat widget (optional)
+
+Off by default. When enabled, every logged-in Odoo user sees a chat-bubble icon in the systray (top-right of the navigation bar). Click it → a panel opens with the conversation history and an input field. Same agent loop as Telegram / WhatsApp; no `/link` flow needed because the user is already authenticated.
+
+| Field | Value |
+|-------|-------|
+| In-Odoo Web Chat | Enable |
+
+The widget runs the same write-confirmation gate (Yes / No buttons inline in the panel), the same per-(channel, chat_id) rate limit (channel `web`, chat_id = the user's Odoo id), the same scope guard, and the same audit log. The frontend is XSS-safe — assistant messages render as `t-esc` (escaped text), never `t-raw`. Voice messages and file uploads are not supported on this channel today.
+
+Operators can toggle the widget off at any time; users will see it disappear on the next page reload, and any in-flight messages get a `disabled` reply.
 
 #### Voice messages (optional)
 
