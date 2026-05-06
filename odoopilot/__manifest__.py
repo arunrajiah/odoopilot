@@ -1,7 +1,7 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "18.0.7.0.0",
+    "version": "18.0.8.0.0",
     "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",
@@ -113,5 +113,12 @@ License: LGPL-3 | Free & Open-Source | GitHub: https://github.com/arunrajiah/odo
         "data/ir_cron.xml",
     ],
     "images": ["static/description/banner.png"],
+    "assets": {
+        "web.assets_backend": [
+            "odoopilot/static/src/components/web_chat.js",
+            "odoopilot/static/src/components/web_chat.xml",
+            "odoopilot/static/src/scss/web_chat.scss",
+        ],
+    },
     "application": True,
 }

@@ -22,10 +22,12 @@ Key capabilities
   Invoicing, Inventory, Purchase, HR, Leaves -- read 8, write 10
   (every write goes through a Yes/No confirmation gate),
   plus contact lookup.
-* **Two channels with full feature parity**: Telegram Bot API and
-  Meta WhatsApp Cloud API.
-* **Voice messages** via Whisper (Groq free tier or OpenAI), feeding
-  the same agent loop typed text uses.
+* **Three surfaces with full feature parity**: Telegram Bot API,
+  Meta WhatsApp Cloud API, and an in-Odoo web chat widget for users
+  at their desk (chatbot icon in the systray; opens a panel inside
+  the Odoo UI; no separate app needed).
+* **Voice messages** via Whisper (Groq free tier or OpenAI) on
+  Telegram and WhatsApp, feeding the same agent loop typed text uses.
 * **15 UI languages** with per-user preference.
 * **Choice of LLM**: Anthropic Claude, OpenAI GPT-4o, Groq (free tier),
   or Ollama (100% local, no third-party API calls).
