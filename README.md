@@ -430,7 +430,24 @@ For security issues please use [GitHub Security Advisories](https://github.com/a
 
 ## Sponsor & feedback
 
-OdooPilot is free, open-source, and solo-maintained. After install, **Settings → OdooPilot** ends with quick links for all of these — or use the URLs directly:
+OdooPilot is free, open-source, LGPL-3, and solo-maintained. It runs on your infrastructure with your LLM — no SaaS fees, no per-seat pricing.
+
+**For teams using OdooPilot in production:** sponsorship is the sustainable replacement for vendor licensing. A $50/month team sponsorship is roughly the cost of a single Odoo Enterprise seat, and it funds the project for everyone — including non-profits and smaller teams who can't afford either.
+
+**Sponsorship currently funds:**
+
+- Expanded write-tool coverage in Invoices, Inventory, and Purchase (currently read-only)
+- OCA submission to make installation easier for the wider Odoo Community
+- Redis-backed global rate limiter for multi-worker deployments
+- Faster issue turnaround for production users
+
+**Suggested tiers:**
+
+- **$10/month (individual)** — keeps the project alive
+- **$50/month (small team)** — priority issue triage + roadmap input
+- **$200/month (org)** — your logo in the README + a quarterly call to discuss your team's Odoo workflows
+
+After install, **Settings → OdooPilot** ends with quick links for all of these — or use the URLs directly:
 
 - **♥ Sponsor on GitHub** → https://github.com/sponsors/arunrajiah
 - **💬 Feedback & ideas** → https://github.com/arunrajiah/odoopilot/discussions/new?category=ideas
