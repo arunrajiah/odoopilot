@@ -1,7 +1,7 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "18.0.9.0.0",
+    "version": "18.0.10.0.0",
     "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",
@@ -103,6 +103,92 @@ Security Model
 * API keys stored in Odoo system parameters; HMAC webhook validation for Telegram
 * Immutable audit log — cannot be deleted by regular users; timestamps every AI action
 * Magic-link identity flow — one-time token, HTTPS only, 1-hour expiry
+
+License: LGPL-3 | Free & Open-Source | GitHub: https://github.com/arunrajiah/odoopilot
+
+================================================================
+OdooPilot — Votre équipe utilise Odoo, sans se connecter à Odoo
+================================================================
+
+Dans chaque déploiement Odoo, les personnes qui produisent les données
+(commerciaux sur le terrain, magasiniers, tout employé qui a
+occasionnellement besoin de poser un congé ou enregistrer une note de
+frais) ne sont pas celles assises devant un écran. Elles ont un compte
+Odoo, mais évitent l'interface — alors les données vieillissent, les
+approbations s'accumulent, et l'ERP sous-livre.
+
+OdooPilot comble cette faille. Chaque employé reçoit un assistant IA sur
+Telegram, WhatsApp ou directement dans Odoo, connecté à la même instance
+Odoo, avec les mêmes règles d'enregistrement qu'il possède déjà. Il pose
+un congé, approuve une demande, consulte ses tâches, met à jour le
+pipeline CRM, valide un mouvement de stock — en discutant en langage
+naturel, dans sa propre langue. Pas de connexion Odoo, pas d'application
+à installer, pas de formation.
+
+Réservé à votre équipe interne. Pas pour vos clients. Chaque utilisateur
+lié doit être un utilisateur Odoo, et chaque écriture est enregistrée
+dans le journal d'audit.
+
+Fonctionnalités clés
+--------------------
+* Agent IA conversationnel multi-tours (Claude, GPT-4, Groq gratuit, Ollama local)
+* Requêtes en langage naturel sur 8 domaines (Projets, CRM, Ventes, Factures, Stock, Achats, RH, Congés)
+* Actions d'écriture avec confirmation Oui/Non en ligne
+* Multi-canal : Telegram + WhatsApp Cloud API + widget intégré à Odoo
+* Messages vocaux transcrits par Whisper
+* 15 langues
+* Alertes proactives quotidiennes
+* Journal d'audit immuable
+* Auto-hébergé — vos données restent sur votre serveur
+* Compatible Odoo 17 Community
+* Installation en 5 minutes
+
+Mots-clés : Odoo chatbot employés, assistant IA Odoo, Odoo sans connexion,
+messages vocaux Odoo, Odoo mobile, Odoo sur Telegram, Odoo sur WhatsApp,
+bot demande de congé Odoo, bot d'approbation Odoo, Odoo 17 Communauté IA,
+Odoo gratuit IA, ERP chatbot, automatisation Odoo
+
+================================================================
+OdooPilot — Tu equipo usa Odoo, sin iniciar sesión en Odoo
+================================================================
+
+En cada despliegue de Odoo se repite el mismo problema: las personas que
+generan los datos (comerciales en ruta, personal de almacén, cualquier
+empleado que ocasionalmente necesita solicitar vacaciones o registrar un
+gasto) no son las que están sentadas frente a un escritorio. Tienen
+cuenta de Odoo, pero evitan la interfaz — así los datos envejecen, las
+aprobaciones se acumulan y el ERP rinde menos de lo que podría.
+
+OdooPilot cierra esa brecha. Cada empleado recibe un asistente de IA en
+Telegram, WhatsApp o directamente dentro de Odoo, conectado a la misma
+instancia y respetando las mismas reglas de registro que ya tiene.
+Solicita vacaciones, aprueba peticiones, revisa tareas, actualiza el
+pipeline del CRM, valida movimientos de stock — conversando en lenguaje
+natural, en su propio idioma. Sin inicio de sesión en Odoo, sin app que
+instalar, sin formación.
+
+Solo para tu equipo interno. No para tus clientes. Cada usuario
+vinculado debe ser un usuario de Odoo, y cada escritura queda registrada
+en la traza de auditoría.
+
+Características principales
+---------------------------
+* Agente IA conversacional multiturno (Claude, GPT-4, Groq gratis, Ollama local)
+* Consultas en lenguaje natural sobre 8 dominios (Proyectos, CRM, Ventas, Facturas, Inventario, Compras, RR. HH., Ausencias)
+* Acciones de escritura con confirmación Sí/No en línea
+* Multicanal: Telegram + WhatsApp Cloud API + widget dentro de Odoo
+* Mensajes de voz transcritos mediante Whisper
+* 15 idiomas
+* Avisos proactivos diarios
+* Traza de auditoría inmutable
+* Autohospedado — tus datos no salen del servidor
+* Compatible con Odoo 17 Community
+* Instalación en 5 minutos
+
+Palabras clave: Odoo chatbot empleados, asistente IA Odoo, Odoo sin
+iniciar sesión, mensajes de voz Odoo, Odoo móvil, Odoo en Telegram,
+Odoo en WhatsApp, bot solicitud vacaciones Odoo, bot de aprobación Odoo,
+Odoo 17 Community IA, Odoo gratis IA, ERP chatbot, automatización Odoo
 
 License: LGPL-3 | Free & Open-Source | GitHub: https://github.com/arunrajiah/odoopilot
     """,

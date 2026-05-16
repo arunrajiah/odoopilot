@@ -1,5 +1,10 @@
 # OdooPilot
 
+[![License: LGPL-3](https://img.shields.io/badge/License-LGPL--3.0-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![Odoo 17](https://img.shields.io/badge/Odoo-17.0_Community-714B67.svg)](https://apps.odoo.com/apps/modules/17.0/odoopilot)
+[![Odoo 18](https://img.shields.io/badge/Odoo-18.0_Community-714B67.svg)](https://apps.odoo.com/apps/modules/18.0/odoopilot)
+[![GitHub Stars](https://img.shields.io/github/stars/arunrajiah/odoopilot?style=social)](https://github.com/arunrajiah/odoopilot/stargazers)
+
 ![OdooPilot — Your team uses Odoo, without logging in to Odoo](odoopilot/static/description/banner.png)
 
 **Your team uses Odoo — without logging in to Odoo.**
@@ -413,6 +418,12 @@ OdooPilot is free, open-source, and solo-maintained. After install, **Settings �
 - **💬 Feedback & ideas** → https://github.com/arunrajiah/odoopilot/discussions/new?category=ideas
 - **🛠 Report a bug** → https://github.com/arunrajiah/odoopilot/issues/new/choose
 - **🔒 Report a security issue (private)** → https://github.com/arunrajiah/odoopilot/security/advisories/new
+
+---
+
+## Star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=arunrajiah/odoopilot&type=Date)](https://star-history.com/#arunrajiah/odoopilot&Date)
 
 ---
 
