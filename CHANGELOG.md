@@ -8,6 +8,33 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.20.0.0] — 2026-05-16 — Multilingual App Store description (FR + ES) + README badges
+
+Surfaces OdooPilot to French and Spanish-speaking operators searching
+the Odoo App Store. The Odoo App Store indexes the manifest
+`description` field for search, so adding FR + ES sections expands the
+keyword surface in both languages without a separate listing.
+
+### Added
+* French translation block in manifest `description` (full feature
+  list + keywords) — surfaces on the App Store after the next cache
+  refresh
+* Spanish translation block in manifest `description` (full feature
+  list + keywords)
+* Shields.io badges in README (License, Odoo 17, Odoo 18, GitHub stars)
+  — standard OSS hygiene that anchors trust at the top of the page
+* Star History chart at the bottom of README — visualises growth for
+  visitors evaluating project momentum
+
+### Why this matters
+The Odoo App Store's search box is language-agnostic on input but
+matches against the description body. A French operator searching
+"chatbot Odoo employés" or a Spanish operator searching "asistente IA
+Odoo" never matched the English-only description. This release fixes
+that without requiring separate listings.
+
+---
+
 ## [17.0.19.0.0] — 2026-05-06 — Support email surfaced everywhere
 
 Adds `arunrajiah@gmail.com` as the operator-facing support contact
