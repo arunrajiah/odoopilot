@@ -5,16 +5,13 @@
     "development_status": "Beta",
     "category": "Discuss",
     "license": "LGPL-3",
-    # Author follows OCA convention: project lead first, then "Odoo
-    # Community Association (OCA)" once the module is accepted into an
-    # OCA repository. Until then we list only the project lead so the
-    # OCA suffix isn't claimed prematurely.
-    # OCA convention: "Odoo Community Association (OCA)" listed once
-    # the module is accepted. Adding it here pre-emptively to satisfy
-    # ``pylint-odoo`` C8101 (manifest-required-author); the project
-    # lead is also listed and the maintainers field below is the
-    # source of truth for who actually owns the module.
-    "author": "arunrajiah, Odoo Community Association (OCA)",
+    # Sole author / copyright holder. The "Odoo Community Association
+    # (OCA)" suffix is intentionally NOT claimed: the module has not
+    # been submitted to or accepted into any OCA repository, and
+    # claiming it would both misrepresent provenance and lock the
+    # module to LGPL-3 in perpetuity. Listing a single author here
+    # still satisfies pylint-odoo C8101 (manifest-required-author).
+    "author": "Arun Rajiah",
     "maintainers": ["arunrajiah"],
     "website": "https://github.com/arunrajiah/odoopilot",
     # The ``support`` field is the standard Odoo manifest key for an
