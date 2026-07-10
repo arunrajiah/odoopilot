@@ -28,6 +28,8 @@ paths for ``clock_in``/etc. are skipped when the upstream module
 database; the preflight gate is exercised regardless.
 """
 
+from unittest.mock import patch
+
 from odoo.tests.common import TransactionCase
 
 from ..services import tools
@@ -78,6 +80,16 @@ class TestToolRegistryHygiene(TransactionCase):
         # Read tools must NOT be in WRITE_TOOLS or they'd ask for
         # confirmation on every call.
         self.assertNotIn("find_partner", tools.WRITE_TOOLS)
+
+    def test_execute_tool_treats_none_args_as_empty_kwargs(self):
+        with patch(
+            "odoo.addons.odoopilot.services.tools.get_sale_orders",
+            return_value="ok",
+        ) as fake_get_sale_orders:
+            result = tools.execute_tool(self.env, "get_sale_orders", None)
+
+        self.assertEqual(result, "ok")
+        fake_get_sale_orders.assert_called_once_with(self.env)
 
 
 class TestFindPartner(TransactionCase):

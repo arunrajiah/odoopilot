@@ -406,6 +406,13 @@ def execute_tool(env, tool_name: str, args: dict) -> str:
     fn = fn_map.get(tool_name)
     if not fn:
         return f"Unknown tool: {tool_name}"
+    if not isinstance(args, dict):
+        _logger.warning(
+            "Tool %s received non-mapping args %r; defaulting to empty kwargs",
+            tool_name,
+            args,
+        )
+        args = {}
     try:
         return fn(env, **args)
     except Exception as e:
