@@ -3,257 +3,187 @@
     <record id="res_config_settings_view_form" model="ir.ui.view">
         <field name="name">res.config.settings.view.form.odoopilot</field>
         <field name="model">res.config.settings</field>
-        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('settings')]" position="inside">
-                <div class="app_settings_block" data-string="OdooPilot" string="OdooPilot" data-key="odoopilot">
-                    <h2>OdooPilot — AI Agent for Telegram &amp; WhatsApp</h2>
+            <xpath expr="//form" position="inside">
+                <app data-string="OdooPilot" string="OdooPilot" name="odoopilot" logo="/odoopilot/static/description/icon.png">
+                    <block title="Channels" name="odoopilot_channels">
+                        <setting id="odoopilot_telegram_setting" string="Telegram Bot" help="Let employees chat with OdooPilot from Telegram.">
+                            <field name="odoopilot_telegram_enabled"/>
+                            <div class="content-group" invisible="not odoopilot_telegram_enabled">
+                                <div class="row mt-3 align-items-center">
+                                    <label for="odoopilot_telegram_bot_token" string="Bot token" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_telegram_bot_token" widget="password" placeholder="123456789:ABCdef..." class="w-100"/>
+                                    </div>
+                                </div>
+                                <div class="row mt-2 align-items-center">
+                                    <label for="odoopilot_telegram_webhook_secret" string="Webhook secret" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_telegram_webhook_secret" widget="password" placeholder="Generated when registering the webhook" class="w-100"/>
+                                    </div>
+                                </div>
+                                <div class="mt-3 d-flex flex-wrap gap-2">
+                                    <button name="action_test_telegram_connection" type="object" string="Test connection" class="btn btn-secondary btn-sm"/>
+                                    <button name="action_register_telegram_webhook" type="object" string="Register webhook" class="btn btn-primary btn-sm"/>
+                                </div>
+                                <div class="small text-muted mt-2">
+                                    The webhook URL will be set to <code>YOUR_ODOO_URL/odoopilot/webhook/telegram</code>.
+                                    A 32-byte secret token is generated and registered with Telegram so the endpoint can verify incoming requests.
+                                </div>
+                            </div>
+                        </setting>
 
-                    <div class="row mt16 o_settings_container">
-                        <!-- Telegram -->
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane">
-                                <field name="odoopilot_telegram_enabled"/>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                <label for="odoopilot_telegram_enabled" string="Enable Telegram"/>
-                                <div class="text-muted">Activate the Telegram bot.</div>
-                                <div class="content-group" invisible="not odoopilot_telegram_enabled">
-                                    <div class="mt8">
-                                        <field name="odoopilot_telegram_bot_token" string="Bot Token" widget="password" placeholder="123456789:ABCdef..."/>
-                                    </div>
-                                    <div class="mt4">
-                                        <field name="odoopilot_telegram_webhook_secret" string="Webhook Secret" widget="password" placeholder="auto-generated when you register the webhook"/>
-                                    </div>
-                                    <div class="mt8">
-                                        <button name="action_test_telegram_connection" type="object" string="Test connection" class="btn btn-secondary btn-sm"/>
-                                        <button name="action_register_telegram_webhook" type="object" string="Register webhook" class="btn btn-primary btn-sm ms-2"/>
-                                    </div>
-                                    <div class="text-muted mt4">
-                                        The webhook URL will be set to <code>YOUR_ODOO_URL/odoopilot/webhook/telegram</code>.
-                                        A 32-byte secret token is auto-generated and registered with Telegram so the endpoint can verify every incoming request.
+                        <setting id="odoopilot_whatsapp_setting" string="WhatsApp Cloud API" help="Let employees chat with OdooPilot from WhatsApp.">
+                            <field name="odoopilot_whatsapp_enabled"/>
+                            <div class="content-group" invisible="not odoopilot_whatsapp_enabled">
+                                <div class="row mt-3 align-items-center">
+                                    <label for="odoopilot_whatsapp_phone_number_id" string="Phone number ID" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_whatsapp_phone_number_id" placeholder="123456789012345" class="w-100"/>
                                     </div>
                                 </div>
+                                <div class="row mt-2 align-items-center">
+                                    <label for="odoopilot_whatsapp_access_token" string="Access token" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_whatsapp_access_token" widget="password" placeholder="EAABxx..." class="w-100"/>
+                                    </div>
+                                </div>
+                                <div class="row mt-2 align-items-center">
+                                    <label for="odoopilot_whatsapp_verify_token" string="Verify token" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_whatsapp_verify_token" widget="password" placeholder="Any random string" class="w-100"/>
+                                    </div>
+                                </div>
+                                <div class="row mt-2 align-items-center">
+                                    <label for="odoopilot_whatsapp_app_secret" string="App secret" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_whatsapp_app_secret" widget="password" placeholder="Meta App Dashboard > Settings > Basic" class="w-100"/>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button name="action_test_whatsapp_connection" type="object" string="Test connection" class="btn btn-secondary btn-sm"/>
+                                </div>
+                                <div class="alert alert-warning mt-2 p-2" role="alert">
+                                    <strong>App secret is required.</strong> Every webhook POST is verified with HMAC-SHA256 against the <code>X-Hub-Signature-256</code> header Meta sends.
+                                </div>
+                                <div class="small text-muted mt-2">
+                                    Set the webhook URL in Meta Developer console to <code>YOUR_ODOO_URL/odoopilot/webhook/whatsapp</code>.
+                                </div>
                             </div>
-                        </div>
+                        </setting>
 
-                        <!-- WhatsApp -->
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane">
-                                <field name="odoopilot_whatsapp_enabled"/>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                <label for="odoopilot_whatsapp_enabled" string="Enable WhatsApp"/>
-                                <div class="text-muted">Activate the WhatsApp Cloud API bot.</div>
-                                <div class="content-group" invisible="not odoopilot_whatsapp_enabled">
-                                    <div class="mt8">
-                                        <field name="odoopilot_whatsapp_phone_number_id" string="Phone Number ID" placeholder="123456789012345"/>
-                                    </div>
-                                    <div class="mt4">
-                                        <field name="odoopilot_whatsapp_access_token" string="Access Token" widget="password" placeholder="EAABxx..."/>
-                                    </div>
-                                    <div class="mt4">
-                                        <field name="odoopilot_whatsapp_verify_token" string="Verify Token" widget="password" placeholder="any random string"/>
-                                    </div>
-                                    <div class="mt4">
-                                        <field name="odoopilot_whatsapp_app_secret" string="App Secret (required for security)" widget="password" placeholder="from Meta App Dashboard -> Settings -> Basic"/>
-                                    </div>
-                                    <div class="mt8">
-                                        <button name="action_test_whatsapp_connection" type="object" string="Test connection" class="btn btn-secondary btn-sm"/>
-                                    </div>
-                                    <div class="alert alert-warning mt4 p-2" role="alert" style="font-size:0.85em;">
-                                        <strong>App Secret is required.</strong> Every webhook POST is verified with HMAC-SHA256 against the <code>X-Hub-Signature-256</code> header Meta sends. Without it, the webhook rejects all incoming traffic.
-                                    </div>
-                                    <div class="text-muted mt4">
-                                        Set the webhook URL in Meta Developer console to <code>YOUR_ODOO_URL/odoopilot/webhook/whatsapp</code>
-                                    </div>
+                        <setting id="odoopilot_web_chat_setting" string="In-Odoo web chat" help="Show a chatbot icon in every Odoo page.">
+                            <field name="odoopilot_web_chat_enabled"/>
+                            <div class="content-group" invisible="not odoopilot_web_chat_enabled">
+                                <div class="small text-muted mt-2">
+                                    The widget appears in the systray and runs the same agent loop as Telegram and WhatsApp. The linked user is whoever is logged into Odoo, with no /link flow needed.
+                                </div>
+                                <div class="small text-muted mt-1">
+                                    Toggle off to hide the widget from every Odoo user. Already-open tabs need a page reload.
                                 </div>
                             </div>
-                        </div>
+                        </setting>
+                    </block>
 
-                        <!-- LLM -->
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane"/>
-                            <div class="o_setting_right_pane">
-                                <label string="AI Provider"/>
-                                <div class="text-muted">Choose which LLM powers the bot.</div>
-                                <div class="mt8">
-                                    <field name="odoopilot_llm_provider" string="Provider"/>
+                    <block title="AI" name="odoopilot_ai">
+                        <setting id="odoopilot_llm_setting" string="AI Provider" help="Choose which LLM powers the bot.">
+                            <div class="content-group">
+                                <div class="row mt-3 align-items-center">
+                                    <label for="odoopilot_llm_provider" string="Provider" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_llm_provider" class="w-100"/>
+                                    </div>
                                 </div>
-                                <div class="mt4">
-                                    <field name="odoopilot_llm_api_key" string="API Key" widget="password" placeholder="sk-..."/>
+                                <div class="row mt-2 align-items-center">
+                                    <label for="odoopilot_llm_api_key" string="API key" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_llm_api_key" widget="password" placeholder="sk-..., gsk_..., or provider key" class="w-100"/>
+                                    </div>
                                 </div>
-                                <div class="mt4">
-                                    <field name="odoopilot_llm_model" string="Model override" placeholder="leave blank for default"/>
+                                <div class="row mt-2 align-items-center">
+                                    <label for="odoopilot_llm_model" string="Model override" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_llm_model" placeholder="Leave blank for provider default" class="w-100"/>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </setting>
 
-                        <!-- Voice / Speech-to-Text -->
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane">
-                                <field name="odoopilot_voice_enabled"/>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                <label for="odoopilot_voice_enabled" string="Voice messages"/>
-                                <div class="text-muted">
-                                    Transcribe Telegram and WhatsApp voice notes via Whisper, then run them through the agent like typed text.
-                                </div>
-                                <div class="content-group" invisible="not odoopilot_voice_enabled">
-                                    <div class="mt8">
-                                        <field name="odoopilot_stt_provider" string="STT Provider"/>
-                                    </div>
-                                    <div class="mt4">
-                                        <field name="odoopilot_stt_api_key" string="STT API Key" widget="password" placeholder="gsk_... or sk-..."/>
-                                    </div>
-                                    <div class="mt4">
-                                        <field name="odoopilot_stt_model" string="STT Model" placeholder="leave blank for default"/>
-                                    </div>
-                                    <div class="mt4">
-                                        <field name="odoopilot_voice_max_duration_seconds" string="Max duration (s)"/>
-                                    </div>
-                                    <div class="text-muted mt4">
-                                        Voice messages longer than the cap are rejected before download. Default: 60s. Bandwidth + STT cost protection.
+                        <setting id="odoopilot_voice_setting" string="Voice messages" help="Transcribe Telegram and WhatsApp voice notes before running the agent.">
+                            <field name="odoopilot_voice_enabled"/>
+                            <div class="content-group" invisible="not odoopilot_voice_enabled">
+                                <div class="row mt-3 align-items-center">
+                                    <label for="odoopilot_stt_provider" string="Speech-to-text provider" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_stt_provider" class="w-100"/>
                                     </div>
                                 </div>
+                                <div class="row mt-2 align-items-center">
+                                    <label for="odoopilot_stt_api_key" string="Speech-to-text API key" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_stt_api_key" widget="password" placeholder="gsk_... or sk-..." class="w-100"/>
+                                    </div>
+                                </div>
+                                <div class="row mt-2 align-items-center">
+                                    <label for="odoopilot_stt_model" string="Speech-to-text model" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_stt_model" placeholder="Leave blank for provider default" class="w-100"/>
+                                    </div>
+                                </div>
+                                <div class="row mt-2 align-items-center">
+                                    <label for="odoopilot_voice_max_duration_seconds" string="Max duration" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <field name="odoopilot_voice_max_duration_seconds" class="w-auto"/>
+                                            <span class="text-muted">seconds</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="small text-muted mt-2">
+                                    Voice messages longer than the cap are rejected before download. Default: 60 seconds.
+                                </div>
                             </div>
-                        </div>
+                        </setting>
+                    </block>
 
-                        <!-- In-Odoo Web Chat widget -->
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane">
-                                <field name="odoopilot_web_chat_enabled"/>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                <label for="odoopilot_web_chat_enabled" string="In-Odoo web chat"/>
-                                <div class="text-muted">
-                                    Show a chatbot icon in every Odoo page so employees can chat with OdooPilot from the browser, without leaving the Odoo tab.
-                                </div>
-                                <div class="content-group" invisible="not odoopilot_web_chat_enabled">
-                                    <div class="text-muted mt8">
-                                        The widget appears in the systray (top-right) and runs the same agent loop as Telegram / WhatsApp. The linked user is whoever is logged into Odoo &#8212; no <code>/link</code> flow needed. Same write-confirmation gate, same audit log, same rate limit.
-                                    </div>
-                                    <div class="text-muted mt4">
-                                        Toggle off to hide the widget from every Odoo user (a page reload is required for the change to take effect on already-open tabs).
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Notifications -->
-                    <h2 class="mt16">Proactive Notifications</h2>
-                    <div class="row mt16 o_settings_container" invisible="not odoopilot_telegram_enabled">
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane">
-                                <field name="odoopilot_notify_task_digest"/>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                <label for="odoopilot_notify_task_digest" string="Daily task digest"/>
-                                <div class="text-muted">
-                                    Send each linked user their overdue and today's tasks every morning at 08:00 UTC.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-lg-6 o_setting_box">
-                            <div class="o_setting_left_pane">
-                                <field name="odoopilot_notify_invoice_alerts"/>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                <label for="odoopilot_notify_invoice_alerts" string="Overdue invoice alerts"/>
-                                <div class="text-muted">
-                                    Send users with accounting access a daily overdue invoice summary at 09:00 UTC.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt8" invisible="not odoopilot_telegram_enabled">
-                        <div class="col-12">
-                            <div class="text-muted">
-                                <i class="fa fa-info-circle"/> Notification times are in UTC. Cron schedules can be adjusted under <b>Settings → Technical → Scheduled Actions</b>.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt8" invisible="odoopilot_telegram_enabled">
-                        <div class="col-12">
+                    <block title="Proactive Notifications" name="odoopilot_notifications">
+                        <setting id="odoopilot_task_digest_setting" string="Daily task digest" help="Send linked users their overdue and today's tasks every morning at 08:00 UTC." invisible="not odoopilot_telegram_enabled">
+                            <field name="odoopilot_notify_task_digest"/>
+                        </setting>
+                        <setting id="odoopilot_invoice_alerts_setting" string="Overdue invoice alerts" help="Send users with accounting access a daily overdue invoice summary at 09:00 UTC." invisible="not odoopilot_telegram_enabled">
+                            <field name="odoopilot_notify_invoice_alerts"/>
+                        </setting>
+                        <setting id="odoopilot_notifications_disabled_setting" string="Telegram required" help="Enable Telegram above to configure proactive notifications." invisible="odoopilot_telegram_enabled">
                             <div class="alert alert-info" role="alert">
                                 Enable Telegram above to configure proactive notifications.
                             </div>
+                        </setting>
+                        <div class="small text-muted mt-2" invisible="not odoopilot_telegram_enabled">
+                            <i class="fa fa-info-circle"/> Notification times are in UTC. Cron schedules can be adjusted under <b>Settings - Technical - Scheduled Actions</b>.
                         </div>
-                    </div>
-                    <!-- ── Author + community strip ── -->
-                    <div class="row mt24">
-                        <div class="col-12">
-                            <div style="background:#f8f5ff; border:1px solid #e9d5ff; border-radius:8px; padding:16px 20px;">
-                                <div style="font-size:0.92em; color:#374151; margin-bottom:10px;">
-                                    <span style="font-size:1.2em; margin-right:6px;">🤖</span>
-                                    <strong>OdooPilot</strong> is a free, open-source app developed and maintained by
-                                    <a href="https://github.com/arunrajiah" target="_blank" rel="noopener noreferrer" style="color:#7c3aed; font-weight:600; text-decoration:none;">arunrajiah</a>.
-                                    If it saves your team time, please consider supporting the project.
+                    </block>
+
+                    <block title="Project" name="odoopilot_project">
+                        <setting id="odoopilot_project_links" string="OdooPilot" help="Free, open-source app developed and maintained by arunrajiah.">
+                            <div class="content-group">
+                                <div class="mt-2 d-flex flex-wrap gap-2">
+                                    <a href="https://github.com/sponsors/arunrajiah" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Sponsor on GitHub</a>
+                                    <a href="https://github.com/arunrajiah/odoopilot/discussions/new?category=ideas" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Feedback and ideas</a>
+                                    <a href="https://github.com/arunrajiah/odoopilot/issues/new/choose" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Report a bug</a>
+                                    <a href="https://github.com/arunrajiah/odoopilot/security/advisories/new" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Report a security issue</a>
+                                    <a href="mailto:arunrajiah@gmail.com?subject=OdooPilot%20support" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Email support</a>
                                 </div>
-
-                                <!-- Action links: Sponsor / Feedback / Support / Security -->
-                                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:6px;">
-
-                                    <a href="https://github.com/sponsors/arunrajiah" target="_blank" rel="noopener noreferrer"
-                                       style="flex:1 1 200px; min-width:180px; background:#fff; border:1px solid #e9d5ff; border-radius:6px; padding:10px 14px; text-decoration:none; color:#374151; display:flex; align-items:center; gap:10px;">
-                                        <span style="font-size:1.2em;">♥</span>
-                                        <div>
-                                            <div style="font-size:0.88em; font-weight:700; color:#7c3aed;">Sponsor on GitHub</div>
-                                            <div style="font-size:0.78em; color:#6b7280;">Keep new features and Odoo version support coming</div>
-                                        </div>
-                                    </a>
-
-                                    <a href="https://github.com/arunrajiah/odoopilot/discussions/new?category=ideas" target="_blank" rel="noopener noreferrer"
-                                       style="flex:1 1 200px; min-width:180px; background:#fff; border:1px solid #e9d5ff; border-radius:6px; padding:10px 14px; text-decoration:none; color:#374151; display:flex; align-items:center; gap:10px;">
-                                        <span style="font-size:1.2em;">💬</span>
-                                        <div>
-                                            <div style="font-size:0.88em; font-weight:700; color:#7c3aed;">Feedback &amp; ideas</div>
-                                            <div style="font-size:0.78em; color:#6b7280;">Suggest features in GitHub Discussions</div>
-                                        </div>
-                                    </a>
-
-                                    <a href="https://github.com/arunrajiah/odoopilot/issues/new/choose" target="_blank" rel="noopener noreferrer"
-                                       style="flex:1 1 200px; min-width:180px; background:#fff; border:1px solid #e9d5ff; border-radius:6px; padding:10px 14px; text-decoration:none; color:#374151; display:flex; align-items:center; gap:10px;">
-                                        <span style="font-size:1.2em;">🛠</span>
-                                        <div>
-                                            <div style="font-size:0.88em; font-weight:700; color:#7c3aed;">Report a bug</div>
-                                            <div style="font-size:0.78em; color:#6b7280;">Open an issue on GitHub</div>
-                                        </div>
-                                    </a>
-
-                                    <a href="https://github.com/arunrajiah/odoopilot/security/advisories/new" target="_blank" rel="noopener noreferrer"
-                                       style="flex:1 1 200px; min-width:180px; background:#fff; border:1px solid #e9d5ff; border-radius:6px; padding:10px 14px; text-decoration:none; color:#374151; display:flex; align-items:center; gap:10px;">
-                                        <span style="font-size:1.2em;">🔒</span>
-                                        <div>
-                                            <div style="font-size:0.88em; font-weight:700; color:#7c3aed;">Report a security issue</div>
-                                            <div style="font-size:0.78em; color:#6b7280;">Private disclosure via GitHub Security</div>
-                                        </div>
-                                    </a>
-
-                                    <a href="mailto:arunrajiah@gmail.com?subject=OdooPilot%20support" target="_blank" rel="noopener noreferrer"
-                                       style="flex:1 1 200px; min-width:180px; background:#fff; border:1px solid #e9d5ff; border-radius:6px; padding:10px 14px; text-decoration:none; color:#374151; display:flex; align-items:center; gap:10px;">
-                                        <span style="font-size:1.2em;">📧</span>
-                                        <div>
-                                            <div style="font-size:0.88em; font-weight:700; color:#7c3aed;">Email support</div>
-                                            <div style="font-size:0.78em; color:#6b7280;">arunrajiah@gmail.com</div>
-                                        </div>
-                                    </a>
-
-                                </div>
-
-                                <!-- Quick reference links -->
-                                <div style="margin-top:12px; padding-top:10px; border-top:1px solid #e9d5ff; font-size:0.82em; color:#6b7280;">
-                                    <a href="https://github.com/arunrajiah/odoopilot" target="_blank" rel="noopener noreferrer" style="color:#7c3aed; text-decoration:none; margin-right:14px;">📦 Source code</a>
-                                    <a href="https://github.com/arunrajiah/odoopilot/blob/main/README.md" target="_blank" rel="noopener noreferrer" style="color:#7c3aed; text-decoration:none; margin-right:14px;">📖 Documentation</a>
-                                    <a href="https://github.com/arunrajiah/odoopilot/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" style="color:#7c3aed; text-decoration:none; margin-right:14px;">📜 Changelog</a>
-                                    <a href="https://github.com/arunrajiah/odoopilot/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer" style="color:#7c3aed; text-decoration:none;">🛡 Security policy</a>
+                                <div class="mt-2">
+                                    <a href="https://github.com/arunrajiah/odoopilot" target="_blank" rel="noopener noreferrer" class="me-3">Source code</a>
+                                    <a href="https://github.com/arunrajiah/odoopilot/blob/main/README.md" target="_blank" rel="noopener noreferrer" class="me-3">Documentation</a>
+                                    <a href="https://github.com/arunrajiah/odoopilot/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="me-3">Changelog</a>
+                                    <a href="https://github.com/arunrajiah/odoopilot/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">Security policy</a>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                </div>
+                        </setting>
+                    </block>
+                </app>
             </xpath>
         </field>
     </record>
