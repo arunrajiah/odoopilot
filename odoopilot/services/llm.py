@@ -36,7 +36,7 @@ def _parse_tool_args(raw: str) -> dict:
 
 def _parse_failed_generation_tool_call(failed_generation: str, tool_names: set):
     """Recover a tool call from Groq's tool_use_failed error detail."""
-    if not failed_generation:
+    if not isinstance(failed_generation, str) or not failed_generation:
         return None
     patterns = (
         r"<function=([A-Za-z_][A-Za-z0-9_]*)>(.*?)</function>",

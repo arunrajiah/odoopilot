@@ -195,6 +195,40 @@ class TestOpenAICompatToolCallParsing(TransactionCase):
             with self.assertRaises(HTTPError):
                 client.chat([{"role": "user", "content": "one sale"}], tools)
 
+    def test_groq_structured_failed_generation_still_raises_http_error(self):
+        # Groq's failed_generation field is normally a string of raw
+        # <function=...> markup, but a structured (non-string) payload
+        # must not crash re.search with a TypeError -- that would mask
+        # the original HTTPError and its preserved response body behind
+        # an unrelated traceback.
+        client = LLMClient("groq", "gsk_test")
+        tools = [
+            {
+                "name": "get_sale_orders",
+                "description": "List sale orders.",
+                "parameters": {"type": "object", "properties": {}},
+            }
+        ]
+
+        class DummyResponse:
+            text = '{"error":{"code":"tool_use_failed"}}'
+
+            def raise_for_status(self):
+                raise HTTPError("400 Client Error")
+
+            def json(self):
+                return {
+                    "error": {
+                        "code": "tool_use_failed",
+                        "failed_generation": {"detail": "validation failed"},
+                    }
+                }
+
+        with patch("odoo.addons.odoopilot.services.llm.requests.post") as post:
+            post.return_value = DummyResponse()
+            with self.assertRaises(HTTPError):
+                client.chat([{"role": "user", "content": "one sale"}], tools)
+
 
 class TestLLMHTTPErrorScrubbing(TransactionCase):
     def test_http_error_includes_body_but_redacts_api_key(self):
