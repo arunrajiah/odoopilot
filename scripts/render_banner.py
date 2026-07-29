@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render odoopilot/static/description/banner_source.html to banner.png.
+"""Render odoopilot/static/description/banner_source.html to banner.png (1270x760).
 
 Run from the repo root::
 
@@ -19,8 +19,8 @@ import sys
 ROOT = pathlib.Path(__file__).parent.parent
 SOURCE = ROOT / "odoopilot/static/description/banner_source.html"
 TARGET = ROOT / "odoopilot/static/description/banner.png"
-WIDTH = 1200
-HEIGHT = 630
+WIDTH = 1270
+HEIGHT = 760
 
 
 def main() -> int:
