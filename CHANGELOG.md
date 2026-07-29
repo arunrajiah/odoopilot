@@ -8,6 +8,27 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [18.0.11.0.0] — 2026-07-29 — Launch visuals in the App Store listing
+
+Listing assets only. No Python, no schema, no behaviour change — every
+tool, model and migration is byte-identical to 18.0.10.0.0. The version
+bump exists so the Odoo Apps Store picks up the new description page.
+
+### Added
+* `static/description/demo.gif` — animated walkthrough of a leave
+  request, from the first Telegram message through the Yes/No
+  confirmation to the created `hr.leave` record.
+* `static/description/screenshot_01..05.png` — five stills covering the
+  core pitch, the leave flow, the write-confirmation and audit model,
+  the 19 tools across 8 Odoo apps, and the LLM provider choice.
+
+### Changed
+* The "See it in action" section now leads with the animated demo. Its
+  intro line no longer describes the two chat mockups as real captured
+  conversations, since they are illustrative examples.
+
+---
+
 ## [18.0.10.0.0] — 2026-05-16 — Multilingual App Store description (FR + ES) + README badges (backport from 17.0.20.0.0)
 
 Surfaces OdooPilot to French and Spanish-speaking operators searching
