@@ -8,6 +8,30 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.24.0.0] — 2026-07-29 — Launch visuals in the App Store listing
+
+Documentation and listing assets only. No Python, no schema, no
+behaviour change — every tool, model and migration is byte-identical to
+17.0.23.0.0. The version bump exists solely so the Odoo Apps Store
+picks up the new description page.
+
+### Added
+* `static/description/demo.gif` — an animated walkthrough of a leave
+  request from the first Telegram message through the Yes/No
+  confirmation to the created `hr.leave` record.
+* `static/description/screenshot_01..05.png` — five stills covering the
+  core pitch, the leave flow, the write-confirmation and audit model,
+  the 19 tools across 8 Odoo apps, and the LLM provider choice.
+* A Screenshots section in `README.md`, and the demo GIF near the top.
+
+### Changed
+* The "See it in action" section of the App Store description now leads
+  with the animated demo. Its intro line no longer calls the two chat
+  mockups "real conversations", since they are illustrative examples
+  rather than captured transcripts.
+
+---
+
 ## [17.0.23.0.0] — 2026-07-11 — Pagination transparency + Telegram typing indicator
 
 Two UX fixes for existing operators, both additive and backward
