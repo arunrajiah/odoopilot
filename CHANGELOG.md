@@ -8,6 +8,22 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [18.0.13.0.0] — 2026-07-29 — Remove the testimonials section
+
+Listing copy only. No Python, no schema, no behaviour change.
+
+### Removed
+* The "What users are saying" section of the App Store description, and
+  its four quotes credited to a GitHub discussion, direct feedback, an
+  Odoo Community reviewer and a GitHub star. The module is at Beta with
+  a handful of public discussions, so quotes at that volume and
+  specificity were not something a reader could verify, and the listing
+  is stronger without social proof than with proof that invites doubt.
+  The call to share experience went with it; the repo's Discussions tab
+  is linked from the Resources section already.
+
+---
+
 ## [18.0.12.0.0] — 2026-07-29 — One cover image instead of two
 
 Listing assets only. No Python, no schema, no behaviour change.
