@@ -13,6 +13,12 @@
 
 **Your team uses Odoo — without logging in to Odoo.**
 
+<p align="center">
+  <img src="odoopilot/static/description/demo.gif" alt="An employee types a leave request in Telegram, OdooPilot confirms the resolved record, and the request is filed in Odoo" width="720">
+  <br>
+  <em>One message, one tap, and the leave request exists in Odoo.</em>
+</p>
+
 OdooPilot gives every employee an AI assistant on Telegram or WhatsApp that connects to the
 same Odoo instance, scoped to the same permissions they already have. They apply for leave,
 approve requests, check tasks, update the CRM pipeline, and validate stock moves — by chatting
@@ -53,6 +59,17 @@ Works on **Telegram** and **WhatsApp**. Supports **15 languages**. LGPL-3 open-s
 - **Self-hosted** — pure Odoo addon, runs entirely inside your instance, no separate service
 - **Auditable** — immutable log of every AI action (timestamp, user, tool, args, result)
 - **Open source** — LGPL-3, free to install, fork, and extend
+
+---
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Your team uses Odoo without logging in to Odoo](odoopilot/static/description/screenshot_01.png) | ![Time off in two messages, with inline manager approval](odoopilot/static/description/screenshot_02.png) |
+| ![Every write asks first, every action is logged](odoopilot/static/description/screenshot_03.png) | ![19 ORM-backed tools across 8 Odoo apps](odoopilot/static/description/screenshot_04.png) |
+
+![Choose your LLM: Claude, GPT-4o, Groq or a fully local Ollama](odoopilot/static/description/screenshot_05.png)
 
 ---
 
