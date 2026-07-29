@@ -17,7 +17,11 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install ruff
-        run: pip install ruff
+        # Pinned to match .pre-commit-config.yaml's `rev: v0.4.4` so CI and
+        # the local pre-commit hook always agree — an unpinned install here
+        # previously let a new ruff release (which added default-enabled
+        # rules) turn CI red with no code change and no local repro.
+        run: pip install ruff==0.4.4
       - name: Check formatting
         run: ruff format --check odoopilot/
       - name: Lint
