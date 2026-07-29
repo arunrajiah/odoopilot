@@ -71,6 +71,17 @@ class TelegramClient:
             "answerCallbackQuery", {"callback_query_id": callback_query_id}
         )
 
+    def send_typing_action(self, chat_id: str) -> dict:
+        """Show the "typing…" indicator while a slow LLM call is in flight.
+
+        Best-effort: ``_call`` already swallows and logs any failure and
+        returns ``{}``, so a Telegram hiccup here never blocks or breaks
+        message handling. Telegram clears the indicator itself after ~5s
+        or on the next sendMessage, whichever comes first -- no follow-up
+        call needed.
+        """
+        return self._call("sendChatAction", {"chat_id": chat_id, "action": "typing"})
+
     # ------------------------------------------------------------------
     # Voice / audio download
     # ------------------------------------------------------------------

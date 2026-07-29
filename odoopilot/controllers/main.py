@@ -255,6 +255,10 @@ class OdooPilotController(http.Controller):
         # business data. Tools, agent loop, audit writes — all run with
         # this user's record-rule permissions, never as superuser.
         user_env = sudo_env(user=identity.user_id.id)
+        # Best-effort UX cue: the LLM call below can take several seconds.
+        # A failure here is swallowed by TelegramClient and never blocks
+        # message handling.
+        tg.send_typing_action(chat_id)
         agent = OdooPilotAgent(user_env, tg, channel="telegram")
         agent.handle_message(chat_id, text)
 

@@ -28,12 +28,20 @@ This module bounds both:
 Configuration
 -------------
 
-Three ``ir.config_parameter`` keys override the defaults; values are read
-once at first use and re-read after an Odoo restart:
+``ir.config_parameter`` keys override the defaults; values are read once
+at first use and re-read after an Odoo restart:
 
 * ``odoopilot.rate_limit_per_hour`` (default ``30``)
 * ``odoopilot.rate_limit_window_seconds`` (default ``3600``)
 * ``odoopilot.worker_pool_size`` (default ``8``)
+* ``odoopilot.rate_limiter_backend`` -- ``"memory"`` (default) or
+  ``"redis"``. In-process limits each Odoo HTTP worker independently, so
+  a multi-worker deployment's real per-user cap is
+  ``limit * worker_count``. ``"redis"`` shares one counter across every
+  worker (and every Odoo process) for a hard global cap -- see
+  :class:`RedisRateLimiter`.
+* ``odoopilot.redis_url`` (default ``redis://localhost:6379/0``) -- only
+  read when the backend above is ``"redis"``.
 """
 
 from __future__ import annotations
@@ -41,9 +49,15 @@ from __future__ import annotations
 import logging
 import threading
 import time
+import uuid
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable
+
+try:
+    import redis as _redis
+except ImportError:  # pragma: no cover -- exercised via _build_redis_limiter tests
+    _redis = None
 
 _logger = logging.getLogger(__name__)
 
@@ -124,6 +138,104 @@ class RateLimiter:
             del self._buckets[k]
 
 
+class RedisRateLimiter:
+    """Sliding-window rate limiter shared across every Odoo worker via Redis.
+
+    Same ``allow(channel, chat_id) -> bool`` interface as :class:`RateLimiter`,
+    so :func:`_ensure_initialized` can swap one for the other without the
+    call sites in ``controllers/main.py`` knowing the difference.
+
+    The prune-count-add sequence runs as a single Lua script (``EVAL``) so
+    it is atomic on the Redis side. Without that, two Odoo workers racing
+    the same (channel, chat_id) key could both read a count under the
+    limit and both be let through, silently doubling the effective cap --
+    exactly the multi-worker gap this backend exists to close.
+
+    Redis reachability problems (timeout, connection refused, etc.) fail
+    open: the message is allowed through and a warning is logged. The
+    alternative -- blocking the bot entirely because the rate limiter's
+    dependency is down -- is worse than a temporarily unbounded rate,
+    which the bounded worker pool still caps.
+    """
+
+    _SCRIPT = """
+    local key = KEYS[1]
+    local now = tonumber(ARGV[1])
+    local window = tonumber(ARGV[2])
+    local limit = tonumber(ARGV[3])
+    local member = ARGV[4]
+    redis.call('ZREMRANGEBYSCORE', key, '-inf', now - window)
+    if redis.call('ZCARD', key) < limit then
+        redis.call('ZADD', key, now, member)
+        redis.call('EXPIRE', key, window)
+        return 1
+    end
+    return 0
+    """
+
+    def __init__(
+        self, client, limit: int = _DEFAULT_LIMIT, window: int = _DEFAULT_WINDOW
+    ):
+        self._client = client
+        self._limit = max(1, int(limit))
+        self._window = max(1, int(window))
+        self._eval = client.register_script(self._SCRIPT)
+
+    def allow(self, channel: str, chat_id: str) -> bool:
+        if not channel or not chat_id:
+            # Same fail-open contract as RateLimiter.allow: no way to
+            # attribute the message, so let it through.
+            return True
+        now = time.time()
+        # Unique member per call -- ZADD keyed only on `now` would collapse
+        # concurrent requests in the same millisecond into one entry.
+        member = f"{now}:{uuid.uuid4().hex}"
+        key = f"odoopilot:ratelimit:{channel}:{chat_id}"
+        try:
+            allowed = bool(
+                self._eval(keys=[key], args=[now, self._window, self._limit, member])
+            )
+        except Exception:
+            _logger.warning(
+                "OdooPilot: Redis rate limiter unreachable for %s/%s -- "
+                "failing open (message allowed through, unlimited)",
+                channel,
+                chat_id,
+                exc_info=True,
+            )
+            return True
+        return allowed
+
+
+def _build_redis_limiter(url: str, limit: int, window: int):
+    """Build a Redis-backed limiter, or fall back to in-process on failure.
+
+    Falls back rather than raising because a misconfigured/unreachable
+    Redis at startup should degrade the rate limiter, not take down
+    webhook processing for every operator who hasn't set up Redis.
+    """
+    if _redis is None:
+        _logger.error(
+            "OdooPilot: rate limiter backend is 'redis' but the `redis` "
+            "python package is not installed on this Odoo server; "
+            "falling back to in-process rate limiting (per-worker, not "
+            "shared). Install it with `pip install redis`."
+        )
+        return RateLimiter(limit, window)
+    try:
+        client = _redis.Redis.from_url(url, socket_timeout=2, socket_connect_timeout=2)
+        client.ping()
+    except Exception:
+        _logger.error(
+            "OdooPilot: could not reach Redis at %s; falling back to "
+            "in-process rate limiting (per-worker, not shared).",
+            url,
+            exc_info=True,
+        )
+        return RateLimiter(limit, window)
+    return RedisRateLimiter(client, limit, window)
+
+
 class BoundedPool:
     """Bounded thread pool with non-blocking submit.
 
@@ -163,7 +275,7 @@ class BoundedPool:
 
 # Module-level singletons. Initialised lazily from ir.config_parameter on
 # first use; an Odoo restart re-reads the values.
-_limiter: RateLimiter | None = None
+_limiter: RateLimiter | RedisRateLimiter | None = None
 _pool: BoundedPool | None = None
 _init_lock = threading.Lock()
 
@@ -179,7 +291,14 @@ def _ensure_initialized(env) -> None:
             window = int(
                 cfg.get_param("odoopilot.rate_limit_window_seconds", _DEFAULT_WINDOW)
             )
-            _limiter = RateLimiter(limit, window)
+            backend = cfg.get_param("odoopilot.rate_limiter_backend", "memory")
+            if backend == "redis":
+                redis_url = (
+                    cfg.get_param("odoopilot.redis_url") or "redis://localhost:6379/0"
+                )
+                _limiter = _build_redis_limiter(redis_url, limit, window)
+            else:
+                _limiter = RateLimiter(limit, window)
         if _pool is None:
             size = int(cfg.get_param("odoopilot.worker_pool_size", _DEFAULT_POOL_SIZE))
             _pool = BoundedPool(size)
@@ -222,11 +341,19 @@ def _reset_for_tests(
     limit: int | None = None,
     window: int | None = None,
     pool_size: int | None = None,
+    limiter: object | None = None,
 ) -> None:
-    """Replace the module-level singletons. Tests only."""
+    """Replace the module-level singletons. Tests only.
+
+    ``limiter`` lets a test install a pre-built limiter directly (e.g. a
+    :class:`RedisRateLimiter` wired to a fake client) instead of going
+    through the ``limit``/``window`` in-process constructor.
+    """
     global _limiter, _pool
     with _init_lock:
-        if limit is not None or window is not None:
+        if limiter is not None:
+            _limiter = limiter
+        elif limit is not None or window is not None:
             _limiter = RateLimiter(
                 limit if limit is not None else _DEFAULT_LIMIT,
                 window if window is not None else _DEFAULT_WINDOW,

@@ -8,6 +8,66 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.23.0.0] — 2026-07-11 — Pagination transparency + Telegram typing indicator
+
+Two UX fixes for existing operators, both additive and backward
+compatible — behaviour is byte-identical to before for every call that
+doesn't hit a full page or isn't on Telegram.
+
+### Added
+* Every capped read tool (`get_my_tasks`, `get_sale_orders`,
+  `get_crm_leads`, `get_stock_products`, `get_invoices`,
+  `get_purchase_orders`, `get_employees`, `get_my_leaves`) now accepts
+  an `offset` parameter and appends a `...N more — ask to see the next
+  10` hint when a full page is returned and more rows exist. Previously
+  a user with 40 overdue invoices saw "Invoices (10):" with no
+  indication 30 more existed. The extra `search_count` query only runs
+  when a page comes back full, so the common case (fewer results than
+  the cap) is unaffected.
+* Telegram now sends a "typing…" indicator (`sendChatAction`) right
+  before the LLM call, so a multi-second response no longer looks like
+  silence. Best-effort: a Telegram API failure here is logged and
+  swallowed, never raised into message handling.
+
+### Why this matters
+Both gaps were live-user-visible: silent result truncation looked like
+"that's everything," and a slow LLM turn on Telegram looked like the
+bot wasn't responding. Neither required a schema change or touched the
+write-confirmation/security path.
+
+---
+
+## [17.0.22.0.0] — 2026-07-11 — Redis-backed rate limiter
+
+Closes the roadmap item: the built-in rate limiter was in-process per
+Odoo HTTP worker, so a multi-worker deployment's real per-user cap was
+`limit x worker count` instead of the configured limit. Operators who
+need a hard global cap across workers (and across multiple Odoo
+processes) can now opt in to a Redis-backed limiter.
+
+### Added
+* `RedisRateLimiter` in `services/throttle.py` — same sliding-window
+  `allow(channel, chat_id)` interface as the existing in-process
+  limiter, backed by an atomic Lua script (`ZREMRANGEBYSCORE` +
+  `ZCARD` + `ZADD` + `EXPIRE`) so concurrent workers can't race past
+  the limit
+  * `odoopilot.rate_limiter_backend` config parameter, added to
+    Settings as **Rate Limiter Backend** (`memory` default / `redis`)
+  * `odoopilot.redis_url` config parameter, added to Settings as
+    **Redis URL**
+  * **Test connection** button (`action_test_redis_connection`) that
+    pings the configured Redis server
+  * `odoopilot.rate_limit_per_hour` is now also exposed directly in
+    Settings (previously System Parameters only)
+* Graceful degradation: if the `redis` Python package isn't installed,
+  or the configured Redis server is unreachable at startup, OdooPilot
+  logs an error and falls back to the in-process limiter rather than
+  failing to start. If Redis becomes unreachable mid-operation, the
+  limiter fails open (allows the message through) and logs a warning
+  rather than blocking the bot.
+
+---
+
 ## [17.0.20.0.0] — 2026-05-16 — Multilingual App Store description (FR + ES) + README badges
 
 Surfaces OdooPilot to French and Spanish-speaking operators searching

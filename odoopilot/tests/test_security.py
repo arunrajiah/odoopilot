@@ -33,6 +33,7 @@ exercise the same helpers the controllers call.
 
 import hashlib
 import hmac
+from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
 
@@ -347,6 +348,125 @@ class TestRateLimiterBucketGC(TransactionCase):
         )
 
 
+class _FakeRedisClient:
+    """Minimal in-memory stand-in for redis-py's ZSET + Lua-script surface.
+
+    Reproduces the exact semantics RedisRateLimiter's Lua script relies on
+    (prune -> count -> conditionally add + expire) so the Python-side
+    wiring can be tested without a real Redis server. It intentionally
+    does not exercise the Lua script text itself -- that's covered by
+    manual testing against a real Redis instance.
+    """
+
+    def __init__(self):
+        self._zsets: dict[str, dict[str, float]] = {}
+
+    def register_script(self, script):
+        def _run(keys, args):
+            key = keys[0]
+            now, window, limit, member = args
+            now, window, limit = float(now), float(window), int(limit)
+            bucket = self._zsets.setdefault(key, {})
+            cutoff = now - window
+            for member_key, score in list(bucket.items()):
+                if score < cutoff:
+                    del bucket[member_key]
+            if len(bucket) < limit:
+                bucket[member] = now
+                return 1
+            return 0
+
+        return _run
+
+
+class _BrokenRedisClient:
+    """Simulates an unreachable Redis server for fail-open testing."""
+
+    def register_script(self, script):
+        def _run(keys, args):
+            raise ConnectionError("redis down")
+
+        return _run
+
+
+class TestRedisRateLimiter(TransactionCase):
+    """Roadmap item — Redis-backed rate limiter for multi-worker deployments."""
+
+    def test_under_limit_allows(self):
+        rl = throttle.RedisRateLimiter(_FakeRedisClient(), limit=3, window=60)
+        for _ in range(3):
+            self.assertTrue(rl.allow("telegram", "r-1"))
+
+    def test_over_limit_blocks(self):
+        rl = throttle.RedisRateLimiter(_FakeRedisClient(), limit=2, window=60)
+        rl.allow("telegram", "r-2")
+        rl.allow("telegram", "r-2")
+        self.assertFalse(rl.allow("telegram", "r-2"))
+
+    def test_per_chat_isolation(self):
+        rl = throttle.RedisRateLimiter(_FakeRedisClient(), limit=1, window=60)
+        rl.allow("telegram", "chat-A")
+        self.assertFalse(rl.allow("telegram", "chat-A"))
+        self.assertTrue(rl.allow("telegram", "chat-B"))
+
+    def test_shared_counter_across_instances(self):
+        # Simulates two Odoo workers sharing one Redis: two
+        # RedisRateLimiter instances backed by the same client see the
+        # same counter. This is the whole point of the Redis backend --
+        # RateLimiter (in-process) cannot do this across workers.
+        client = _FakeRedisClient()
+        worker_a = throttle.RedisRateLimiter(client, limit=2, window=60)
+        worker_b = throttle.RedisRateLimiter(client, limit=2, window=60)
+        self.assertTrue(worker_a.allow("telegram", "shared"))
+        self.assertTrue(worker_b.allow("telegram", "shared"))
+        self.assertFalse(worker_a.allow("telegram", "shared"))
+
+    def test_missing_key_fails_open(self):
+        rl = throttle.RedisRateLimiter(_FakeRedisClient(), limit=1, window=60)
+        self.assertTrue(rl.allow("", "x"))
+        self.assertTrue(rl.allow("telegram", ""))
+
+    def test_redis_unreachable_fails_open(self):
+        rl = throttle.RedisRateLimiter(_BrokenRedisClient(), limit=1, window=60)
+        self.assertTrue(rl.allow("telegram", "x"))
+
+
+class TestBuildRedisLimiterFallback(TransactionCase):
+    """_build_redis_limiter degrades to in-process rather than raising."""
+
+    def test_falls_back_when_redis_package_missing(self):
+        original = throttle._redis
+        throttle._redis = None
+        try:
+            limiter = throttle._build_redis_limiter(
+                "redis://localhost:6379/0", limit=5, window=60
+            )
+        finally:
+            throttle._redis = original
+        self.assertIsInstance(limiter, throttle.RateLimiter)
+
+    def test_falls_back_when_redis_unreachable(self):
+        class _UnreachableRedisModule:
+            class Redis:
+                @staticmethod
+                def from_url(*args, **kwargs):
+                    class _Client:
+                        def ping(self):
+                            raise ConnectionError("no server")
+
+                    return _Client()
+
+        original = throttle._redis
+        throttle._redis = _UnreachableRedisModule()
+        try:
+            limiter = throttle._build_redis_limiter(
+                "redis://localhost:6379/0", limit=5, window=60
+            )
+        finally:
+            throttle._redis = original
+        self.assertIsInstance(limiter, throttle.RateLimiter)
+
+
 class TestDeliveryDedup(TransactionCase):
     """Fix #9 — webhook deliveries are deduped by external id."""
 
@@ -409,6 +529,34 @@ class TestTelegramTokenScrub(TransactionCase):
         # A client without a token configured can't scrub anything — return
         # the input unchanged. (Matches the "if not self._token" early exit.)
         self.assertEqual(TelegramClient("")._scrub("anything"), "anything")
+
+
+class TestTelegramTypingIndicator(TransactionCase):
+    """UX follow-up — "typing…" cue while a slow LLM call is in flight.
+
+    ``send_typing_action`` must call Telegram's ``sendChatAction`` with the
+    right chat/action, and — since ``_call`` already swallows and logs any
+    request failure — a broken/unreachable Telegram API must never raise
+    out of it. A raise here would break message handling for the sake of
+    a cosmetic indicator, which is the one thing this feature must not do
+    for users already relying on the bot.
+    """
+
+    def test_sends_typing_action_for_chat(self):
+        client = TelegramClient("token-X")
+        with patch("odoo.addons.odoopilot.services.telegram.requests.post") as post:
+            post.return_value.json.return_value = {"ok": True}
+            client.send_typing_action("12345")
+        called_url, kwargs = post.call_args
+        self.assertIn("sendChatAction", called_url[0])
+        self.assertEqual(kwargs["json"], {"chat_id": "12345", "action": "typing"})
+
+    def test_failure_is_swallowed_not_raised(self):
+        client = TelegramClient("token-X")
+        with patch("odoo.addons.odoopilot.services.telegram.requests.post") as post:
+            post.side_effect = ConnectionError("network down")
+            result = client.send_typing_action("12345")  # must not raise
+        self.assertEqual(result, {})
 
 
 class TestVerifyTokenConstantTimeCompare(TransactionCase):

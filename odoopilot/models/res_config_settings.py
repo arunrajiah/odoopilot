@@ -176,6 +176,36 @@ class ResConfigSettings(models.TransientModel):
         help="Send users with accounting access a daily overdue invoice summary at 09:00 UTC.",
     )
 
+    # Rate limiting
+    odoopilot_rate_limiter_backend = fields.Selection(
+        [
+            ("memory", "In-process (default, per worker)"),
+            ("redis", "Redis (shared across workers)"),
+        ],
+        string="Rate Limiter Backend",
+        config_parameter="odoopilot.rate_limiter_backend",
+        default="memory",
+        help=(
+            "In-process limits each Odoo HTTP worker independently, so a "
+            "multi-worker deployment's real per-user cap is "
+            "(limit x worker count). Redis shares one counter across all "
+            "workers for a hard global cap. Requires the `redis` Python "
+            "package and a reachable Redis server; falls back to "
+            "in-process automatically if either is unavailable."
+        ),
+    )
+    odoopilot_rate_limit_per_hour = fields.Integer(
+        string="Messages per hour per user",
+        config_parameter="odoopilot.rate_limit_per_hour",
+        default=30,
+    )
+    odoopilot_redis_url = fields.Char(
+        string="Redis URL",
+        config_parameter="odoopilot.redis_url",
+        default="redis://localhost:6379/0",
+        help="Only used when Rate Limiter Backend is set to Redis.",
+    )
+
     def action_register_telegram_webhook(self):
         """Register the Odoo webhook URL with Telegram.
 
@@ -239,6 +269,39 @@ class ResConfigSettings(models.TransientModel):
         raise UserError(
             self.env._("Telegram error: %s", data.get("description", "Unknown error"))
         )
+
+    def action_test_redis_connection(self):
+        """Ping the configured Redis server to confirm it's reachable."""
+        url = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("odoopilot.redis_url", "redis://localhost:6379/0")
+        )
+        try:
+            import redis
+        except ImportError as exc:
+            raise UserError(
+                self.env._(
+                    "The `redis` Python package is not installed on this "
+                    "Odoo server. Install it with `pip install redis` first."
+                )
+            ) from exc
+        try:
+            client = redis.Redis.from_url(
+                url, socket_timeout=3, socket_connect_timeout=3
+            )
+            client.ping()
+        except redis.RedisError as exc:
+            raise UserError(self.env._("Could not reach Redis: %s", str(exc))) from exc
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": self.env._("Connected!"),
+                "message": self.env._("Redis is reachable at %s", url),
+                "type": "success",
+            },
+        }
 
     def action_test_whatsapp_connection(self):
         """Verify the WhatsApp phone number ID and access token via Graph API."""

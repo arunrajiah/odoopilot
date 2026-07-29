@@ -9,9 +9,15 @@ Planned
   security model audited four times, ~2,500 lines of regression
   tests, and conformance with OCA module structure (this preparation).
 * Odoo 16 backport. Low priority; only if there is operator demand.
-* Redis-backed rate limiter. The current rate limit is in-process
-  per Odoo HTTP worker; multi-Odoo-worker deployments that need a
-  hard global cap would benefit from a shared backend.
+
+Done
+~~~~
+
+* Redis-backed rate limiter (17.0.22.0.0). The rate limit was
+  in-process per Odoo HTTP worker; multi-Odoo-worker deployments that
+  need a hard global cap can now opt in to a Redis-backed limiter via
+  Settings -> Rate Limiting. Falls back to the in-process limiter if
+  Redis is unavailable.
 
 Out of scope
 ~~~~~~~~~~~~
