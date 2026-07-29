@@ -374,3 +374,138 @@ class TestEmployeeIdRebinding(TransactionCase):
             [("name", "=", "Defence-in-depth test timesheet")], limit=1
         )
         self.assertEqual(latest.employee_id, self.my_emp)
+
+
+# ── Pagination transparency (read-tool "...N more" hint) ────────────────────
+
+
+class TestReadToolPaginationHelpers(TransactionCase):
+    """``_page_header``/``_paginate_note`` back every capped read tool.
+
+    ``offset=0`` -- the only value any caller used before this feature
+    existed -- must render identically to the pre-pagination format so no
+    existing conversation sees a change. The hint only appears when a page
+    comes back full *and* more rows exist beyond it. Exercised against
+    ``res.partner`` (always installed, part of ``base``) rather than an
+    optional business model, and isolated via a unique ``ilike`` domain so
+    it's unaffected by whatever demo data the test DB happens to have —
+    same approach as :class:`TestFindPartnerLimitCap`.
+    """
+
+    def test_header_without_offset_matches_pre_pagination_format(self):
+        self.assertEqual(tools._page_header("Open tasks", 0, 3), "Open tasks (3)")
+
+    def test_header_with_offset_shows_range(self):
+        self.assertEqual(tools._page_header("Open tasks", 10, 5), "Open tasks (11-15)")
+
+    def test_note_empty_when_page_not_full(self):
+        # Fewer results than the limit can never have more behind them --
+        # no search_count query should even be needed to know that.
+        note = tools._paginate_note(
+            self.env, "res.partner", [], offset=0, limit=10, shown=3
+        )
+        self.assertEqual(note, "")
+
+    def test_note_present_when_more_rows_exist(self):
+        for i in range(5):
+            self.env["res.partner"].create(
+                {
+                    "name": f"OdooPilot Pagination test partner {i}",
+                    "email": f"pagination{i}@odoopilot-test.example",
+                }
+            )
+        domain = [("name", "ilike", "OdooPilot Pagination test partner")]
+        note = tools._paginate_note(
+            self.env, "res.partner", domain, offset=0, limit=3, shown=3
+        )
+        self.assertIn("2 more", note)
+        self.assertIn("ask to see the next 3", note)
+
+    def test_note_empty_on_last_full_page(self):
+        for i in range(3):
+            self.env["res.partner"].create(
+                {
+                    "name": f"OdooPilot PaginationLast test partner {i}",
+                    "email": f"paginationlast{i}@odoopilot-test.example",
+                }
+            )
+        domain = [("name", "ilike", "OdooPilot PaginationLast test partner")]
+        # Exactly 3 total, limit 3 -- the page is full but it's also everything.
+        note = tools._paginate_note(
+            self.env, "res.partner", domain, offset=0, limit=3, shown=3
+        )
+        self.assertEqual(note, "")
+
+    def test_note_present_on_second_page(self):
+        for i in range(5):
+            self.env["res.partner"].create(
+                {
+                    "name": f"OdooPilot Pagination2 test partner {i}",
+                    "email": f"pagination2-{i}@odoopilot-test.example",
+                }
+            )
+        domain = [("name", "ilike", "OdooPilot Pagination2 test partner")]
+        # 5 total, page 2 (offset=3) with limit=3 returns 2 rows -- a
+        # partial page, so no more can exist behind it.
+        note = tools._paginate_note(
+            self.env, "res.partner", domain, offset=3, limit=3, shown=2
+        )
+        self.assertEqual(note, "")
+
+
+class TestReadToolOffsetWiring(TransactionCase):
+    """Smoke test: every read tool accepts ``offset`` end-to-end without
+    crashing. Guards against a copy-paste slip across the 8 near-identical
+    edits (e.g. a stray ``int()`` on the wrong variable, a wrong model
+    string passed to ``_paginate_note``). Skips per-tool when the
+    underlying optional module isn't installed, matching the existing
+    ``test_skipped_if_attendance_module_absent`` convention -- this repo's
+    read tools were never asserted against real business data before this
+    change either.
+    """
+
+    def _assert_offset_roundtrip(self, fn, **kwargs):
+        first = fn(self.env, limit=1, offset=0, **kwargs)
+        second = fn(self.env, limit=1, offset=1, **kwargs)
+        self.assertIsInstance(first, str)
+        self.assertIsInstance(second, str)
+
+    def test_get_my_tasks(self):
+        if "project.task" not in self.env.registry:
+            self.skipTest("project not installed")
+        self._assert_offset_roundtrip(tools.get_my_tasks)
+
+    def test_get_sale_orders(self):
+        if "sale.order" not in self.env.registry:
+            self.skipTest("sale not installed")
+        self._assert_offset_roundtrip(tools.get_sale_orders)
+
+    def test_get_crm_leads(self):
+        if "crm.lead" not in self.env.registry:
+            self.skipTest("crm not installed")
+        self._assert_offset_roundtrip(tools.get_crm_leads)
+
+    def test_get_stock_products(self):
+        if "product.product" not in self.env.registry:
+            self.skipTest("stock/product not installed")
+        self._assert_offset_roundtrip(tools.get_stock_products)
+
+    def test_get_invoices(self):
+        if "account.move" not in self.env.registry:
+            self.skipTest("accounting not installed")
+        self._assert_offset_roundtrip(tools.get_invoices)
+
+    def test_get_purchase_orders(self):
+        if "purchase.order" not in self.env.registry:
+            self.skipTest("purchase not installed")
+        self._assert_offset_roundtrip(tools.get_purchase_orders)
+
+    def test_get_employees(self):
+        if "hr.employee" not in self.env.registry:
+            self.skipTest("hr not installed")
+        self._assert_offset_roundtrip(tools.get_employees)
+
+    def test_get_my_leaves(self):
+        if "hr.leave" not in self.env.registry:
+            self.skipTest("hr.leave not installed")
+        self._assert_offset_roundtrip(tools.get_my_leaves)

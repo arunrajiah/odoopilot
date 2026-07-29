@@ -141,6 +141,37 @@
                         </div>
                     </div>
 
+                    <!-- Rate Limiting -->
+                    <h2 class="mt16">Rate Limiting</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label string="Backend"/>
+                                <div class="text-muted">
+                                    In-process limits each Odoo worker independently; Redis shares one counter across all workers for a hard global cap.
+                                </div>
+                                <div class="mt8">
+                                    <field name="odoopilot_rate_limiter_backend" string="Backend"/>
+                                </div>
+                                <div class="mt4">
+                                    <field name="odoopilot_rate_limit_per_hour" string="Messages / hour / user"/>
+                                </div>
+                                <div class="content-group" invisible="odoopilot_rate_limiter_backend != 'redis'">
+                                    <div class="mt4">
+                                        <field name="odoopilot_redis_url" string="Redis URL" placeholder="redis://localhost:6379/0"/>
+                                    </div>
+                                    <div class="mt8">
+                                        <button name="action_test_redis_connection" type="object" string="Test connection" class="btn btn-secondary btn-sm"/>
+                                    </div>
+                                    <div class="text-muted mt4">
+                                        Requires the <code>redis</code> Python package on the Odoo server. If Redis is unreachable, OdooPilot logs a warning and fails open (messages are allowed through unlimited) rather than blocking the bot.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Notifications -->
                     <h2 class="mt16">Proactive Notifications</h2>
                     <div class="row mt16 o_settings_container" invisible="not odoopilot_telegram_enabled">

@@ -38,6 +38,10 @@ TOOL_DEFINITIONS = [
                     "description": "Filter by project name (optional)",
                 },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
+                "offset": {
+                    "type": "integer",
+                    "description": "Skip this many results (default 0). Only pass this when the user asks to see more after a response that said '...N more'.",
+                },
             },
         },
     },
@@ -53,6 +57,10 @@ TOOL_DEFINITIONS = [
                     "description": "Order state filter (optional)",
                 },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
+                "offset": {
+                    "type": "integer",
+                    "description": "Skip this many results (default 0). Only pass this when the user asks to see more after a response that said '...N more'.",
+                },
             },
         },
     },
@@ -67,6 +75,10 @@ TOOL_DEFINITIONS = [
                     "description": "Filter by stage name (optional)",
                 },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
+                "offset": {
+                    "type": "integer",
+                    "description": "Skip this many results (default 0). Only pass this when the user asks to see more after a response that said '...N more'.",
+                },
             },
         },
     },
@@ -85,6 +97,10 @@ TOOL_DEFINITIONS = [
                     "description": "Only show products with qty <= 0",
                 },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
+                "offset": {
+                    "type": "integer",
+                    "description": "Skip this many results (default 0). Only pass this when the user asks to see more after a response that said '...N more'.",
+                },
             },
         },
     },
@@ -104,6 +120,10 @@ TOOL_DEFINITIONS = [
                     "description": "Only show overdue invoices",
                 },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
+                "offset": {
+                    "type": "integer",
+                    "description": "Skip this many results (default 0). Only pass this when the user asks to see more after a response that said '...N more'.",
+                },
             },
         },
     },
@@ -119,6 +139,10 @@ TOOL_DEFINITIONS = [
                     "description": "Order state filter (optional)",
                 },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
+                "offset": {
+                    "type": "integer",
+                    "description": "Skip this many results (default 0). Only pass this when the user asks to see more after a response that said '...N more'.",
+                },
             },
         },
     },
@@ -133,6 +157,10 @@ TOOL_DEFINITIONS = [
                     "description": "Department name filter (optional)",
                 },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
+                "offset": {
+                    "type": "integer",
+                    "description": "Skip this many results (default 0). Only pass this when the user asks to see more after a response that said '...N more'.",
+                },
             },
         },
     },
@@ -152,6 +180,10 @@ TOOL_DEFINITIONS = [
                     "description": "If true, show leaves from the user's team (for managers)",
                 },
                 "limit": {"type": "integer", "description": "Max results (default 10)"},
+                "offset": {
+                    "type": "integer",
+                    "description": "Skip this many results (default 0). Only pass this when the user asks to see more after a response that said '...N more'.",
+                },
             },
         },
     },
@@ -921,7 +953,41 @@ def preflight_write(env, tool_name: str, args: dict) -> dict:
 # ── Read tools ─────────────────────────────────────────────────────────────────
 
 
-def get_my_tasks(env, project=None, limit=10, **_):
+def _page_header(label: str, offset: int, shown: int) -> str:
+    """Render the header line for a capped list result.
+
+    ``offset=0`` -- the only value any caller used before pagination
+    existed -- renders identically to the pre-pagination
+    ``f"{label} ({shown})"`` format, so existing conversations that never
+    pass ``offset`` see no change here.
+    """
+    offset = int(offset)
+    if offset:
+        return f"{label} ({offset + 1}-{offset + shown})"
+    return f"{label} ({shown})"
+
+
+def _paginate_note(
+    env, model: str, domain: list, offset: int, limit: int, shown: int
+) -> str:
+    """Return a trailing "...N more" hint, or "" if this is the last page.
+
+    Only issues the extra ``search_count`` query when the page came back
+    full (``shown == limit``) -- a partial page can never have more rows
+    behind it, so the common case (fewer results than the cap) never pays
+    for the count and behaves exactly as it did before this feature.
+    """
+    limit = int(limit)
+    if shown != limit:
+        return ""
+    total = env[model].search_count(domain)
+    remaining = total - (int(offset) + shown)
+    if remaining <= 0:
+        return ""
+    return f"\n...{remaining} more — ask to see the next {limit}."
+
+
+def get_my_tasks(env, project=None, limit=10, offset=0, **_):
     err = _check_model(env, "project.task", "Project")
     if err:
         return err
@@ -929,54 +995,70 @@ def get_my_tasks(env, project=None, limit=10, **_):
     if project:
         domain.append(("project_id.name", "ilike", project))
     tasks = env["project.task"].search(
-        domain, limit=int(limit), order="date_deadline asc"
+        domain, limit=int(limit), offset=int(offset), order="date_deadline asc"
     )
     if not tasks:
-        return "No open tasks found."
+        return "No more open tasks to show." if int(offset) else "No open tasks found."
     lines = [
         f"- {t.name}"
         + (f" [{t.project_id.name}]" if t.project_id else "")
         + (f" — due {_fmt_date(t.date_deadline)}" if t.date_deadline else "")
         for t in tasks
     ]
-    return f"Open tasks ({len(tasks)}):\n" + "\n".join(lines)
+    header = _page_header("Open tasks", offset, len(tasks))
+    note = _paginate_note(env, "project.task", domain, offset, limit, len(tasks))
+    return f"{header}:\n" + "\n".join(lines) + note
 
 
-def get_sale_orders(env, state=None, limit=10, **_):
+def get_sale_orders(env, state=None, limit=10, offset=0, **_):
     err = _check_model(env, "sale.order", "Sales")
     if err:
         return err
     domain = []
     if state:
         domain.append(("state", "=", state))
-    orders = env["sale.order"].search(domain, limit=int(limit), order="date_order desc")
+    orders = env["sale.order"].search(
+        domain, limit=int(limit), offset=int(offset), order="date_order desc"
+    )
     if not orders:
-        return "No sale orders found."
+        return (
+            "No more sale orders to show." if int(offset) else "No sale orders found."
+        )
     lines = [
         f"- {o.name} | {o.partner_id.name} | {o.state} | {o.currency_id.symbol}{o.amount_total:,.2f}"
         for o in orders
     ]
-    return f"Sale orders ({len(orders)}):\n" + "\n".join(lines)
+    header = _page_header("Sale orders", offset, len(orders))
+    note = _paginate_note(env, "sale.order", domain, offset, limit, len(orders))
+    return f"{header}:\n" + "\n".join(lines) + note
 
 
-def get_crm_leads(env, stage=None, limit=10, **_):
+def get_crm_leads(env, stage=None, limit=10, offset=0, **_):
     err = _check_model(env, "crm.lead", "CRM")
     if err:
         return err
     domain = [("user_id", "=", env.uid)]
     if stage:
         domain.append(("stage_id.name", "ilike", stage))
-    leads = env["crm.lead"].search(domain, limit=int(limit), order="priority desc")
+    leads = env["crm.lead"].search(
+        domain, limit=int(limit), offset=int(offset), order="priority desc"
+    )
     if not leads:
-        return "No leads or opportunities found."
+        return (
+            "No more leads or opportunities to show."
+            if int(offset)
+            else "No leads or opportunities found."
+        )
     lines = [
         f"- {lead.name} | {lead.partner_id.name or 'No contact'} | {lead.stage_id.name} | {lead.expected_revenue:,.0f}"
         for lead in leads
     ]
-    return f"CRM leads/opportunities ({len(leads)}):\n" + "\n".join(lines)
+    header = _page_header("CRM leads/opportunities", offset, len(leads))
+    note = _paginate_note(env, "crm.lead", domain, offset, limit, len(leads))
+    return f"{header}:\n" + "\n".join(lines) + note
 
 
-def get_stock_products(env, name=None, low_stock_only=False, limit=10, **_):
+def get_stock_products(env, name=None, low_stock_only=False, limit=10, offset=0, **_):
     err = _check_model(env, "product.product", "Inventory")
     if err:
         return err
@@ -985,16 +1067,20 @@ def get_stock_products(env, name=None, low_stock_only=False, limit=10, **_):
         domain.append(("name", "ilike", name))
     if low_stock_only:
         domain.append(("qty_available", "<=", 0))
-    products = env["product.product"].search(domain, limit=int(limit))
+    products = env["product.product"].search(
+        domain, limit=int(limit), offset=int(offset)
+    )
     if not products:
-        return "No products found."
+        return "No more products to show." if int(offset) else "No products found."
     lines = [
         f"- {p.display_name} — {p.qty_available} {p.uom_id.name}" for p in products
     ]
-    return f"Products ({len(lines)}):\n" + "\n".join(lines)
+    header = _page_header("Products", offset, len(lines))
+    note = _paginate_note(env, "product.product", domain, offset, limit, len(lines))
+    return f"{header}:\n" + "\n".join(lines) + note
 
 
-def get_invoices(env, state=None, overdue_only=False, limit=10, **_):
+def get_invoices(env, state=None, overdue_only=False, limit=10, offset=0, **_):
     err = _check_model(env, "account.move", "Accounting")
     if err:
         return err
@@ -1009,18 +1095,20 @@ def get_invoices(env, state=None, overdue_only=False, limit=10, **_):
     elif state:
         domain.append(("state", "=", state))
     invoices = env["account.move"].search(
-        domain, limit=int(limit), order="invoice_date_due asc"
+        domain, limit=int(limit), offset=int(offset), order="invoice_date_due asc"
     )
     if not invoices:
-        return "No invoices found."
+        return "No more invoices to show." if int(offset) else "No invoices found."
     lines = [
         f"- {i.name} | {i.partner_id.name} | {i.currency_id.symbol}{i.amount_residual:,.2f} | due {_fmt_date(i.invoice_date_due)}"
         for i in invoices
     ]
-    return f"Invoices ({len(invoices)}):\n" + "\n".join(lines)
+    header = _page_header("Invoices", offset, len(invoices))
+    note = _paginate_note(env, "account.move", domain, offset, limit, len(invoices))
+    return f"{header}:\n" + "\n".join(lines) + note
 
 
-def get_purchase_orders(env, state=None, limit=10, **_):
+def get_purchase_orders(env, state=None, limit=10, offset=0, **_):
     err = _check_model(env, "purchase.order", "Purchase")
     if err:
         return err
@@ -1028,35 +1116,43 @@ def get_purchase_orders(env, state=None, limit=10, **_):
     if state:
         domain.append(("state", "=", state))
     orders = env["purchase.order"].search(
-        domain, limit=int(limit), order="date_order desc"
+        domain, limit=int(limit), offset=int(offset), order="date_order desc"
     )
     if not orders:
-        return "No purchase orders found."
+        return (
+            "No more purchase orders to show."
+            if int(offset)
+            else "No purchase orders found."
+        )
     lines = [
         f"- {o.name} | {o.partner_id.name} | {o.state} | {o.currency_id.symbol}{o.amount_total:,.2f}"
         for o in orders
     ]
-    return f"Purchase orders ({len(orders)}):\n" + "\n".join(lines)
+    header = _page_header("Purchase orders", offset, len(orders))
+    note = _paginate_note(env, "purchase.order", domain, offset, limit, len(orders))
+    return f"{header}:\n" + "\n".join(lines) + note
 
 
-def get_employees(env, department=None, limit=10, **_):
+def get_employees(env, department=None, limit=10, offset=0, **_):
     err = _check_model(env, "hr.employee", "Human Resources")
     if err:
         return err
     domain = [("active", "=", True)]
     if department:
         domain.append(("department_id.name", "ilike", department))
-    employees = env["hr.employee"].search(domain, limit=int(limit))
+    employees = env["hr.employee"].search(domain, limit=int(limit), offset=int(offset))
     if not employees:
-        return "No employees found."
+        return "No more employees to show." if int(offset) else "No employees found."
     lines = [
         f"- {e.name} | {e.job_id.name or 'No job'} | {e.department_id.name or 'No dept'}"
         for e in employees
     ]
-    return f"Employees ({len(employees)}):\n" + "\n".join(lines)
+    header = _page_header("Employees", offset, len(employees))
+    note = _paginate_note(env, "hr.employee", domain, offset, limit, len(employees))
+    return f"{header}:\n" + "\n".join(lines) + note
 
 
-def get_my_leaves(env, state=None, team_leaves=False, limit=10, **_):
+def get_my_leaves(env, state=None, team_leaves=False, limit=10, offset=0, **_):
     err = _check_model(env, "hr.leave", "Human Resources / Time Off")
     if err:
         return err
@@ -1081,16 +1177,24 @@ def get_my_leaves(env, state=None, team_leaves=False, limit=10, **_):
         # Default: show pending + upcoming approved
         domain.append(("state", "in", ["confirm", "validate1", "validate"]))
 
-    leaves = env["hr.leave"].search(domain, limit=int(limit), order="date_from asc")
+    leaves = env["hr.leave"].search(
+        domain, limit=int(limit), offset=int(offset), order="date_from asc"
+    )
     if not leaves:
-        return "No leave requests found."
+        return (
+            "No more leave requests to show."
+            if int(offset)
+            else "No leave requests found."
+        )
     lines = [
         f"- {leave.employee_id.name} | {leave.holiday_status_id.name} | "
         f"{_fmt_date(leave.date_from)} → {_fmt_date(leave.date_to)} | "
         f"{_STATE_LABELS.get(leave.state, leave.state)}"
         for leave in leaves
     ]
-    return f"Leave requests ({len(leaves)}):\n" + "\n".join(lines)
+    header = _page_header("Leave requests", offset, len(leaves))
+    note = _paginate_note(env, "hr.leave", domain, offset, limit, len(leaves))
+    return f"{header}:\n" + "\n".join(lines) + note
 
 
 # ── Write tools ────────────────────────────────────────────────────────────────
