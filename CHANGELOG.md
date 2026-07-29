@@ -8,6 +8,29 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.25.0.0] — 2026-07-29 — One cover image instead of two
+
+Listing assets only. No Python, no schema, no behaviour change.
+
+### Changed
+* `static/description/banner.png` is now the hero panel (1270x760): the
+  headline, the channel chips and a Telegram thread showing a read and a
+  gated write. It replaces the older 1200x630 banner and is the module's
+  single cover asset, used by the manifest `images` key and the top of
+  the App Store listing.
+* `banner_source.html` regenerates that new cover, and
+  `scripts/render_banner.py` renders at 1270x760 to match. Without this
+  the script would have quietly repainted the old design over the new
+  cover on its next run.
+
+### Removed
+* The hero screenshot. It was the same picture as the cover, so the
+  listing showed it twice and the repo carried two files to keep in
+  sync. The remaining four screenshots are renumbered
+  `screenshot_01..04.png`.
+
+---
+
 ## [17.0.24.0.0] — 2026-07-29 — Launch visuals in the App Store listing
 
 Listing assets only. No Python, no schema, no behaviour change — every
