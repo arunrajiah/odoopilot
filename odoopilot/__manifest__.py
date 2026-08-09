@@ -1,6 +1,6 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
-    "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, validate stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
+    "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, check stock — without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
     "version": "17.0.28.0.0",
     "development_status": "Beta",
     "category": "Discuss",
@@ -40,7 +40,7 @@ tasks — so data goes stale, approvals stall, and the ERP under-delivers.
 OdooPilot closes that gap. Each employee gets an AI assistant on Telegram
 or WhatsApp that connects to the same Odoo instance, scoped to the same
 record-rule permissions they already have. They apply for leave, approve
-requests, check tasks, update the CRM pipeline, validate stock moves —
+requests, check tasks, update the CRM pipeline, log timesheets —
 by chatting with a bot in their own language. No Odoo login, no app to
 install, no training.
 
