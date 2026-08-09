@@ -141,10 +141,19 @@ jobs:
         # core test -- e.g. web's TestReports.test_report_session_cookie --
         # fails a build that has nothing to do with this addon.
         #
-        # Odoo logs failures but its exit code has historically been
-        # unreliable, so the log is scanned too: any ERROR/CRITICAL from the
-        # odoopilot module or a failed-test summary fails the job even if
-        # odoo-bin exits 0.
+        # Odoo's exit code has historically been unreliable, so the verdict
+        # comes from its own summary line instead:
+        #   "0 failed, 0 error(s) of 144 tests when loading database ..."
+        #
+        # Do NOT go back to grepping the log for ERROR/CRITICAL. Several
+        # tests deliberately provoke error-level logs to assert graceful
+        # degradation -- an unreachable Redis falling back to the in-process
+        # limiter, a simulated Telegram network failure, a duplicate-key
+        # violation proving webhook idempotency. Those are passing tests
+        # doing their job, and matching on them fails a green build.
+        #
+        # A missing summary line is itself a failure: it means the registry
+        # never loaded, i.e. the module did not install.
         run: |
           set -o pipefail
           "$RUNNER_TEMP/odoo/odoo-bin" \
@@ -158,15 +167,19 @@ jobs:
             --stop-after-init \
             --log-level=test \
             2>&1 | tee odoo-test.log
-          if grep -qE "(CRITICAL|ERROR) .*odoo\.(addons\.odoopilot|modules\.(registry|loading))" odoo-test.log; then
-            echo "::error::Module failed to install or its tests errored -- see the log above."
+          summary=$(grep -oE "[0-9]+ failed, [0-9]+ error\(s\) of [0-9]+ tests" odoo-test.log | tail -1)
+          if [ -z "$summary" ]; then
+            echo "::error::No test summary in the log -- the module failed to install."
             exit 1
           fi
-          if grep -qE "odoo\.addons\.odoopilot.*: [1-9][0-9]* (failures|errors)" odoo-test.log; then
-            echo "::error::odoopilot tests reported failures -- see the log above."
-            exit 1
-          fi
-          echo "Module installed and its test suite passed."
+          echo "Odoo reported: $summary"
+          case "$summary" in
+            "0 failed, 0 error(s) of "*)
+              echo "Module installed and its test suite passed." ;;
+            *)
+              echo "::error::odoopilot tests reported failures: $summary"
+              exit 1 ;;
+          esac
 
       - name: Upload the test log
         if: always()
