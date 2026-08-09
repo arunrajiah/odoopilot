@@ -147,39 +147,6 @@
                         </setting>
                     </block>
 
-                    <block title="Rate Limiting" name="odoopilot_rate_limiting">
-                        <setting id="odoopilot_rate_limit_setting" string="Backend" help="In-process limits each Odoo worker independently; Redis shares one counter across all workers for a hard global cap.">
-                            <div class="content-group">
-                                <div class="row mt-3 align-items-center">
-                                    <label for="odoopilot_rate_limiter_backend" string="Backend" class="col-sm-4 col-lg-3 o_light_label"/>
-                                    <div class="col-sm-8 col-lg-7">
-                                        <field name="odoopilot_rate_limiter_backend" class="w-100"/>
-                                    </div>
-                                </div>
-                                <div class="row mt-2 align-items-center">
-                                    <label for="odoopilot_rate_limit_per_hour" string="Messages / hour / user" class="col-sm-4 col-lg-3 o_light_label"/>
-                                    <div class="col-sm-8 col-lg-7">
-                                        <field name="odoopilot_rate_limit_per_hour" class="w-auto"/>
-                                    </div>
-                                </div>
-                                <div class="content-group" invisible="odoopilot_rate_limiter_backend != 'redis'">
-                                    <div class="row mt-2 align-items-center">
-                                        <label for="odoopilot_redis_url" string="Redis URL" class="col-sm-4 col-lg-3 o_light_label"/>
-                                        <div class="col-sm-8 col-lg-7">
-                                            <field name="odoopilot_redis_url" placeholder="redis://localhost:6379/0" class="w-100"/>
-                                        </div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <button name="action_test_redis_connection" type="object" string="Test connection" class="btn btn-secondary btn-sm"/>
-                                    </div>
-                                    <div class="small text-muted mt-2">
-                                        Requires the <code>redis</code> Python package on the Odoo server. If Redis is unreachable, OdooPilot logs a warning and fails open (messages are allowed through unlimited) rather than blocking the bot.
-                                    </div>
-                                </div>
-                            </div>
-                        </setting>
-                    </block>
-
                     <block title="Proactive Notifications" name="odoopilot_notifications">
                         <setting id="odoopilot_task_digest_setting" string="Daily task digest" help="Send linked users their overdue and today's tasks every morning at 08:00 UTC." invisible="not odoopilot_telegram_enabled">
                             <field name="odoopilot_notify_task_digest"/>
