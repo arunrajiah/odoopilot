@@ -8,6 +8,35 @@ The `18.0.x` series ships from the [`18.0` branch](https://github.com/arunrajiah
 
 ---
 
+## [17.0.30.0.0] — 2026-08-09 — Realign the 17.0 branch with main
+
+No new work. This branch is now identical to ``main`` plus this version
+bump.
+
+### Why
+
+``main`` has been the active 17.0 line for months (it was already at
+17.0.28.0.0), while this branch — which is what the Odoo Apps Store
+publishes from — had been left at 17.0.20.0.0 since 16 May. The store was
+therefore serving a build months behind the code, missing the Redis-backed
+rate limiter, pagination hints and the Telegram typing indicator, and
+missing every install fix made since.
+
+Attempting to port individual files onto the old branch failed twice:
+the views referenced settings fields this branch's model never had, and
+main's tests exercised services this branch never had. Mirroring removes
+that whole class of breakage.
+
+### Compared against the previous branch state
+
+371 lines added, 52 removed. The removals were only the version string,
+an ``author`` field main deliberately changed (dropping an OCA claim that
+had not been earned), and a ROADMAP line describing the Redis limiter as
+future work now that it is built. Nothing of substance was lost; the
+previous state is tagged ``backup/17.0-pre-mirror-20260809``.
+
+---
+
 ## [17.0.26.0.0] — 2026-07-29 — Remove the testimonials section
 
 Listing copy only. No Python, no schema, no behaviour change.
