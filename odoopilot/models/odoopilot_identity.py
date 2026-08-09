@@ -74,6 +74,7 @@ class OdooPilotIdentity(models.Model):
     last_activity = fields.Datetime(
         compute="_compute_activity",
         compute_sudo=True,
+        search="_search_last_activity",
         help="Timestamp of the most recent audit log entry attributed to "
         "this identity, or empty if there has been no activity.",
     )
@@ -81,6 +82,7 @@ class OdooPilotIdentity(models.Model):
         string="Messages (7d)",
         compute="_compute_activity",
         compute_sudo=True,
+        search="_search_message_count_7d",
         help=f"Number of audit entries in the last {_ACTIVITY_WINDOW_DAYS} days.",
     )
     success_rate_7d = fields.Integer(
@@ -91,6 +93,70 @@ class OdooPilotIdentity(models.Model):
         "succeeded. Useful as a cheap health signal — sustained low "
         "values usually mean a misconfigured permission or LLM call.",
     )
+
+    # ------------------------------------------------------------------
+    # Search support for the activity fields
+    #
+    # ``last_activity`` and ``message_count_7d`` are computed from a rolling
+    # window over the audit table, so they cannot be stored -- a stored copy
+    # would be stale the moment the window moved. Odoo 17 refuses to load a
+    # view whose filter domain names an unsearchable field, which made the
+    # "Active in last 7 days" and "Linked but never used" filters fatal at
+    # install time. These search methods resolve the domain in Python over
+    # the identity table, which stays cheap for the same reason the compute
+    # does: the row count is small (see the note above ``last_activity``).
+    # ------------------------------------------------------------------
+
+    _SEARCH_OPERATORS = {
+        "=": lambda a, b: a == b,
+        "!=": lambda a, b: a != b,
+        "<": lambda a, b: a < b,
+        "<=": lambda a, b: a <= b,
+        ">": lambda a, b: a > b,
+        ">=": lambda a, b: a >= b,
+    }
+
+    def _search_activity_field(self, field_name, operator, value):
+        """Resolve *operator*/*value* against a computed activity field.
+
+        Returns an ``('id', 'in', [...])`` domain. Comparisons against
+        ``False`` are treated as "has never been active", which is what the
+        ``never_used`` filter means and what Odoo passes for an empty
+        Datetime.
+        """
+        compare = self._SEARCH_OPERATORS.get(operator)
+        if compare is None:
+            raise NotImplementedError(
+                f"Operator {operator!r} is not supported when searching "
+                f"{field_name!r} on odoopilot.identity."
+            )
+
+        records = self.sudo().search([])
+        matching = []
+        for record in records:
+            current = record[field_name]
+            # An empty Datetime and a zero count both mean "no activity";
+            # normalise so ``= False`` works for either field.
+            if current is False and isinstance(value, bool):
+                current_cmp, value_cmp = False, value
+            elif current is False:
+                continue
+            else:
+                current_cmp, value_cmp = current, value
+            try:
+                if compare(current_cmp, value_cmp):
+                    matching.append(record.id)
+            except TypeError:
+                # Mismatched types (e.g. comparing a Datetime to 0) can never
+                # match; skip rather than break the whole search.
+                continue
+        return [("id", "in", matching)]
+
+    def _search_last_activity(self, operator, value):
+        return self._search_activity_field("last_activity", operator, value)
+
+    def _search_message_count_7d(self, operator, value):
+        return self._search_activity_field("message_count_7d", operator, value)
 
     @api.depends("user_id", "channel")
     def _compute_activity(self):
