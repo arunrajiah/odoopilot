@@ -8,7 +8,6 @@
         <field name="code">model._gc_expired()</field>
         <field name="interval_number">1</field>
         <field name="interval_type">hours</field>
-        <field name="numbercall">-1</field>
         <field name="active">True</field>
     </record>
 
@@ -20,7 +19,6 @@
         <field name="code">model._gc_old()</field>
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
-        <field name="numbercall">-1</field>
         <field name="active">True</field>
     </record>
 
@@ -32,7 +30,6 @@
         <field name="code">model._gc_old_sessions()</field>
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
-        <field name="numbercall">-1</field>
         <field name="active">True</field>
     </record>
 
@@ -45,7 +42,6 @@
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
         <field name="nextcall" eval="(datetime.now() + timedelta(days=1)).replace(hour=8, minute=0, second=0)"/>
-        <field name="numbercall">-1</field>
         <field name="active">True</field>
     </record>
 
@@ -58,7 +54,6 @@
         <field name="interval_number">1</field>
         <field name="interval_type">days</field>
         <field name="nextcall" eval="(datetime.now() + timedelta(days=1)).replace(hour=9, minute=0, second=0)"/>
-        <field name="numbercall">-1</field>
         <field name="active">True</field>
     </record>
 </odoo>
