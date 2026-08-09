@@ -117,6 +117,23 @@ jobs:
       - name: Install Odoo
         run: pip install -r "$RUNNER_TEMP/odoo/requirements.txt"
 
+      - name: Install the optional modules the tools integrate with
+        # odoopilot sorts earlier in the dependency graph than hr_expense and
+        # hr_timesheet, so installing everything in one run leaves them
+        # absent while odoopilot's tests execute -- the expense and timesheet
+        # preflight tests then assert against "module is not installed"
+        # instead of the validation they exist to cover. Installing them in
+        # their own pass first removes that ordering trap.
+        run: |
+          "$RUNNER_TEMP/odoo/odoo-bin" \
+            --database=test_odoopilot \
+            --db_host=localhost --db_port=5432 \
+            --db_user=odoo --db_password=odoo \
+            --addons-path="$RUNNER_TEMP/odoo/addons,$GITHUB_WORKSPACE/addon" \
+            --init=hr_expense,hr_timesheet,calendar \
+            --stop-after-init \
+            --log-level=warn
+
       - name: Run the module test suite
         # --test-tags /odoopilot restricts the run to this module's own
         # tests. Without it --test-enable also runs the test suites of every
