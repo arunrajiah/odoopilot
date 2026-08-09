@@ -21,7 +21,7 @@
         <field name="name">odoopilot.identity.view.list</field>
         <field name="model">odoopilot.identity</field>
         <field name="arch" type="xml">
-            <list string="Linked Users"
+            <tree string="Linked Users"
                   decoration-success="message_count_7d &gt; 0 and active"
                   decoration-muted="not active or (active and not last_activity)">
                 <field name="user_id"/>
@@ -34,7 +34,7 @@
                 <field name="message_count_7d" optional="show"/>
                 <field name="success_rate_7d" optional="show" widget="percentage"/>
                 <field name="active" widget="boolean_toggle"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -152,7 +152,7 @@
     <record id="action_odoopilot_identity" model="ir.actions.act_window">
         <field name="name">Linked Users</field>
         <field name="res_model">odoopilot.identity</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="odoopilot_identity_view_search"/>
         <field name="context">{
             "active_test": False,

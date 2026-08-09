@@ -320,8 +320,14 @@ class TestEmployeeIdRebinding(TransactionCase):
         super().setUp()
         if "hr.employee" not in self.env.registry:
             self.skipTest("hr.employee not installed")
-        # Make sure the test admin has an hr.employee.
-        self.user = self.env.ref("base.user_admin")
+        # The employee must belong to the user the tools actually run as.
+        # These tests call tools.* with ``self.env`` directly, and a
+        # TransactionCase env is bound to OdooBot, not base.user_admin --
+        # so linking the fixture to user_admin left env.uid with no
+        # employee and the tool correctly refused with "No HR employee
+        # record is linked to your user" before reaching the rebinding
+        # logic under test.
+        self.user = self.env.user
         existing = self.env["hr.employee"].search(
             [("user_id", "=", self.user.id)], limit=1
         )
