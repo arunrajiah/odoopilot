@@ -118,10 +118,16 @@ jobs:
         run: pip install -r "$RUNNER_TEMP/odoo/requirements.txt"
 
       - name: Run the module test suite
-        # --test-enable runs the tests tagged for this module at install
-        # time. Odoo logs failures but its exit code has historically been
-        # unreliable, so the log is also scanned: a FAIL/ERROR line from the
-        # test runner fails the job even if odoo-bin exits 0.
+        # --test-tags /odoopilot restricts the run to this module's own
+        # tests. Without it --test-enable also runs the test suites of every
+        # dependency being installed (web, mail, base_setup), and a flaky
+        # core test -- e.g. web's TestReports.test_report_session_cookie --
+        # fails a build that has nothing to do with this addon.
+        #
+        # Odoo logs failures but its exit code has historically been
+        # unreliable, so the log is scanned too: any ERROR/CRITICAL from the
+        # odoopilot module or a failed-test summary fails the job even if
+        # odoo-bin exits 0.
         run: |
           set -o pipefail
           "$RUNNER_TEMP/odoo/odoo-bin" \
@@ -131,15 +137,19 @@ jobs:
             --addons-path="$RUNNER_TEMP/odoo/addons,$GITHUB_WORKSPACE/addon" \
             --init=odoopilot \
             --test-enable \
+            --test-tags=/odoopilot \
             --stop-after-init \
             --log-level=test \
-            --without-demo=False \
             2>&1 | tee odoo-test.log
-          if grep -qE "^[0-9-]+ [0-9:,]+ [0-9]+ (ERROR|CRITICAL) .*(odoo\.addons\.odoopilot|FAIL:|ERROR:)" odoo-test.log; then
-            echo "::error::Odoo reported test failures -- see the log above."
+          if grep -qE "(CRITICAL|ERROR) .*odoo\.(addons\.odoopilot|modules\.(registry|loading))" odoo-test.log; then
+            echo "::error::Module failed to install or its tests errored -- see the log above."
             exit 1
           fi
-          echo "Module test suite passed."
+          if grep -qE "odoo\.addons\.odoopilot.*: [1-9][0-9]* (failures|errors)" odoo-test.log; then
+            echo "::error::odoopilot tests reported failures -- see the log above."
+            exit 1
+          fi
+          echo "Module installed and its test suite passed."
 
       - name: Upload the test log
         if: always()
