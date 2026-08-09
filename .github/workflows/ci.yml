@@ -17,7 +17,11 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install ruff
-        run: pip install ruff
+        # Pinned to match .pre-commit-config.yaml's `rev: v0.4.4` so CI and
+        # the local pre-commit hook always agree — an unpinned install here
+        # previously let a new ruff release (which added default-enabled
+        # rules) turn CI red with no code change and no local repro.
+        run: pip install ruff==0.4.4
       - name: Check formatting
         run: ruff format --check odoopilot/
       - name: Lint
@@ -48,6 +52,142 @@ jobs:
           else:
               print(f"All XML files are well-formed ({len(list(pathlib.Path('odoopilot').rglob('*.xml')))} files checked).")
           EOF
+
+  odoo-tests:
+    # Everything under odoopilot/tests/ is an Odoo ``TransactionCase``: it
+    # needs a real Odoo installation and a PostgreSQL database, so plain
+    # ``pytest`` cannot collect it (the import of ``odoo`` fails). This job
+    # stands up both and runs the module's own test suite, which is the
+    # only place those 144 tests execute.
+    name: Odoo module tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: addon
+
+      - uses: actions/setup-python@v5
+        with:
+          # Odoo 17/18 do not support 3.12+; 3.11 is the newest they run on.
+          python-version: "3.11"
+
+      - name: Resolve the Odoo series from the manifest
+        id: series
+        # The manifest version is "<odoo-series>.<module-version>", e.g.
+        # 17.0.26.0.0 -> 17.0. This keeps the 17.0 and 18.0 branches on
+        # their own Odoo without a second workflow.
+        run: |
+          series=$(python3 -c "import ast;print(ast.literal_eval(open('addon/odoopilot/__manifest__.py').read())['version'].split('.')[0])").0
+          echo "series=$series" >> "$GITHUB_OUTPUT"
+          echo "Testing against Odoo $series"
+
+      - name: System packages Odoo needs to build its wheels
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libldap2-dev libsasl2-dev libxml2-dev libxslt1-dev libjpeg-dev
+
+      - name: Check out Odoo ${{ steps.series.outputs.series }}
+        run: |
+          git clone --depth 1 --branch "${{ steps.series.outputs.series }}" \
+            https://github.com/odoo/odoo.git "$RUNNER_TEMP/odoo"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: odoo-${{ steps.series.outputs.series }}-pip-${{ hashFiles('**/odoo/requirements.txt') }}
+
+      - name: Install Odoo
+        run: pip install -r "$RUNNER_TEMP/odoo/requirements.txt"
+
+      - name: Install the optional modules the tools integrate with
+        # odoopilot sorts earlier in the dependency graph than hr_expense and
+        # hr_timesheet, so installing everything in one run leaves them
+        # absent while odoopilot's tests execute -- the expense and timesheet
+        # preflight tests then assert against "module is not installed"
+        # instead of the validation they exist to cover. Installing them in
+        # their own pass first removes that ordering trap.
+        run: |
+          "$RUNNER_TEMP/odoo/odoo-bin" \
+            --database=test_odoopilot \
+            --db_host=localhost --db_port=5432 \
+            --db_user=odoo --db_password=odoo \
+            --addons-path="$RUNNER_TEMP/odoo/addons,$GITHUB_WORKSPACE/addon" \
+            --init=hr_expense,hr_timesheet,calendar,stock \
+            --stop-after-init \
+            --log-level=warn
+
+      - name: Run the module test suite
+        # --test-tags /odoopilot restricts the run to this module's own
+        # tests. Without it --test-enable also runs the test suites of every
+        # dependency being installed (web, mail, base_setup), and a flaky
+        # core test -- e.g. web's TestReports.test_report_session_cookie --
+        # fails a build that has nothing to do with this addon.
+        #
+        # Odoo's exit code has historically been unreliable, so the verdict
+        # comes from its own summary line instead:
+        #   "0 failed, 0 error(s) of 144 tests when loading database ..."
+        #
+        # Do NOT go back to grepping the log for ERROR/CRITICAL. Several
+        # tests deliberately provoke error-level logs to assert graceful
+        # degradation -- an unreachable Redis falling back to the in-process
+        # limiter, a simulated Telegram network failure, a duplicate-key
+        # violation proving webhook idempotency. Those are passing tests
+        # doing their job, and matching on them fails a green build.
+        #
+        # A missing summary line is itself a failure: it means the registry
+        # never loaded, i.e. the module did not install.
+        run: |
+          set -o pipefail
+          "$RUNNER_TEMP/odoo/odoo-bin" \
+            --database=test_odoopilot \
+            --db_host=localhost --db_port=5432 \
+            --db_user=odoo --db_password=odoo \
+            --addons-path="$RUNNER_TEMP/odoo/addons,$GITHUB_WORKSPACE/addon" \
+            --init=odoopilot \
+            --test-enable \
+            --test-tags=/odoopilot \
+            --stop-after-init \
+            --log-level=test \
+            2>&1 | tee odoo-test.log
+          summary=$(grep -oE "[0-9]+ failed, [0-9]+ error\(s\) of [0-9]+ tests" odoo-test.log | tail -1)
+          if [ -z "$summary" ]; then
+            echo "::error::No test summary in the log -- the module failed to install."
+            exit 1
+          fi
+          echo "Odoo reported: $summary"
+          case "$summary" in
+            "0 failed, 0 error(s) of "*)
+              echo "Module installed and its test suite passed." ;;
+            *)
+              echo "::error::odoopilot tests reported failures: $summary"
+              exit 1 ;;
+          esac
+
+      - name: Upload the test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: odoo-test-log-${{ steps.series.outputs.series }}
+          path: odoo-test.log
+          if-no-files-found: warn
 
   listing-renderable:
     name: App Store listing renderable

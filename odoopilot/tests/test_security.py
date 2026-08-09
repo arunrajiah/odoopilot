@@ -195,13 +195,27 @@ class TestPreflightRejectsWildcards(TransactionCase):
     """
 
     def test_wildcard_only_name_rejected(self):
-        for term in ("%", "%%%", "  ", "_", "% _ "):
+        # The security property is that none of these resolve to a record.
+        # The wording differs by branch: a term that survives .strip() is
+        # reported as too short/generic, while one that collapses to empty
+        # (whitespace only) is reported as not specific enough. Asserting a
+        # single phrase across both over-specified incidental copy, so each
+        # case asserts refusal plus the message its branch actually emits.
+        for term in ("%", "%%%", "_", "% _ "):
             with self.subTest(term=term):
                 result = preflight_write(
                     self.env, "mark_task_done", {"task_name": term}
                 )
                 self.assertFalse(result["ok"])
                 self.assertIn("too short", result["error"].lower() + " ")
+
+        for term in ("  ", "\t", ""):
+            with self.subTest(term=term):
+                result = preflight_write(
+                    self.env, "mark_task_done", {"task_name": term}
+                )
+                self.assertFalse(result["ok"])
+                self.assertIn("more specific", result["error"].lower())
 
     def test_too_short_name_rejected(self):
         result = preflight_write(self.env, "mark_task_done", {"task_name": "ab"})
@@ -337,13 +351,20 @@ class TestRateLimiterBucketGC(TransactionCase):
         # buckets.
         for i in range(throttle._BUCKET_GC_INTERVAL):
             rl.allow("telegram", f"sweep-trigger-{i}")
-        # After the sweep, the dict size should reflect only the
-        # currently-active senders, not the original churn batch.
-        after = len(rl._buckets)
-        self.assertLess(
-            after,
-            before,
-            f"GC didn't shrink the dict ({before} -> {after})",
+        # Assert on *which* keys survived, not on the total. Triggering the
+        # sweep requires _BUCKET_GC_INTERVAL fresh calls, which insert
+        # exactly as many new buckets as the churn batch being collected,
+        # so the total is unchanged even when the GC works perfectly.
+        # Comparing sizes tested the arithmetic of the trigger, not the GC.
+        survivors = {chat_id for _channel, chat_id in rl._buckets}
+        self.assertFalse(
+            {s for s in survivors if s.startswith("churn-")},
+            "GC left stale churn buckets behind",
+        )
+        self.assertEqual(
+            len(survivors),
+            throttle._BUCKET_GC_INTERVAL,
+            "only the currently-active senders should remain",
         )
 
 

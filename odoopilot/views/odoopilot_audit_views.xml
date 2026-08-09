@@ -194,7 +194,7 @@
     <!-- Menu item -->
     <menuitem id="menu_odoopilot_audit"
               name="Audit Log"
-              parent="odoopilot_identity_views.menu_odoopilot_root"
+              parent="menu_odoopilot_root"
               action="action_odoopilot_audit"
               sequence="20"
               groups="base.group_system"/>
