@@ -21,7 +21,7 @@
 
 OdooPilot gives every employee an AI assistant on Telegram or WhatsApp that connects to the
 same Odoo instance, scoped to the same permissions they already have. They apply for leave,
-approve requests, check tasks, update the CRM pipeline, and validate stock moves — by chatting
+approve requests, check tasks, update the CRM pipeline, and log timesheets — by chatting
 with a bot in their own language. No Odoo login, no app to install, no training.
 
 > **For your internal team.** Not for your customers. Each linked chat user is an Odoo user,
