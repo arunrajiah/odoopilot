@@ -1,0 +1,18 @@
+# Developer toolchain for OdooPilot.
+#
+#   python3 -m venv .venv
+#   .venv/bin/pip install -r requirements-dev.txt
+#
+# These are the lint/type/format tools only. They do NOT install Odoo, and
+# they are NOT enough to run the test suite: every file under
+# odoopilot/tests/ is an Odoo ``TransactionCase`` and needs a real Odoo
+# installation plus a PostgreSQL database. See CONTRIBUTING.md for how to
+# run them, or let the "Odoo module tests" CI job do it.
+#
+# Versions are pinned to match .github/workflows/ci.yml and
+# .pre-commit-config.yaml exactly. An unpinned install previously let a new
+# ruff release turn CI red with no code change and no local repro, so keep
+# all three in step when bumping.
+
+ruff==0.4.4
+mypy==1.10.0

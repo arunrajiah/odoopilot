@@ -53,6 +53,102 @@ jobs:
               print(f"All XML files are well-formed ({len(list(pathlib.Path('odoopilot').rglob('*.xml')))} files checked).")
           EOF
 
+  odoo-tests:
+    # Everything under odoopilot/tests/ is an Odoo ``TransactionCase``: it
+    # needs a real Odoo installation and a PostgreSQL database, so plain
+    # ``pytest`` cannot collect it (the import of ``odoo`` fails). This job
+    # stands up both and runs the module's own test suite, which is the
+    # only place those 144 tests execute.
+    name: Odoo module tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: addon
+
+      - uses: actions/setup-python@v5
+        with:
+          # Odoo 17/18 do not support 3.12+; 3.11 is the newest they run on.
+          python-version: "3.11"
+
+      - name: Resolve the Odoo series from the manifest
+        id: series
+        # The manifest version is "<odoo-series>.<module-version>", e.g.
+        # 17.0.26.0.0 -> 17.0. This keeps the 17.0 and 18.0 branches on
+        # their own Odoo without a second workflow.
+        run: |
+          series=$(python3 -c "import ast;print(ast.literal_eval(open('addon/odoopilot/__manifest__.py').read())['version'].split('.')[0])").0
+          echo "series=$series" >> "$GITHUB_OUTPUT"
+          echo "Testing against Odoo $series"
+
+      - name: System packages Odoo needs to build its wheels
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libldap2-dev libsasl2-dev libxml2-dev libxslt1-dev libjpeg-dev
+
+      - name: Check out Odoo ${{ steps.series.outputs.series }}
+        run: |
+          git clone --depth 1 --branch "${{ steps.series.outputs.series }}" \
+            https://github.com/odoo/odoo.git "$RUNNER_TEMP/odoo"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: odoo-${{ steps.series.outputs.series }}-pip-${{ hashFiles('**/odoo/requirements.txt') }}
+
+      - name: Install Odoo
+        run: pip install -r "$RUNNER_TEMP/odoo/requirements.txt"
+
+      - name: Run the module test suite
+        # --test-enable runs the tests tagged for this module at install
+        # time. Odoo logs failures but its exit code has historically been
+        # unreliable, so the log is also scanned: a FAIL/ERROR line from the
+        # test runner fails the job even if odoo-bin exits 0.
+        run: |
+          set -o pipefail
+          "$RUNNER_TEMP/odoo/odoo-bin" \
+            --database=test_odoopilot \
+            --db_host=localhost --db_port=5432 \
+            --db_user=odoo --db_password=odoo \
+            --addons-path="$RUNNER_TEMP/odoo/addons,$GITHUB_WORKSPACE/addon" \
+            --init=odoopilot \
+            --test-enable \
+            --stop-after-init \
+            --log-level=test \
+            --without-demo=False \
+            2>&1 | tee odoo-test.log
+          if grep -qE "^[0-9-]+ [0-9:,]+ [0-9]+ (ERROR|CRITICAL) .*(odoo\.addons\.odoopilot|FAIL:|ERROR:)" odoo-test.log; then
+            echo "::error::Odoo reported test failures -- see the log above."
+            exit 1
+          fi
+          echo "Module test suite passed."
+
+      - name: Upload the test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: odoo-test-log-${{ steps.series.outputs.series }}
+          path: odoo-test.log
+          if-no-files-found: warn
+
   listing-renderable:
     name: App Store listing renderable
     runs-on: ubuntu-latest
