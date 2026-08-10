@@ -480,12 +480,6 @@ After install, **Settings → OdooPilot** ends with quick links for all of these
 
 ---
 
-## Star history
-
-[![Star History Chart](https://api.star-history.com/svg?repos=arunrajiah/odoopilot&type=Date)](https://star-history.com/#arunrajiah/odoopilot&Date)
-
----
-
 ## License
 
 [LGPL-3.0-or-later](LICENSE) — same as Odoo Community and OCA modules.
