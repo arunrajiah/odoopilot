@@ -421,12 +421,6 @@ OdooPilot is free, open-source, and solo-maintained. After install, **Settings â
 
 ---
 
-## Star history
-
-[![Star History Chart](https://api.star-history.com/svg?repos=arunrajiah/odoopilot&type=Date)](https://star-history.com/#arunrajiah/odoopilot&Date)
-
----
-
 ## License
 
 [LGPL-3.0-or-later](LICENSE) â€” same as Odoo Community and OCA modules.
