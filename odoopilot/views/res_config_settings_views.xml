@@ -101,6 +101,18 @@
                                         <field name="odoopilot_llm_api_key" widget="password" placeholder="sk-..., gsk_..., or provider key" class="w-100"/>
                                     </div>
                                 </div>
+                                <div class="row mt-2 align-items-center" invisible="odoopilot_llm_provider != 'openrouter'">
+                                    <label for="odoopilot_llm_openrouter_model_id" string="Model picker" class="col-sm-4 col-lg-3 o_light_label"/>
+                                    <div class="col-sm-8 col-lg-7">
+                                        <field name="odoopilot_llm_openrouter_model_id" options="{'no_create': True, 'no_open': True}" placeholder="Search the OpenRouter catalog..." class="w-100"/>
+                                    </div>
+                                </div>
+                                <div class="row mt-1" invisible="odoopilot_llm_provider != 'openrouter'">
+                                    <div class="col-sm-8 col-lg-7 offset-sm-4 offset-lg-3">
+                                        <button name="action_fetch_openrouter_models" type="object" string="Fetch model list" icon="fa-refresh" class="btn btn-secondary btn-sm"/>
+                                        <span class="text-muted ms-2">Loads the public catalog from openrouter.ai (no key needed).</span>
+                                    </div>
+                                </div>
                                 <div class="row mt-2 align-items-center">
                                     <label for="odoopilot_llm_model" string="Model override" class="col-sm-4 col-lg-3 o_light_label"/>
                                     <div class="col-sm-8 col-lg-7">
