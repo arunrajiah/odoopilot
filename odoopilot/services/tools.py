@@ -792,8 +792,8 @@ def preflight_write(env, tool_name: str, args: dict) -> dict:
         }
 
     if tool_name == "submit_expense":
-        if "hr.expense" not in env.registry:
-            return {"ok": False, "error": "The Expenses module is not installed."}
+        # validate the input first: these checks hold whether or not the
+        # optional module is installed (and the tests rely on that)
         description = (args.get("description") or "").strip()
         if len(description) < 3:
             return {"ok": False, "error": "Expense description is too short."}
@@ -803,6 +803,8 @@ def preflight_write(env, tool_name: str, args: dict) -> dict:
             return {"ok": False, "error": "Amount must be a number."}
         if amount <= 0:
             return {"ok": False, "error": "Amount must be greater than zero."}
+        if "hr.expense" not in env.registry:
+            return {"ok": False, "error": "The Expenses module is not installed."}
         emp = env["hr.employee"].search([("user_id", "=", env.uid)], limit=1)
         if not emp:
             return {
@@ -828,11 +830,8 @@ def preflight_write(env, tool_name: str, args: dict) -> dict:
         }
 
     if tool_name == "submit_timesheet":
-        if "account.analytic.line" not in env.registry:
-            return {
-                "ok": False,
-                "error": "The Timesheets module is not installed.",
-            }
+        # validate the input first: these checks hold whether or not the
+        # optional module is installed (and the tests rely on that)
         project_name = (args.get("project_name") or "").strip()
         err = _validate_search_term(project_name)
         if err:
@@ -851,6 +850,11 @@ def preflight_write(env, tool_name: str, args: dict) -> dict:
             return {
                 "ok": False,
                 "error": "Hours must be between 0 and 24 for a single entry.",
+            }
+        if "account.analytic.line" not in env.registry:
+            return {
+                "ok": False,
+                "error": "The Timesheets module is not installed.",
             }
         project = env["project.project"].search(
             [("name", "ilike", project_name)], limit=1
@@ -895,8 +899,8 @@ def preflight_write(env, tool_name: str, args: dict) -> dict:
         }
 
     if tool_name == "create_calendar_event":
-        if "calendar.event" not in env.registry:
-            return {"ok": False, "error": "The Calendar module is not installed."}
+        # validate the input first: these checks hold whether or not the
+        # optional module is installed (and the tests rely on that)
         name = (args.get("name") or "").strip()
         if len(name) < 2:
             return {"ok": False, "error": "Event name is too short."}
@@ -931,6 +935,8 @@ def preflight_write(env, tool_name: str, args: dict) -> dict:
                 "ok": False,
                 "error": "Duration must be between 0 and 24 hours.",
             }
+        if "calendar.event" not in env.registry:
+            return {"ok": False, "error": "The Calendar module is not installed."}
         stop = parsed + timedelta(hours=duration)
         return {
             "ok": True,
