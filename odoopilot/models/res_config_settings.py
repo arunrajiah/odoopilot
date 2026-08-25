@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 import logging
 import secrets
@@ -57,6 +57,54 @@ class ResConfigSettings(models.TransientModel):
         "OpenRouter model names are prefixed, e.g. anthropic/claude-3.5-haiku. "
         "Pick a model that supports tool calling.",
     )
+    # UI helper only (no config_parameter): picking a catalog entry fills
+    # odoopilot_llm_model, which is what the agent actually reads.
+    odoopilot_llm_openrouter_model_id = fields.Many2one(
+        "odoopilot.ai.model",
+        string="Pick an OpenRouter model",
+        domain=[("provider", "=", "openrouter")],
+        help="Search the synced OpenRouter catalog; picking a model fills "
+        "the Model override field. Use 'Fetch model list' first. "
+        "Pick a model that supports tool calling.",
+    )
+
+    @api.onchange("odoopilot_llm_openrouter_model_id")
+    def _onchange_odoopilot_llm_openrouter_model_id(self):
+        if self.odoopilot_llm_openrouter_model_id:
+            self.odoopilot_llm_model = (
+                self.odoopilot_llm_openrouter_model_id.code
+            )
+
+    def get_values(self):
+        res = super().get_values()
+        if res.get("odoopilot_llm_provider") == "openrouter" and res.get(
+            "odoopilot_llm_model"
+        ):
+            pick = self.env["odoopilot.ai.model"].search(
+                [
+                    ("provider", "=", "openrouter"),
+                    ("code", "=", res["odoopilot_llm_model"]),
+                ],
+                limit=1,
+            )
+            res["odoopilot_llm_openrouter_model_id"] = pick.id
+        return res
+
+    def action_fetch_openrouter_models(self):
+        count = self.env["odoopilot.ai.model"].sync_openrouter()
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "type": "success",
+                "sticky": False,
+                "message": _(
+                    "%s OpenRouter models loaded. Search them in the "
+                    "model picker."
+                )
+                % count,
+            },
+        }
 
     # Voice (speech-to-text)
     #

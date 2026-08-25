@@ -1,3 +1,4 @@
+from . import odoopilot_ai_model  # noqa: F401
 from . import odoopilot_audit  # noqa: F401
 from . import odoopilot_delivery  # noqa: F401
 from . import odoopilot_identity  # noqa: F401

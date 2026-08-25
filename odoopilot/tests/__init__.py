@@ -1,4 +1,5 @@
 from . import test_admin_views  # noqa: F401
+from . import test_ai_model_catalog  # noqa: F401
 from . import test_employee_tools  # noqa: F401
 from . import test_llm  # noqa: F401
 from . import test_scope_guard  # noqa: F401
