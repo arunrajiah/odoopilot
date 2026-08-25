@@ -39,6 +39,7 @@ class ResConfigSettings(models.TransientModel):
             ("anthropic", "Anthropic (Claude)"),
             ("openai", "OpenAI (GPT)"),
             ("groq", "Groq (Free tier)"),
+            ("openrouter", "OpenRouter (any model)"),
         ],
         string="LLM Provider",
         config_parameter="odoopilot.llm_provider",
@@ -51,7 +52,10 @@ class ResConfigSettings(models.TransientModel):
     odoopilot_llm_model = fields.Char(
         string="Model (optional override)",
         config_parameter="odoopilot.llm_model",
-        help="Leave blank to use provider default: claude-3-5-haiku-20241022 / gpt-4o-mini / llama-3.1-70b-versatile",
+        help="Leave blank to use provider default: claude-3-5-haiku-20241022 / "
+        "gpt-4o-mini / llama-3.3-70b-versatile / openai/gpt-4o-mini (OpenRouter). "
+        "OpenRouter model names are prefixed, e.g. anthropic/claude-3.5-haiku. "
+        "Pick a model that supports tool calling.",
     )
 
     # Voice (speech-to-text)

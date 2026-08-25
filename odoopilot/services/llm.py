@@ -12,11 +12,13 @@ DEFAULTS = {
     "anthropic": "claude-3-5-haiku-20241022",
     "openai": "gpt-4o-mini",
     "groq": "llama-3.3-70b-versatile",
+    "openrouter": "openai/gpt-4o-mini",
 }
 
 OPENAI_COMPAT_BASE = {
     "openai": "https://api.openai.com/v1/chat/completions",
     "groq": "https://api.groq.com/openai/v1/chat/completions",
+    "openrouter": "https://openrouter.ai/api/v1/chat/completions",
 }
 
 
