@@ -1,7 +1,7 @@
 {
     "name": "OdooPilot — Your team uses Odoo without logging in to Odoo",
     "summary": "Give every employee an Odoo assistant on Telegram & WhatsApp. They apply for leave, approve requests, check tasks, update CRM, check stock, without opening Odoo. For your internal team. Free & open-source (LGPL-3).",
-    "version": "17.0.31.0.0",
+    "version": "17.0.32.0.0",
     "live_test_url": "https://odoopilot-demo.arunrajiah.com/demo",
     "development_status": "Beta",
     "category": "Discuss",
@@ -55,7 +55,7 @@ Odoo voice messages, voice-to-Odoo, speak to Odoo, Whisper Odoo, Odoo STT,
 mobile Odoo, Odoo on Telegram, Odoo on WhatsApp, employee self-service Odoo,
 Odoo leave request bot, Odoo approval bot, field sales Odoo, warehouse Odoo,
 Odoo AI chatbot, Odoo AI agent, Odoo AI copilot, Telegram bot Odoo,
-WhatsApp bot Odoo, ChatGPT Odoo, Claude AI Odoo, GPT-4 Odoo, Groq Odoo,
+WhatsApp bot Odoo, ChatGPT Odoo, Claude AI Odoo, GPT-4 Odoo, Groq Odoo, OpenRouter Odoo,
 natural language ERP, Odoo NLQ, Odoo chatbot, Odoo 17 AI,
 Odoo 17 Community AI, free AI Odoo, ERP chatbot, Odoo AI assistant,
 Odoo automation, Odoo push notifications, Odoo audit log,
@@ -64,7 +64,7 @@ multi-language Odoo bot, Odoo Telegram integration, Odoo WhatsApp integration
 Key Features
 ------------
 * **AI Agent loop**: multi-turn conversational AI agent with tool-use, powered by
-  Anthropic Claude, OpenAI GPT-4, Groq (free tier), or any OpenAI-compatible endpoint
+  Anthropic Claude, OpenAI GPT-4, Groq (free tier), OpenRouter, or any OpenAI-compatible endpoint
 * **Natural language queries (NLQ)**: 8 Odoo domains — Projects & Tasks, CRM & Leads,
   Sales Orders, Invoices & Accounting, Inventory & Stock, Purchase Orders, HR & Employees,
   Leaves & Time Off — ask anything in plain language
