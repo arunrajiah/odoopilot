@@ -50,3 +50,9 @@ __MACOSX/
 # Odoo
 *.pyc
 odoopilot/**/__pycache__/
+
+# Local AI assistant / OS / env files
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json
